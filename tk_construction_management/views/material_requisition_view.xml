@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="material_requisition_view_form" model="ir.ui.view">
+            <field name="name">material.requisition.view.form</field>
+            <field name="model">material.requisition</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="allow_resubmit" invisible="1"/>
+                        <field name="is_any_po" invisible="1"/>
+                        <field name="is_back_order" invisible="1"/>
+                        <field name="po_created" invisible="1"/>
+                        <field name="delivery_ready" invisible="1"/>
+                        <field name="is_any_back_order" invisible="1"/>
+                        <field name="stage" widget="statusbar"
+                               statusbar_visible="draft,department_approval,approve,material_arrived,internal_transfer,ready_delivery"/>
+                        <button name="action_department_approval" type="object" string="Department Approval"
+                                class="btn btn-primary" invisible="stage != 'draft'"/>
+                        <button name="action_approve_requisition" type="object" string="Approve" class="btn btn-success"
+                                invisible="stage != 'department_approval'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="%(requisition_reject_action)d" type="action" string="Reject"
+                                class="btn btn-danger"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                invisible="stage != 'department_approval'"/>
+                        <button name="action_draft_requisition" type="object" string="Draft"
+                                invisible="stage != 'reject' or not allow_resubmit"/>
+                        <button name="action_draft_requisition" type="object" string="Draft"
+                                invisible="stage != 'ready_delivery'"/>
+                        <button name="action_create_purchase_order" type="object" string="Create PO"
+                                invisible="po_created or stage != 'approve'" class="btn btn-primary"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_ready_delivery" type="object" string="Ready for Delivery"
+                                invisible="not delivery_ready or stage != 'approve'" class="btn btn-primary"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_create_back_order" type="object" string="Create Back Order"
+                                class="btn btn-primary"
+                                invisible="back_order_id or is_back_order or stage in ['draft','department_approval'] or not is_any_back_order"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_create_internal_transfer" type="object" string="Create Internal Transfer"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                class="btn btn-primary"
+                                invisible="stage != 'ready_delivery' or not material_transfer_ids"/>
+                        <button name="action_partial_material_arrive" type="object" string="Start Work Order"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                class="btn btn-primary"
+                                invisible="stage not in ['approve','ready_delivery'] or not is_any_po or delivery_ready"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_purchase_order"
+                                    icon="fa-credit-card" invisible="po_count == 0">
+                                <field name="po_count" string='Purchase Orders' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_bills" icon="fa-money"
+                                    invisible="bill_count == 0">
+                                <field name="bill_count" string='Bills' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_delivery_order"
+                                    icon="fa-truck" invisible="delivery_count == 0">
+                                <field name="delivery_count" string='Delivery Orders' widget="statinfo"/>
+                            </button>
+                        </div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h5>
+                            <field name="title" required="1" placeholder="Title"/>
+                        </h5>
+                        <group>
+                            <group string="Project Details">
+                                <field name="site_id" required="1" readonly="1" force_save="1"/>
+                                <field name="project_id" required="1" readonly="1" force_save="1"/>
+                                <field name="warehouse_id"/>
+                                <field name="company_id"/>
+                            </group>
+                            <group string="Other Details">
+                                <field name="date"/>
+                                <field name="responsible_id" widget="many2one_avatar_user"/>
+                                <field name="department_manager_ids" widget="many2many_tags"
+                                       options="{'no_create':True}" readonly="stage != 'draft'"/>
+                            </group>
+                        </group>
+                        <group string="Work Type &amp; Project Phase(WBS)">
+                            <group>
+                                <field name="work_type_id" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="work_order_id" required="1" readonly="1" force_save="1"/>
+                                <field name="job_sheet_id" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="internal_transfer_id" force_save="1" readonly="1"
+                                       invisible="not internal_transfer_id"/>
+                            </group>
+                            <group>
+                                <field name="material_req_ref" readonly="1" force_save="1"
+                                       invisible="not material_req_ref"/>
+                                <field name="back_order_id" readonly="1" invisible="not back_order_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Material Requisition" name="material_requisition">
+                                <field name="material_line_ids"
+                                       context="{'default_warehouse_id':warehouse_id,'default_job_sheet_id':job_sheet_id}"
+                                       readonly="stage in ['ready_delivery','reject','internal_transfer','material_arrived']">
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="material_id"/>
+                                                <field name="qty"/>
+                                                <field name="uom_id"/>
+                                                <field name="warehouse_id"
+                                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                            </group>
+                                            <group>
+                                                <field name="name"/>
+                                                <field name="sub_category_id"/>
+                                                <field name="forcast_qty"
+                                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                                <field name="operation_type"
+                                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="job_sheet_id" required="1" column_invisible="1"/>
+                                        <field name="material_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="forcast_check" column_invisible="1"/>
+                                        <field name="qty" required="1" readonly="1" force_save="1"/>
+                                        <field name="remain_qty" readonly="1" force_save="1" column_invisible="1"/>
+                                        <field name="forcast_qty" required="1"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="uom_id"/>
+                                        <field name="is_created" column_invisible="1"/>
+                                        <field name="stage" column_invisible="1"/>
+                                        <field name="warehouse_id" required="1"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="operation_type" required="1"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <button name="validate_material_line" type="object" string="Validate"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                class="btn btn-primary"
+                                                invisible="stage != 'department_approval' or is_created or forcast_check"/>
+                                    </list>
+                                </field>
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <button name="validate_material_line_all" type="object" string="Validate All"
+                                                invisible="stage != 'department_approval'" class="btn btn-primary"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page string="Material Purchase" name="material_purchase"
+                                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department">
+                                <field name="material_purchase_ids"
+                                       readonly="stage in ['ready_delivery','reject','internal_transfer','material_arrived']">
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="job_sheet_id" invisible="not job_sheet_id"/>
+                                            </group>
+                                            <group>
+                                                <field name="sub_category_id"/>
+                                            </group>
+                                        </group>
+                                        <group string="Product">
+                                            <group>
+                                                <field name="product_id"/>
+                                                <field name="qty"/>
+                                                <field name="uom_id"/>
+                                            </group>
+                                            <group>
+                                                <field name="name"/>
+                                                <field name="forcast_qty"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="currency_id" invisible="1"/>
+                                                <field name="price"/>
+                                            </group>
+                                            <group>
+                                                <field name="total_price"/>
+                                            </group>
+                                        </group>
+                                        <group string="Warehouse">
+                                            <group>
+                                                <field name="purchase_warehouse_id"/>
+                                            </group>
+                                        </group>
+                                        <group string="Vendor">
+                                            <group>
+                                                <field name="vendor_id"/>
+                                            </group>
+                                            <group>
+                                                <field name="purchase_order_id"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                    <list editable="bottom" create="false"
+                                          delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="job_sheet_id" required="1" column_invisible="1"/>
+                                        <field name="product_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="qty" required="1" readonly="1" force_save="1"/>
+                                        <field name="forcast_qty" required="1" column_invisible="1"/>
+                                        <field name="uom_id"/>
+                                        <field name="price" required="1"/>
+                                        <field name="total_price"/>
+                                        <field name="purchase_warehouse_id" required="1"
+                                               options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"/>
+                                        <field name="vendor_id" required="1"
+                                               options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"/>
+                                        <field name="purchase_order_id" readonly="1" force_save="1"
+                                               widget="many2one_clickable"/>
+                                        <field name="status" widget="badge" decoration-danger="status=='incomplete'"
+                                               decoration-info="status=='partial_complete'"
+                                               decoration-success="status=='complete'"/>
+                                    </list>
+                                </field>
+                                <div class="row">
+                                    <field name="line_added" invisible="1"/>
+                                    <div class="col-12 text-end">
+                                        <button name="action_insert_internal_transfer" type="object"
+                                                class="btn btn-primary"
+                                                invisible="stage != 'approve' or not delivery_ready or line_added"
+                                                string="Add to Internal Transfer"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page string="Internal Transfer" name="material_internal_transfer"
+                                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department">
+                                <field name="material_transfer_ids"
+                                       readonly="stage in ['ready_delivery','reject','internal_transfer','material_arrived']">
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="sub_category_id"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="product_id"/>
+                                                <field name="qty"/>
+                                                <field name="pickup_warehouse_id"/>
+                                            </group>
+                                            <group>
+                                                <field name="name"/>
+                                                <field name="forcast_qty"/>
+                                                <field name="delivery_warehouse_id"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                    <list editable="bottom" decoration-danger="qty &gt; forcast_qty" create="false"
+                                          delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="job_sheet_id" required="1" column_invisible="1"/>
+                                        <field name="product_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="pickup_warehouse_id" required="1"/>
+                                        <field name="delivery_warehouse_id" required="1" domain="[('id','not in',[pickup_warehouse_id])]"/>
+                                        <field name="qty" required="1" readonly="1" force_save="1"/>
+                                        <field name="forcast_qty" required="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Description">
+                                <field name="desc" placeholder="Description / Justification"/>
+                            </page>
+                            <page string="Reject Reason" invisible="stage != 'reject'">
+                                <field name="reject_reason"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="material_requisition_view_tree" model="ir.ui.view">
+            <field name="name">material.requisition.view.list</field>
+            <field name="model">material.requisition</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="company_id"/>
+                    <field name="project_id"/>
+                    <field name="responsible_id" widget="many2one_avatar_user"/>
+                    <field name="stage" widget="badge"
+                           decoration-success="stage in ['delivery_order','internal_transfer']"
+                           decoration-info="stage in ['approve']" decoration-warning="stage=='department_approval'"
+                           decoration-danger="stage in ['reject','cancel']"
+                           decoration-primary="stage in ['ready_delivery','material_arrived']"/>
+                </list>
+            </field>
+        </record>
+        <record id="material_requisition_view_search" model="ir.ui.view">
+            <field name="name">material.requisition.view.search</field>
+            <field name="model">material.requisition</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="internal_transfer_id"/>
+                    <filter name="filter_by_archive" string="Archived" domain="[('active','=',False)]"/>
+                    <searchpanel>
+                        <field name="stage" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Back Orders" name="filter_by_back_order" domain="[('is_back_order','=',True)]"/>
+                        <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="material_requisition_action" model="ir.actions.act_window">
+            <field name="name">Material Requisition</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">material.requisition</field>
+            <field name="view_mode">list,form,activity,search</field>
+        </record>
+
+        <!-- Material Request Form -->
+        <record id="construction_material_requisition_view_form" model="ir.ui.view">
+            <field name="name">construction.material.requisition.view.form</field>
+            <field name="model">material.requisition.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="sub_category_id"/>
+                                <field name="job_sheet_id" invisible="1"/>
+                                <field name="material_id"/>
+                                <field name="name"/>
+                                <field name="forcast_check" invisible="1"/>
+                                <field name="forcast_qty"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="is_created" invisible="1"/>
+                                <field name="stage" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="qty"/>
+                                <field name="remain_qty"/>
+                                <field name="uom_id"/>
+                                <field name="warehouse_id"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="operation_type"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Material Purchase Form -->
+        <record id="construction_material_purchase_view_form" model="ir.ui.view">
+            <field name="name">construction.material.purchase.view.form</field>
+            <field name="model">material.purchase.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="job_sheet_id" invisible="not job_sheet_id"/>
+                            </group>
+                            <group>
+                                <field name="sub_category_id"/>
+                            </group>
+                        </group>
+                        <group string="Product">
+                            <group>
+                                <field name="product_id"/>
+                                <field name="qty"/>
+                                <field name="uom_id"/>
+                            </group>
+                            <group>
+                                <field name="name"/>
+                                <field name="forcast_qty"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="price"/>
+                            </group>
+                            <group>
+                                <field name="total_price"/>
+                            </group>
+                        </group>
+                        <group string="Warehouse">
+                            <group>
+                                <field name="purchase_warehouse_id"/>
+                            </group>
+                        </group>
+                        <group string="Vendor">
+                            <group>
+                                <field name="vendor_id"/>
+                            </group>
+                            <group>
+                                <field name="purchase_order_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Material Internal Transfer Form -->
+        <record id="construction_material_it_view_form" model="ir.ui.view">
+            <field name="name">construction.material.it.view.form</field>
+            <field name="model">material.transfer.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="sub_category_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="qty"/>
+                                <field name="pickup_warehouse_id"/>
+                            </group>
+                            <group>
+                                <field name="name"/>
+                                <field name="forcast_qty"/>
+                                <field name="delivery_warehouse_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

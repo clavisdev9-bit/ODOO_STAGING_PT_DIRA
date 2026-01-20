@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_warehouse_view_form" model="ir.ui.view">
+            <field name="name">project.warehouse.view.form</field>
+            <field name="model">project.warehouse</field>
+            <field name="arch" type="xml">
+                <form>
+                    <h3>
+                        <field name="warehouse" required="1" widget="radio" options="{'horizontal':True}"/>
+                    </h3>
+                    <group>
+                        <group>
+                            <field name="warehouse_id" invisible="warehouse != 'link'" required="warehouse == 'link'"
+                                   options="{'no_create':True}"/>
+                            <field name="warehouse_name" invisible="warehouse != 'create'"
+                                   required="warehouse == 'create'"/>
+                            <field name="warehouse_code" invisible="warehouse != 'create'"
+                                   required="warehouse == 'create'"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Create" type="object" class="btn btn-primary" invisible="warehouse != 'create'"
+                                name="action_submit_warehouse"/>
+                        <button string="Use existing warehouse" type="object" class="btn btn-primary"
+                                name="action_submit_warehouse" invisible="warehouse != 'link'"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="project_warehouse_action" model="ir.actions.act_window">
+            <field name="name">Project Warehouse</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.warehouse</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

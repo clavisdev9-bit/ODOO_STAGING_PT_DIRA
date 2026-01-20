@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="requisition_reject_view_form" model="ir.ui.view">
+            <field name="name">requisition.reject.view.form</field>
+            <field name="model">requisition.reject</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="allow_resubmit" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <br/>
+                    <h5>
+                        Reject Reason
+                    </h5>
+                    <hr/>
+                    <field name="reject_reason" required="1"/>
+                    <footer>
+                        <button string="Reject Requisition" type="object" class="btn btn-primary"
+                                name="action_reject_requisition"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="requisition_reject_action" model="ir.actions.act_window">
+            <field name="name">Requisition Reject Reason</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">requisition.reject</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

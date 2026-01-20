@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="work_completetion_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <t t-if="o.stage == 'done'">
+                            <h1 style="text-align:center;">
+                                Work Completion Certificate
+                            </h1>
+                            <br />
+                            <br />
+                            <h1 style="text-align:center;border-bottom:1px solid black;">
+                                To whom it may concern
+                            </h1>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Project / Sub Project
+                                    </td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.site_id" /> / <span
+                                            t-field="o.project_id" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Task Title</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.task_name" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Work Order Number</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.name" /> -<span
+                                            t-field="o.seq" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;font-size:18px;">
+                                        <h5>
+                                            <strong>Work Period</strong>
+                                        </h5>
+                                    </td>
+                                    <td style="font-size:18px;border-bottom:1px solid black;">
+                                        <strong>
+                                            <span t-field="o.job_order_id.start_date" /> To <span
+                                                t-field="o.job_order_id.end_date" />
+                                        </strong>
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:10%;"></td>
+                                    <td style="width:80%;text-align:center;">
+                                        <p> This is to clarify that <strong>
+                                                <span t-field="o.responsible_id.name" />
+                                            </strong>
+                                            has successfully completed <strong>
+                                                <span t-field="o.job_type_id.name" /> -<span
+                                                    t-field="o.sub_category_id.name" />
+                                            </strong>
+                                            work . <br />
+                                <br /> The Work is completed on <strong>
+                                                <span t-field="o.completion_date" />
+                                            </strong>
+                                            successfully. <br /> Thanking you and assuring you for
+                                            our best always </p>
+                                    </td>
+                                    <td style="width:10%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Customer Comment
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;  "></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;text-align:center;">Authorised Signature</td>
+                                    <td style="width:40%;"></td>
+                                    <td style="width:30%;text-align:center;">Signature</td>
+                                </tr>
+                                <tr style="height:30px;">
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                    <td style="width:40%;"></td>
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                </tr>
+                            </table>
+                        </t>
+                        <t t-else="">
+                            Please Complete Subcontract to print work completion certificate.
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="labour_work_completetion_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <t t-if="o.stage == 'done'">
+                            <h1 style="text-align:center;">
+                                Work Completion Certificate
+                            </h1>
+                            <br />
+                            <br />
+                            <h1 style="text-align:center;border-bottom:1px solid black;">
+                                To whom it may concern
+                            </h1>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Project / Sub Project
+                                    </td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.site_id" /> / <span
+                                            t-field="o.project_id" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Task Title</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.task_name" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Work Order Number</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.name" /> -<span
+                                            t-field="o.seq" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;font-size:18px;">
+                                        <h5>
+                                            <strong>Work Period</strong>
+                                        </h5>
+                                    </td>
+                                    <td style="font-size:18px;border-bottom:1px solid black;">
+                                        <strong>
+                                            <span t-field="o.job_order_id.start_date" /> To <span
+                                                t-field="o.job_order_id.end_date" />
+                                        </strong>
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:10%;"></td>
+                                    <td style="width:80%;text-align:center;">
+                                        <p> This is to clarify that <strong>
+                                                <span t-field="o.responsible_id.name" />
+                                            </strong>
+                                            has successfully completed <strong>
+                                                <span t-field="o.job_type_id.name" /> -<span
+                                                    t-field="o.sub_category_id.name" />
+                                            </strong>
+                                            work . <br />
+                                <br /> The Work is completed on <strong>
+                                                <span t-field="o.completion_date" />
+                                            </strong>
+                                            successfully. <br /> Thanking you and assuring you for
+                                            our best always </p>
+                                    </td>
+                                    <td style="width:10%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Customer Comment
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;  "></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;text-align:center;">Authorised Signature</td>
+                                    <td style="width:40%;"></td>
+                                    <td style="width:30%;text-align:center;">Signature</td>
+                                </tr>
+                                <tr style="height:30px;">
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                    <td style="width:40%;"></td>
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                </tr>
+                            </table>
+                        </t>
+                        <t t-else="">
+                            Please Complete Subcontract to print work completion certificate.
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="overhead_work_completetion_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <t t-if="o.stage == 'done'">
+                            <h1 style="text-align:center;">
+                                Work Completion Certificate
+                            </h1>
+                            <br />
+                            <br />
+                            <h1 style="text-align:center;border-bottom:1px solid black;">
+                                To whom it may concern
+                            </h1>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Project / Sub Project
+                                    </td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.site_id" /> / <span
+                                            t-field="o.project_id" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Task Title</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.task_name" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">Work Order Number</td>
+                                    <td style="border-bottom:1px solid black;">
+                                        <span t-field="o.job_order_id.name" /> -<span
+                                            t-field="o.seq" />
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;font-size:18px;">
+                                        <h5>
+                                            <strong>Work Period</strong>
+                                        </h5>
+                                    </td>
+                                    <td style="font-size:18px;border-bottom:1px solid black;">
+                                        <strong>
+                                            <span t-field="o.job_order_id.start_date" /> To <span
+                                                t-field="o.job_order_id.end_date" />
+                                        </strong>
+                                    </td>
+                                    <td style="width:20%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:10%;"></td>
+                                    <td style="width:80%;text-align:center;">
+                                        <p> This is to clarify that <strong>
+                                                <span t-field="o.responsible_id.name" />
+                                            </strong>
+                                            has successfully completed <strong>
+                                                <span t-field="o.job_type_id.name" /> -<span
+                                                    t-field="o.sub_category_id.name" />
+                                            </strong>
+                                            work . <br />
+                                <br /> The Work is completed on <strong>
+                                                <span t-field="o.completion_date" />
+                                            </strong>
+                                            succesfully. <br /> Thanking you and assuring you for
+                                            our best always </p>
+                                    </td>
+                                    <td style="width:10%;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;">
+                                        Customer Comment
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;  "></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:20%;"></td>
+                                    <td style="width:20%;height:20px;">
+                                    </td>
+                                    <td style="border-bottom: 1px solid black;"></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td style="width:20%;text-align:center;">Authorised Signature</td>
+                                    <td style="width:40%;"></td>
+                                    <td style="width:30%;text-align:center;">Signature</td>
+                                </tr>
+                                <tr style="height:30px;">
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                    <td style="width:40%;"></td>
+                                    <td
+                                        style="width:30%;text-align:center;border-bottom:1px solid black;"></td>
+                                </tr>
+                            </table>
+                        </t>
+                        <t t-else="">
+                            Please Complete Subcontract to print work completion certificate.
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <!-- Equipment Subcontract Report -->
+    <record id="equipment_subcontract_work_completion_report" model="ir.actions.report">
+        <field name="name">Work Completion Certificate</field>
+        <field name="model">equipment.subcontract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">tk_construction_management.work_completetion_report_template</field>
+        <field name="report_file">tk_construction_management.work_completetion_report_template</field>
+        <field name="binding_model_id" ref="model_equipment_subcontract" />
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Work Completion Certificate'</field>
+    </record>
+    <!-- Labour Subcontract Report -->
+    <record id="labour_subcontract_work_completion_report" model="ir.actions.report">
+        <field name="name">Work Completion Certificate</field>
+        <field name="model">labour.subcontract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">tk_construction_management.labour_work_completetion_report_template</field>
+        <field name="report_file">tk_construction_management.labour_work_completetion_report_template</field>
+        <field name="binding_model_id" ref="model_labour_subcontract" />
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Work Completion Certificate'</field>
+    </record>
+    <!-- Overhead Subcontract Report -->
+    <record id="overhead_subcontract_work_completion_report" model="ir.actions.report">
+        <field name="name">Work Completion Certificate</field>
+        <field name="model">overhead.subcontract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">tk_construction_management.overhead_work_completetion_report_template</field>
+        <field name="report_file">tk_construction_management.overhead_work_completetion_report_template</field>
+        <field name="binding_model_id" ref="model_overhead_subcontract" />
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Work Completion Certificate'</field>
+    </record>
+
+
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="construction_site_res_partner_form" model="ir.ui.view">
+            <field name="name">construction.site.res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='vat']" position="after">
+                    <field name="stack_holder" widget="boolean_toggle" invisible="not stack_holder"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="construction_stack_holder_action" model="ir.actions.act_window">
+            <field name="name">Stockholders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[('stack_holder','=',True)]</field>
+            <field name="context">{'default_stack_holder':True}</field>
+            <field name="view_mode">kanban,list,form,activity</field>
+        </record>
+    </data>
+</odoo>

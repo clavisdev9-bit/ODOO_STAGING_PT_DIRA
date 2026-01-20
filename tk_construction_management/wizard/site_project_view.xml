@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="site_project_form_view" model="ir.ui.view">
+            <field name="name">site.project.form.view</field>
+            <field name="model">site.project</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="name" required="1" placeholer="Title"/>
+                            <field name="code" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Create Sub Project" type="object" class="btn btn-outline-success"
+                                name="action_create_construction_project"/>
+                        <button string="Cancel" special="cancel" class="btn btn-outline-danger"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="construction_site_project_action" model="ir.actions.act_window">
+            <field name="name">Construction Project</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">site.project</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

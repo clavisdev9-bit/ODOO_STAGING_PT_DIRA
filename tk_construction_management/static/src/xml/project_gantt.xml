@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="tk_construction_management.project_gantt_view" owl="1">
+        <div class="row">
+            <div class="col-md-12 m-3">
+                <div class="timeline-filter-container d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-light me-1" t-on-click="() => this.onTodayClick()">Today</button>
+                        <button class="btn btn-light me-1" t-on-click="() => this.navigateTimeline('prev')">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <div class="dropdown me-1">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="timeScaleDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <t t-esc="state.currentScale || 'Year'"/>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="timeScaleDropdown">
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeTimeScale('Day')">Day</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeTimeScale('Week')">Week</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeTimeScale('Month')">Month</a></li>
+                                <li><a class="dropdown-item" href="#" t-on-click.prevent="() => this.changeTimeScale('Year')">Year</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-light me-3" t-on-click="() => this.navigateTimeline('next')">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                        <span class="current-date-range"><t t-esc="state.currentDateRangeText"/></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="tk-project-charts" id="project-chart"></div>
+            </div>
+            <div t-if="state.showJobOrderPopup" class="job-order-popup-overlay">
+            <div class="job-order-popup">
+                <div class="gantt-popup-header">
+                    <h5><t t-esc="state.selectedJobOrder?.name"/></h5>
+                    <button class="gantt-close-btn" t-on-click="closeJobOrderPopup">×</button>
+                </div>
+                <div class="gantt-popup-content">
+                    <div class="gantt-popup-buttons">
+                        <button class="btn btn-primary" t-on-click="viewWorkOrder">
+                            <i class="fa fa-cog"></i>
+                            View Work Order
+                        </button>
+                        <button class="btn btn-success" t-on-click="viewTask" t-if="state.selectedJobOrder?.task_id">
+                            <i class="fa fa-tasks"></i>
+                            View Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </t>
+</templates>

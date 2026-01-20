@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="boq_budget_entry_view_form" model="ir.ui.view">
+            <field name="name">boq.budget.entry.view.form</field>
+            <field name="model">boq.budget.entry</field>
+            <field name="arch" type="xml">
+                <form>
+                    <div class="alert alert-warning text-center" role="alert"
+                        invisible="not pending_confirmation_ids"> There are pending budget line
+                        confirmations for <strong>
+                            <field name="boq_budget_line_id" readonly="1" force_save="1"
+                                options="{'no_open':True}" />
+                        </strong>.
+                        Please wait for their approval before requesting for updating or deleting
+                        budget lines </div>
+                    <group>
+                        <group>
+                            <field name="subproject_id" invisible="1" />
+                            <field name="type" widget="radio" required="1" />
+                        </group>
+                    </group>
+                    <group invisible="type == 'insert'">
+                        <group>
+                            <field name="boq_budget_line_id" required="type in ['update','remove']"
+                                options="{'no_create':True,'no_create_edit':True,'no_edit':True,'no_open':True}" />
+                        </group>
+                    </group>
+                    <group string="Line Details">
+                        <group>
+                            <field name="work_subtype_ids" invisible="1" />
+                            <field name="is_use_measure" invisible="1" />
+                            <field name="work_type_id" required="1"
+                                readonly="type in ['remove','update']"
+                                force_save="1"
+                                options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}" />
+                            <field name="work_subtype_id" required="1"
+                                readonly="type in ['update','remove']"
+                                force_save="1"
+                                options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}" />
+                        </group>
+                        <group>
+                            <field name="qty" required="1" readonly="type == 'remove'" />
+                            <field name="length" required="1" invisible="not is_use_measure"
+                                readonly="type == 'remove'" force_save="1" />
+                            <field name="width" required="1" invisible="not is_use_measure"
+                                readonly="type == 'remove'" force_save="1" />
+                            <field name="height" required="1" invisible="not is_use_measure"
+                                readonly="type == 'remove'" force_save="1" />
+                            <field name="total_qty" invisible="not is_use_measure" />
+                        </group>
+                    </group>
+                    <separator string="Pending Confirmation"
+                        invisible="not pending_confirmation_ids" />
+                    <field name="pending_confirmation_ids" invisible="not pending_confirmation_ids">
+                        <list>
+                            <field name="type" widget="badge"
+                                decoration-success="type == 'insert'"
+                                decoration-danger="type == 'remove'"
+                                decoration-warning="type == 'update'" />
+                            <field name="boq_budget_line_id" />
+                            <field name="date" />
+                            <field name="status" widget="badge"
+                                decoration-info="status == 'requested'"
+                                decoration-success="status == 'approved'"
+                                decoration-danger="status == 'rejected'" />
+                        </list>
+                    </field>
+                    <footer>
+                        <button string="Insert Line" type="object" class="btn btn-success"
+                            icon="fa-plus-square-o"
+                            name="action_update_boq_lines" invisible="type != 'insert'" />
+                        <button string="Update Line" type="object" class="btn btn-warning"
+                            icon="fa-pencil-square-o"
+                            name="action_update_boq_lines"
+                            invisible="type != 'update' or pending_confirmation_ids" />
+                        <button string="Remove Line" type="object" class="btn btn-danger"
+                            name="action_update_boq_lines"
+                            invisible="type != 'remove' or pending_confirmation_ids"
+                            icon="fa-window-close-o" />
+                        <button string="Cancel" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="boq_budget_entry_action" model="ir.actions.act_window">
+            <field name="name">BOQ Entry</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">boq.budget.entry</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

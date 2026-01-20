@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Activity-->
+        <record id="job_type_view_tree" model="ir.ui.view">
+            <field name="name">job.type.view.list</field>
+            <field name="model">job.type</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" required="1"/>
+                    <field name="sub_category_ids" required="1" widget="many2many_tags"/>
+                </list>
+            </field>
+        </record>
+        <record id="job_type_action" model="ir.actions.act_window">
+            <field name="name">Work Types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.type</field>
+            <field name="view_mode">list</field>
+        </record>
+        <!--Sub Category-->
+        <record id="job_category_view_tree" model="ir.ui.view">
+            <field name="name">job.category.view.list</field>
+            <field name="model">job.sub.category</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" required="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="job_category_action" model="ir.actions.act_window">
+            <field name="name">Work Sub Types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.sub.category</field>
+            <field name="view_mode">list</field>
+        </record>
+        <!--Policy Risk-->
+        <record id="policy_risk_view_tree" model="ir.ui.view">
+            <field name="name">policy.risk.view.list</field>
+            <field name="model">insurance.risk</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" required="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="policy_risk_action" model="ir.actions.act_window">
+            <field name="name">Insurance Risks</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">insurance.risk</field>
+            <field name="view_mode">list</field>
+        </record>
+        <!-- Stack Holder -->
+        <record id="construction_stack_holder_view_form" model="ir.ui.view">
+            <field name="name">construction.stack.holder.view.form</field>
+            <field name="model">stakeholder.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="stakeholder_id"/>
+                            </group>
+                            <group>
+                                <field name="percentage"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Site Images -->
+        <record id="construction_site_image_view_form" model="ir.ui.view">
+            <field name="name">construction.site.image.view.form</field>
+            <field name="model">site.images</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-6">
+                                <field name="name" placeolder="Image Title" required="1"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <field name="image" widget="image" class="card-img-top" required="1"
+                                       style="height:223px;"
+                                       options="{'img_class': 'object-fit-cover h-100 w-100', 'size': [360, 223]}"/>
+
+                            </div>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Site Measurement-->
+        <record id="construction_site_measure_view_form" model="ir.ui.view">
+            <field name="name">construction.site.measure.view.form</field>
+            <field name="model">site.dimension</field>
+            <field name="arch" type="xml">
+                <form string="construction_site_measure_form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="length" required="1"/>
+                                <field name="width" required="1"/>
+                                <field name="area" string="Area(m&#178;)"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Site Permit and Approvals-->
+        <record id="construction_document_permit_view_form" model="ir.ui.view">
+            <field name="name">construction.document.permit.view.form</field>
+            <field name="model">document.permit</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="status" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date"/>
+                                <field name="document_type_id" required="1"/>
+                                <field name="file_name" invisible="1"/>
+                                <field name="document" filename="file_name" widget="binary"/>
+                                <field name="submitted_by" required="1"/>
+                                <field name="feedback"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Project Document -->
+        <record id="construction_project_document_view_form" model="ir.ui.view">
+            <field name="name">construction.project.document.view.form</field>
+            <field name="model">project.documents</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="document_type_id" required="1"/>
+                                <field name="file_name" invisible="1"/>
+                                <field name="document" filename="file_name" widget="binary"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Project Insurance -->
+        <record id="construction_project_insurance_view_form" model="ir.ui.view">
+            <field name="name">construction.project.insurance.view.form</field>
+            <field name="model">project.insurance</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="vendor_id" required="1"/>
+                                <field name="issue_date" required="1"/>
+                                <field name="file_name" invisible="1"/>
+                                <field name="document" filename="file_name" widget="binary"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="bill_id" readonly="1" force_save="1"
+                                       widget="many2one_clickable"/>
+                            </group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="policy_no" required="1"/>
+                                <field name="risk_ids" widget="many2many_tags"/>
+                                <field name="total_charge" required="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Project Extras Expense -->
+        <record id="construction_project_expense_view_form" model="ir.ui.view">
+            <field name="name">construction.project.expense.view.form</field>
+            <field name="model">extra.expense</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="date" required="1"/>
+                                <field name="vendor_id" required="1"/>
+                                <field name="bill_id" readonly="1" force_save="1"
+                                       widget="many2one_clickable"/>
+                                <field name="note"/>
+                            </group>
+                            <group>
+                                <field name="product_id" required="1"/>
+                                <field name="qty" required="1"/>
+                                <field name="cost" required="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--BOQ lines Form-->
+        <record id="construction_boq_lines_view_form" model="ir.ui.view">
+            <field name="name">construction.boq.lines.view.form</field>
+            <field name="model">boq.budget</field>
+            <field name="arch" type="xml">
+                <form edit="0" create="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="site_id" column_invisible="1"/>
+                                <field name="activity_id" required="1"/>
+                                <field name="sub_activity_ids" invisible="1"/>
+                                <field name="sub_activity_id" required="1"/>
+                            </group>
+                            <group>
+                                <field name="qty" required="1"/>
+                                <field name="is_use_measure" invisible="1"/>
+                                <field name="length" readonly="1" force_save="1" invisible="not is_use_measure"/>
+                                <field name="width" readonly="1" force_save="1" invisible="not is_use_measure"/>
+                                <field name="height" readonly="1" force_save="1" invisible="not is_use_measure"/>
+                                <field name="total_qty" readonly="1" force_save="1" invisible="not is_use_measure"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

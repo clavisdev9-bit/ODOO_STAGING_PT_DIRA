@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="job_costing_view_form" model="ir.ui.view">
+            <field name="name">job.costing.view.form</field>
+            <field name="model">job.costing</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="status" widget="statusbar"
+                            statusbar_visible="draft,waiting_approval,approved,in_progress,complete" />
+                        <button name="%(wbs_entries_action)d" type="action"
+                            string="Create Phase(WBS) Entries" class="btn btn-primary"
+                            invisible="status != 'draft'" />
+                        <button name="action_create_work_order" type="object"
+                            string="Create Work Order"
+                            confirm="Work orders default to forecasted quantities for materials, equipment, labor, and overhead. Please specify desired quantities to create work order."
+                            class="btn btn-primary" invisible="status != 'in_progress'" />
+                        <button name="action_department_approval" type="object"
+                            string="Department Approval" class="btn btn-primary"
+                            invisible="status != 'draft'" />
+                        <button name="action_approve_phase" type="object" string="Approve"
+                            class="btn btn-success" invisible="status != 'waiting_approval'"
+                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department" />
+                        <button name="action_reject_phase" type="object" string="Reject"
+                            class="btn btn-danger"
+                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                            invisible="status != 'waiting_approval'" />
+                        <button name="action_in_progress" type="object" string="In Progress"
+                            class="btn btn-primary" invisible="status != 'approved'"
+                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department" />
+                        <button name="action_reset_to_draft" type="object" string="Reset to Draft"
+                            invisible="status != 'reject'" />
+                        <button name="action_cancel_phase" type="object" string="Cancel"
+                            class="btn btn-danger"
+                            invisible="status not in ['reject','in_progress','draft']"
+                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department" />
+                        <button name="action_complete_phase" type="object" string="Complete"
+                            class="btn btn-success" invisible="status != 'in_progress'"
+                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department" />
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object"
+                                name="action_view_job_order" icon="fa-files-o">
+                                <field name="job_order_count" string='Work Orders' widget="statinfo" />
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_mrq"
+                                icon="fa-gears">
+                                <field name="mrq_count" string='Material Requisitions'
+                                    widget="statinfo" />
+                            </button>
+                        </div>
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                        <br />
+                        <group>
+                            <group>
+                                <field name="title" required="1" placeholder="Title" />
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Project Details">
+                                <field name="site_id" required="1" readonly="1" force_save="1" />
+                                <field name="project_id" required="1" readonly="1" force_save="1" />
+                                <field name="company_id" />
+                                <field name="currency_id" invisible="1" />
+                            </group>
+                            <group string="Other Details">
+                                <field name="start_date" readonly="1" force_save="1" />
+                                <field name="close_date" readonly="1" force_save="1" />
+                                <field name="responsible_id" widget="many2one_avatar_user" />
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Work Type">
+                                <field name="activity_id" required="1" readonly="1" force_save="1" />
+                                <field name="sub_work_type_ids" widget="many2many_tags"
+                                    invisible="1" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Materials" name="cost_material">
+                                <field name="cost_material_ids" force_save="1"
+                                    readonly="status != 'draft'">
+                                    <list editable="bottom" create="false" delet="false">
+                                        <field name="sub_category_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="material_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="name" required="1" readonly="1" force_save="1" />
+                                        <field name="currency_id" column_invisible="1" />
+                                        <field name="budget_qty" />
+                                        <field name="qty" required="1" />
+                                        <field name="forcast_qty" />
+                                        <field name="remain_qty" />
+                                        <field name="uom_id" />
+                                        <field name="cost" required="1" readonly="1" force_save="1" />
+                                        <field name="tax_id" readonly="1" force_save="1" />
+                                        <field name="total_cost" />
+                                        <field name="boq_per_qty" readonly="1" force_save="1" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Equipments" name="cost_equipment">
+                                <field name="cost_equipment_ids" force_save="1"
+                                    readonly="status != 'draft'">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="equipment_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="currency_id" column_invisible="1" />
+                                        <field name="cost_type" required="1" />
+                                        <field name="name" required="1" readonly="1" force_save="1" />
+                                        <field name="budget_qty" />
+                                        <field name="qty" required="1" />
+                                        <field name="forcast_qty" />
+                                        <field name="remain_qty" />
+                                        <field name="cost" required="1" readonly="1" force_save="1" />
+                                        <field name="tax_id" readonly="1" force_save="1" />
+                                        <field name="total_cost" />
+                                        <field name="boq_per_qty" readonly="1" force_save="1" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Labours" name="cost_labour">
+                                <field name="cost_labour_ids" force_save="1"
+                                    readonly="status != 'draft'">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="product_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="currency_id" column_invisible="1" />
+                                        <field name="name" required="1" readonly="1" force_save="1" />
+                                        <field name="hours" widget="float_time" />
+                                        <field name="forcast_qty" />
+                                        <field name="remain_qty" />
+                                        <field name="budget_qty" />
+                                        <field name="cost" required="1" readonly="1" force_save="1" />
+                                        <field name="tax_id" readonly="1" force_save="1" />
+                                        <field name="sub_total" />
+                                        <field name="boq_per_qty" readonly="1" force_save="1" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Overheads" name="cost_overhead">
+                                <field name="cost_overhead_ids" force_save="1"
+                                    readonly="status != 'draft'">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="sub_category_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="product_id" required="1" readonly="1"
+                                            force_save="1" />
+                                        <field name="currency_id" column_invisible="1" />
+                                        <field name="name" required="1" readonly="1" force_save="1" />
+                                        <field name="budget_qty" />
+                                        <field name="qty" required="1" />
+                                        <field name="forcast_qty" />
+                                        <field name="remain_qty" />
+                                        <field name="uom_id" />
+                                        <field name="cost" required="1" readonly="1" force_save="1" />
+                                        <field name="tax_id" readonly="1" force_save="1" />
+                                        <field name="sub_total" />
+                                        <field name="boq_per_qty" readonly="1" force_save="1" />
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group>
+                            <group string="Actual Cost">
+                                <field name="material_actual_cost" />
+                                <field name="equipment_actual_cost" />
+                                <field name="labour_actual_cost" />
+                                <field name="overhead_actual_cost" />
+                            </group>
+                            <group class="oe_subtotal_footer oe_right" string="Total Cost">
+                                <field name="material_total_cost" />
+                                <field name="equipment_total_cost" />
+                                <field name="labour_total_cost" />
+                                <field name="overhead_total_cost" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter />
+                </form>
+            </field>
+        </record>
+        <record id="job_costing_view_tree" model="ir.ui.view">
+            <field name="name">job.costing.view.list</field>
+            <field name="model">job.costing</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="name" />
+                    <field name="title" />
+                    <field name="project_id" />
+                    <field name="responsible_id" widget="many2one_avatar_user" />
+                    <field name="company_id" />
+                    <field name="start_date" />
+                    <field name="close_date" />
+                    <field name="status" widget="badge" />
+                </list>
+            </field>
+        </record>
+        <record id="job_costing_view_search" model="ir.ui.view">
+            <field name="name">job.costing.view.search</field>
+            <field name="model">job.costing</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="title" />
+                    <field name="company_id" />
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project"
+                            context="{'group_by': 'project_id'}" />
+                        <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="job_costing_action" model="ir.actions.act_window">
+            <field name="name">Project Phases</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.costing</field>
+            <field name="view_mode">list,form,search,activity</field>
+        </record>
+    </data>
+</odoo>

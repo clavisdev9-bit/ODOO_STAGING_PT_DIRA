@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Equipment QC Check-->
+        <record id="equip_contract_line_view_form" model="ir.ui.view">
+            <field name="name">equip.contract.line.view.form</field>
+            <field name="model">equip.contract.line</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="qc_status" widget="statusbar"/>
+                        <button string="QC Request" name="action_quality_check" type="object" class="oe_highlight"
+                                invisible="qc_status != 'draft'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Approve" name="action_quality_check_approve" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reject" name="action_quality_check_reject" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reset to Draft" name="action_reset_to_draft" type="object" class="oe_highlight"
+                                invisible="qc_status != 'reject'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Create Bill/PO" name="action_create_ra_bill" type="object" class="oe_highlight"
+                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="contract_id" readonly="1" force_save="1"/>
+                                <field name="company_id"/>
+                            </group>
+                            <group>
+                                <field name="po_bill" invisible="1"/>
+                                <field name="date" required="1"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'" force_save="1"/>
+                            </group>
+                        </group>
+                        <group invisible="not bill_id or po_bill != 'bill'">
+                            <group>
+                                <field name="bill_id" readonly="1" widget="many2one_clickable" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="payment_state" widget="badge" decoration-success="payment_state=='paid'"
+                                       decoration-danger="payment_state=='not_paid'"
+                                       decoration-info="payment_state=='in_payment'"
+                                       decoration-primary="payment_state=='partial'"
+                                       decoration-warning="payment_state=='reversed'"/>
+                            </group>
+                        </group>
+                        <group invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                            <group>
+                                <field name="purchase_order_id" widget="many2one_clickable" readonly="1"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'purchase' or state == 'done'"
+                                       decoration-warning="state == 'to approve'"
+                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qty" required="1"
+                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id" force_save="1"/>
+                                <field name="percentage" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="amount" required="1" sum="amount"/>
+                                <field name="retention_percentage"/>
+                                <field name="retention_amount" required="1"/>
+                                <field name="final_amount" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qc_user_id" invisible="not qc_user_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="remark" required="0"
+                                   readonly="purchase_order_id or qc_status != 'draft' or bill_id" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="reject_reason" invisible="qc_status != 'reject'"/>
+                        </group>
+                    </sheet>
+                   <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="equip_contract_line_view_tree" model="ir.ui.view">
+            <field name="name">equip.contract.line.view.list</field>
+            <field name="model">equip.contract.line</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="contract_id"/>
+                    <field name="date"/>
+                    <field name="qty" sum="qty"/>
+                    <field name="percentage" sum="percentage"/>
+                    <field name="amount" sum="amount"/>
+                    <field name="remark"/>
+                    <field name="qc_status" widget="badge" decoration-danger="qc_status == 'reject'"
+                           decoration-success="qc_status == 'approve'" decoration-info="qc_status == 'request'"/>
+                </list>
+            </field>
+        </record>
+        <record id="equip_contract_line_view_search" model="ir.ui.view">
+            <field name="name">equip.contract.line.view.search</field>
+            <field name="model">equip.contract.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="contract_id"/>
+                    <field name="qc_user_id"/>
+                    <field name="remark"/>
+                    <field name="amount"/>
+                    <field name="date"/>
+                    <searchpanel>
+                        <field name="qc_status" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Contract" name="group_by_contract" context="{'group_by': 'contract_id'}"/>
+                        <filter string="QC Responsible" name="group_by_qc_user" context="{'group_by': 'qc_user_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="equip_contract_line_action" model="ir.actions.act_window">
+            <field name="name">Equipments Quality Check</field>
+            <field name="res_model">equip.contract.line</field>
+            <field name="view_mode">list,form,search,activity</field>
+        </record>
+
+        <!-- Labour QC Check-->
+        <record id="labour_contract_line_view_form" model="ir.ui.view">
+            <field name="name">labour.contract.line.view.form</field>
+            <field name="model">labour.contract.line</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="qc_status" widget="statusbar"/>
+                        <button string="QC Request" name="action_quality_check" type="object" class="oe_highlight"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                invisible="qc_status != 'draft'"/>
+                        <button string="Approve" name="action_quality_check_approve" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reject" name="action_quality_check_reject" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reset to Draft" name="action_reset_to_draft" type="object" class="oe_highlight"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                invisible="qc_status != 'reject'"/>
+                        <button string="Create Bill/PO" name="action_create_ra_bill" type="object" class="oe_highlight"
+                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="contract_id" readonly="1" force_save="1"/>
+                                <field name="company_id"/>
+                            </group>
+                            <group>
+                                <field name="po_bill" invisible="1"/>
+                                <field name="date" required="1"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'" force_save="1"/>
+                            </group>
+                        </group>
+                        <group invisible="not bill_id or po_bill != 'bill'">
+                            <group>
+                                <field name="bill_id" readonly="1" widget="many2one_clickable" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="payment_state" widget="badge" decoration-success="payment_state=='paid'"
+                                       decoration-danger="payment_state=='not_paid'"
+                                       decoration-info="payment_state=='in_payment'"
+                                       decoration-primary="payment_state=='partial'"
+                                       decoration-warning="payment_state=='reversed'"/>
+                            </group>
+                        </group>
+                        <group invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                            <group>
+                                <field name="purchase_order_id" widget="many2one_clickable" readonly="1"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'purchase' or state == 'done'"
+                                       decoration-warning="state == 'to approve'"
+                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="hours" required="1"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'" force_save="1"/>
+                                <field name="percentage" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="amount" required="1" sum="amount"/>
+                                <field name="retention_percentage"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'"/>
+                                <field name="retention_amount"/>
+                                <field name="final_amount" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qc_user_id" invisible="not qc_user_id" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="remark" required="0" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="reject_reason" invisible="qc_status != 'reject'"/>
+                        </group>
+                    </sheet>
+                   <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="labour_contract_line_view_tree" model="ir.ui.view">
+            <field name="name">labour.contract.line.view.list</field>
+            <field name="model">labour.contract.line</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="contract_id"/>
+                    <field name="date"/>
+                    <field name="hours" sum="hours"/>
+                    <field name="percentage" sum="percentage"/>
+                    <field name="amount" sum="amount"/>
+                    <field name="remark"/>
+                    <field name="qc_status" widget="badge" decoration-danger="qc_status == 'reject'"
+                           decoration-success="qc_status == 'approve'" decoration-info="qc_status == 'request'"/>
+                </list>
+            </field>
+        </record>
+        <record id="labour_contract_line_view_search" model="ir.ui.view">
+            <field name="name">labour.contract.line.view.search</field>
+            <field name="model">labour.contract.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="contract_id"/>
+                    <field name="qc_user_id"/>
+                    <field name="remark"/>
+                    <field name="amount"/>
+                    <field name="date"/>
+                    <searchpanel>
+                        <field name="qc_status" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Contract" name="group_by_contract" context="{'group_by': 'contract_id'}"/>
+                        <filter string="QC Responsible" name="group_by_qc_user" context="{'group_by': 'qc_user_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="labour_contract_line_action" model="ir.actions.act_window">
+            <field name="name">Labours Quality Check</field>
+            <field name="res_model">labour.contract.line</field>
+            <field name="view_mode">list,form,activity,search</field>
+        </record>
+
+        <!--Overhead Quality Check-->
+        <record id="overhead_contract_line_view_form" model="ir.ui.view">
+            <field name="name">overhead.contract.line.view.form</field>
+            <field name="model">overhead.contract.line</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="qc_status" widget="statusbar"/>
+                        <button string="QC Request" name="action_quality_check" type="object" class="oe_highlight"
+                                invisible="qc_status != 'draft'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Approve" name="action_quality_check_approve" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reject" name="action_quality_check_reject" type="object" class="oe_highlight"
+                                invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                        <button string="Reset to Draft" name="action_reset_to_draft" type="object" class="oe_highlight"
+                                invisible="qc_status != 'reject'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Create Bill/PO" name="action_create_ra_bill" type="object" class="oe_highlight"
+                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="contract_id" readonly="1" force_save="1"/>
+                                <field name="company_id"/>
+                            </group>
+                            <group>
+                                <field name="po_bill" invisible="1"/>
+                                <field name="date" required="1"
+                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id" force_save="1"/>
+                            </group>
+                        </group>
+                        <group invisible="bill_id or po_bill != 'bill'">
+                            <group>
+                                <field name="bill_id" readonly="1" widget="many2one_clickable" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="payment_state" widget="badge" decoration-success="payment_state=='paid'"
+                                       decoration-danger="payment_state=='not_paid'"
+                                       decoration-info="payment_state=='in_payment'"
+                                       decoration-primary="payment_state=='partial'"
+                                       decoration-warning="payment_state=='reversed'"/>
+                            </group>
+                        </group>
+                        <group invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                            <group>
+                                <field name="purchase_order_id" widget="many2one_clickable" readonly="1"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'purchase' or state == 'done'"
+                                       decoration-warning="state == 'to approve'"
+                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qty" required="1"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'" force_save="1"/>
+                                <field name="percentage" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="amount" required="1" sum="amount"/>
+                                <field name="retention_percentage"
+                                       readonly="purchase_order_id or bill_id or qc_status != 'draft'"/>
+                                <field name="retention_amount"/>
+                                <field name="final_amount" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="qc_user_id" readonly="1" force_save="1" invisible="not qc_user_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="remark" required="0"
+                                   readonly="purchase_order_id or bill_id or qc_status != 'draft'" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="reject_reason" invisible="qc_status != 'reject'"/>
+                        </group>
+                    </sheet>
+                   <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="overhead_contract_line_view_tree" model="ir.ui.view">
+            <field name="name">overhead.contract.line.view.list</field>
+            <field name="model">overhead.contract.line</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="contract_id"/>
+                    <field name="date"/>
+                    <field name="qty"/>
+                    <field name="percentage" sum="percentage"/>
+                    <field name="amount" sum="amount"/>
+                    <field name="remark"/>
+                    <field name="qc_status" widget="badge" decoration-danger="qc_status == 'reject'"
+                           decoration-success="qc_status == 'approve'" decoration-info="qc_status == 'request'"/>
+                </list>
+            </field>
+        </record>
+        <record id="overhead_contract_line_view_search" model="ir.ui.view">
+            <field name="name">overhead.contract.line.view.search</field>
+            <field name="model">overhead.contract.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="contract_id"/>
+                    <field name="qc_user_id"/>
+                    <field name="remark"/>
+                    <field name="amount"/>
+                    <field name="date"/>
+                    <searchpanel>
+                        <field name="qc_status" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Contract" name="group_by_contract" context="{'group_by': 'contract_id'}"/>
+                        <filter string="QC Responsible" name="group_by_qc_user" context="{'group_by': 'qc_user_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="overhead_contract_line_action" model="ir.actions.act_window">
+            <field name="name">Overheads Quality Check</field>
+            <field name="res_model">overhead.contract.line</field>
+            <field name="view_mode">list,form,activity,search</field>
+        </record>
+    </data>
+</odoo>

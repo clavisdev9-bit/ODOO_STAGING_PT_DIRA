@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Project Budget-->
+        <record id="sub_project_budget_view_form" model="ir.ui.view">
+            <field name="name">sub.project.budget.view.form</field>
+            <field name="model">sub.project.budget</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="0">
+                    <header>
+                        <field name="status" widget="statusbar"
+                               statusbar_visible="draft,waiting_approval,approved,in_progress"/>
+                        <field name="is_budget_overspend" invisible="1"/>
+                        <button name="action_department_approval" type="object"
+                                string="Department Approval"
+                                invisible="status != 'draft'"/>
+                        <button name="action_approve_budget" type="object" string="Approve"
+                                class="btn btn-success"
+                                invisible="status != 'waiting_approval'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_reject_budget" type="object" string="Reject"
+                                class="btn btn-danger"
+                                invisible="status != 'waiting_approval'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_complete_budget" type="object" string="Complete"
+                                class="btn btn-primary"
+                                invisible="status != 'approved'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_reset_draft_budget" type="object"
+                                string="Reset to Draft"
+                                invisible="status not in ['reject']"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_cancel_budget" type="object" string="Cancel"
+                                class="btn btn-danger"
+                                invisible="status not in ['reject','waiting_approval']"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-danger fw-bold text-danger text-center" role="alert"
+                             invisible="not is_budget_overspend">
+                            Budget Overspend
+                        </div>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object"
+                                    name="action_view_budget_line" icon="fa-tasks">
+                                <field name="budget_count" string='Budget Lines' widget="statinfo"/>
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-9">
+                                <h1>
+                                    <field name="name" required="1" placeholder="Title"/>
+                                </h1>
+                            </div>
+                            <div class="col-3" style="text-align:right;">
+                                <field name="progress" widget="percentpie"/>
+                            </div>
+                        </div>
+                        <group>
+                            <group string="Project Details">
+                                <field name="site_id" required="1" readonly="1" force_save="1"/>
+                                <field name="sub_project_id" required="1" readonly="1"
+                                       force_save="1"/>
+                                <field name="company_id" required="1" readonly="status == 'complete'" force_save="1"/>
+                            </group>
+                            <group string="Other Details">
+                                <field name="progress" invisible="1"/>
+                                <field name="start_date" required="1" readonly="1" force_save="1"/>
+                                <field name="end_date" required="1" readonly="1" force_save="1"/>
+                                <field name="responsible_id" widget="many2one_avatar_user"
+                                       readonly="status == 'complete'" force_save="1"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Budget Details">
+                                <field name="total_budget_amount"/>
+                                <field name="utilization_amount"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="reject_reason" invisible="status != 'reject'"/>
+                        </group>
+                        <separator string="Budget Line Confirmation"
+                                   invisible="not budget_line_confirmation_ids"
+                                   groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <field name="budget_line_confirmation_ids"
+                               invisible="not budget_line_confirmation_ids"
+                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department">
+                            <list edit="0" create="0" delete="0">
+                                <field name="type" widget="badge"
+                                       decoration-success="type == 'insert'"
+                                       decoration-danger="type == 'remove'"
+                                       decoration-warning="type == 'update'"/>
+                                <field name="date"/>
+                                <field name="responsible_id" widget="many2one_avatar_user"/>
+                                <field name="status" widget="badge"
+                                       decoration-info="status == 'requested'"
+                                       decoration-success="status == 'approved'"
+                                       decoration-danger="status == 'rejected'"/>
+                            </list>
+                            <form create="0" delete="0">
+                                <header>
+                                    <field name="status" widget="statusbar"
+                                           statusbar_visible="requested,approved"/>
+                                    <button name="action_approve_budget_line" type="object"
+                                            string="Approve"
+                                            invisible="status != 'requested'" class="btn btn-success"
+                                            confirm="Are you sure you confirm following action."
+                                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    <button name="action_reject_budget_line" type="object"
+                                            string="Reject"
+                                            invisible="status != 'requested'" class="btn btn-danger"
+                                            confirm="Are you sure you reject following action."
+                                            groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    <button name="action_reset_draft" type="object"
+                                            string="Reset to Draft"
+                                            invisible="status != 'rejected'"/>
+                                </header>
+                                <group string="Request Details">
+                                    <group>
+                                        <field name="type" readonly="1" force_save="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="date" readonly="1" force_save="1"/>
+                                        <field name="responsible_id" readonly="1" force_save="1"
+                                               widget="many2one_avatar_user"/>
+                                    </group>
+                                </group>
+                                <group invisible="type == 'insert'" string="Boq Line">
+                                    <group>
+                                        <field name="boq_budget_line_id"
+                                               readonly="1" force_save="1"
+                                               options="{'no_create':True,'no_create_edit':True,'no_edit':True,'no_open':True}"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Line Details">
+                                        <field name="is_use_measure" invisible="1"/>
+                                        <field name="work_type_id" required="1" readonly="1"
+                                               force_save="1"/>
+                                        <field name="work_subtype_id" required="1"
+                                               readonly="1"
+                                               force_save="1"/>
+                                    </group>
+                                    <group invisible="type != 'update'">
+                                        <group string="Updated Request">
+                                            <field name="qty" required="1" readonly="1"/>
+                                            <field name="length" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1"/>
+                                            <field name="width" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1"/>
+                                            <field name="height" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1"/>
+                                            <field name="total_qty" invisible="not is_use_measure"
+                                                   readonly="1"
+                                                   force_save="1"/>
+                                        </group>
+                                        <group invisible="type != 'update'" string="Old Values">
+                                            <field name="old_qty" required="1" readonly="1"
+                                                   string="Qty."/>
+                                            <field name="old_length" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1" string="Length"/>
+                                            <field name="old_width" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1" string="Width"/>
+                                            <field name="old_height" required="1"
+                                                   invisible="not is_use_measure"
+                                                   readonly="1" force_save="1" string="Height"/>
+                                            <field name="old_total_qty"
+                                                   invisible="not is_use_measure" readonly="1"
+                                                   force_save="1" string="Total Qty."/>
+                                        </group>
+                                    </group>
+                                    <group invisible="type == 'update'" string="Qty">
+                                        <field name="qty" required="1" readonly="1"/>
+                                        <field name="length" required="1"
+                                               invisible="not is_use_measure"
+                                               readonly="1" force_save="1"/>
+                                        <field name="width" required="1"
+                                               invisible="not is_use_measure"
+                                               readonly="1" force_save="1"/>
+                                        <field name="height" required="1"
+                                               invisible="not is_use_measure"
+                                               readonly="1" force_save="1"/>
+                                        <field name="total_qty" invisible="not is_use_measure"
+                                               readonly="1"
+                                               force_save="1"/>
+                                    </group>
+                                </group>
+                                <br/>
+                                <group invisible="status != 'rejected'">
+                                    <group>
+                                        <field name="reject_reason" readonly="0" force_save="1"/>
+                                    </group>
+                                </group>
+                            </form>
+                        </field>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="sub_project_budget_view_tree" model="ir.ui.view">
+            <field name="name">sub.project.budget.view.list</field>
+            <field name="model">sub.project.budget</field>
+            <field name="arch" type="xml">
+                <list create="false" delete="0">
+                    <field name="name"/>
+                    <field name="site_id"/>
+                    <field name="sub_project_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="total_budget_amount"/>
+                    <field name="utilization_amount"/>
+                    <field name="progress" widget="badge" decoration-info="progress"/>
+                </list>
+            </field>
+        </record>
+        <record id="sub_project_budget_view_search" model="ir.ui.view">
+            <field name="name">sub.project.budget.view.search</field>
+            <field name="model">sub.project.budget</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="name"/>
+                    <field name="site_id"/>
+                    <field name="sub_project_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                </search>
+            </field>
+        </record>
+        <record id="sub_project_budget_action" model="ir.actions.act_window">
+            <field name="name">Sub Project Budgets</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sub.project.budget</field>
+            <field name="view_mode">list,form,activity</field>
+        </record>
+
+
+        <!--Budget
+        Line-->
+        <record id="project_budget_view_tree" model="ir.ui.view">
+            <field name="name">project.budget.view.list</field>
+            <field name="model">project.budget</field>
+            <field name="arch" type="xml">
+                <list create="false" editable="bottom" decoration-success="remaining_budget &gt; 0"
+                      decoration-danger="remaining_budget &lt; 0"
+                      decoration-primary="remaining_budget == 0" delete="0">
+                    <header>
+                        <button name="action_create_rate_analysis" string="Create Rate Analysis" type="object"
+                                class="btn-primary me-1" display="always" icon="fa-plus"/>
+                    </header>
+                    <field name="job_type_id" required="1" readonly="1" force_save="1"/>
+                    <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                    <field name="company_id" column_invisible="1"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="project_id" column_invisible="1"/>
+                    <field name="site_id" column_invisible="1"/>
+                    <field name="boq_qty" readonly="1" force_save="1"/>
+                    <field name="additional_qty"/>
+                    <field name="total_qty" column_invisible="1"/>
+                    <field name="rate_analysis_id" required="1" options="{'no_create':True}"
+                           domain="[('activity_id','=',job_type_id),('sub_activity_id','=',sub_category_id),('project_id','=',project_id),('site_id','=',site_id)]"/>
+                    <field name="price_per_qty" readonly="1" force_save="1"/>
+                    <field name="untaxed_amount" readonly="1" force_save="1"/>
+                    <field name="tax_amount" readonly="1" force_save="1"/>
+                    <field name="budget" sum="budget" readonly="1" force_save="1"/>
+                    <field name="material_spent" sum="material_spent"/>
+                    <button name="action_view_material_budget" type="object" string=" "
+                            icon="fa-eye"/>
+                    <field name="equipment_spent" sum="equipment_spent"/>
+                    <button name="action_view_equipment_budget" type="object" string=" "
+                            icon="fa-eye"/>
+                    <field name="labour_spent" sum="labour_spent"/>
+                    <button name="action_view_labour_budget" type="object" string=" " icon="fa-eye"/>
+                    <field name="overhead_spent" sum="overhead_spent"/>
+                    <button name="action_view_overhead_budget" type="object" string=" "
+                            icon="fa-eye"/>
+                    <field name="remaining_budget" sum="remaining_budget"/>
+                    <field name="total_spent" widget="percentpie"/>
+                </list>
+            </field>
+        </record>
+        <record id="project_budget_view_form" model="ir.ui.view">
+            <field name="name">project.budget.view.form</field>
+            <field name="model">project.budget</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="0">
+                    <sheet>
+                        <div class="row">
+                            <div class="col-8">
+                                <h1>
+                                    <field name="job_type_id" required="1" placeholder="Work Type"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </h1>
+                                <h5>
+                                    <field name="sub_category_ids" invisible="1"/>
+                                    <field name="sub_category_id" placeholder="Work Sub Type"
+                                           required="1" readonly="1"
+                                           force_save="1"/>
+                                </h5>
+                            </div>
+                            <div class="col-4" style="text-align:right;">
+                                <field name="total_spent" widget="percentpie"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="currency_id" invisible="1"/>
+                        <group>
+                            <group>
+                                <field name="project_id" force_save="1" readonly="1" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Qty">
+                                <field name="boq_qty" readonly="1" force_save="1"/>
+                                <field name="additional_qty" readonly="1" force_save="1"/>
+                                <field name="total_qty" readonly="1" force_save="1"/>
+                            </group>
+                            <group string="Budget">
+                                <field name="rate_analysis_id" readonly="1" force_save="1"/>
+                                <field name="untaxed_amount" readonly="1" force_save="1"/>
+                                <field name="tax_amount" readonly="1" force_save="1"/>
+                                <field name="price_per_qty" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Spent">
+                                <field name="material_spent"/>
+                                <field name="equipment_spent"/>
+                                <field name="labour_spent"/>
+                                <field name="overhead_spent"/>
+                            </group>
+                            <group string="Budget Spent">
+                                <field name="budget"/>
+                                <field name="remaining_budget"/>
+                                <field name="boq_used_qty"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="project_budget_kanban_view" model="ir.ui.view">
+            <field name="name">project.budget.kanban.view</field>
+            <field name="model">project.budget</field>
+            <field name="arch" type="xml">
+                <kanban create="false" group_create="0" records_draggable="0" delete="0">
+                    <field name="job_type_id"/>
+                    <field name="sub_category_id"/>
+                    <field name="budget"/>
+                    <field name="remaining_budget"/>
+                    <field name="company_id"/>
+                    <field name="currency_id"/>
+                    <field name="material_spent"/>
+                    <field name="equipment_spent"/>
+                    <field name="labour_spent"/>
+                    <field name="overhead_spent"/>
+                    <templates>
+                        <t t-name="card">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="row mb4">
+                                    <div class="col-5">
+                                        <h3>
+                                            <strong>
+                                                <field name="job_type_id" class="text-primary"/>
+                                            </strong>
+                                        </h3>
+                                    </div>
+                                    <div class="col-7" style="text-align:right;">
+                                        <field name="sub_category_id" widget="badge"/>
+                                    </div>
+                                </div>
+                                <hr style="margin: 5px 0px 5px 0px;"/>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <field name="currency_id" invisible="1"/>
+                                        Budget:
+                                        <br/>
+                                        <strong>
+                                            <field name="budget"/>
+                                        </strong>
+                                    </div>
+                                    <div class="col-6">Remaining Budget:
+                                        <br/>
+                                        <strong>
+                                            <field name="remaining_budget"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <hr style="margin: 5px 0px 5px 0px;"/>
+                                <h6 class="text-center text-primary">
+                                    <strong>
+                                        Budget Utilization
+                                    </strong>
+                                </h6>
+                                <hr style="margin: 5px 0px 5px 0px;"/>
+                                <div class="row" style="padding: 0px 15px;">
+                                    <div class="col-6 p-1 bg-white rounded">
+                                        <img
+                                                src="/tk_construction_management/static/src/img/material.svg"
+                                                alt="Material" style="width:25px;height:25px;"/>
+                                        <strong class="ms-1">
+                                            Material
+                                        </strong>
+                                        <br/>
+                                        <field name="material_spent"/>
+                                        <button name="action_view_material_budget" type="object"
+                                                string=" "
+                                                class="btn btn-outline-dark border-0">
+                                            <i class="fa fa-external-link" role="img"
+                                               aria-label="Warehouse"
+                                               title="Warehouse"/>
+                                        </button>
+                                    </div>
+                                    <div class="col-6 p-1 bg-white rounded">
+                                        <img
+                                                src="/tk_construction_management/static/src/img/equip.svg"
+                                                alt="Equipment"
+                                                style="width:25px;height:25px;"/>
+                                        <strong class="ms-2">Equipment</strong>
+                                        <br/>
+                                        <field name="equipment_spent"/>
+                                        <button name="action_view_equipment_budget" type="object"
+                                                class="btn btn-outline-dark border-0">
+                                            <i class="fa fa-external-link" role="img"
+                                               aria-label="Warehouse"
+                                               title="Warehouse"/>
+                                        </button>
+                                    </div>
+                                    <div class="col-6 p-1 bg-white rounded">
+                                        <img
+                                                src="/tk_construction_management/static/src/img/overhead.svg"
+                                                alt="Overhead" style="width:25px;height:25px;"/>
+                                        <strong class="ms-2">Overhead</strong>
+                                        <br/>
+                                        <field name="overhead_spent"/>
+                                        <button name="action_view_overhead_budget" type="object"
+                                                class="btn btn-outline-dark border-0">
+                                            <i class="fa fa-external-link" role="img"
+                                               aria-label="Warehouse"
+                                               title="Warehouse"/>
+                                        </button>
+                                    </div>
+                                    <div class="col-6 p-1 bg-white rounded">
+                                        <img
+                                                src="/tk_construction_management/static/src/img/labour.svg"
+                                                alt="Labour"
+                                                style="width:25px;height:25px;"/>
+                                        <strong class="ms-2">Labour</strong>
+                                        <br/>
+                                        <field name="labour_spent"/>
+                                        <button name="action_view_labour_budget" type="object"
+                                                class="btn btn-outline-dark border-0">
+                                            <i class="fa fa-external-link" role="img"
+                                               aria-label="Warehouse"
+                                               title="Warehouse"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="project_budget_view_search" model="ir.ui.view">
+            <field name="name">project.budget.view.search</field>
+            <field name="model">project.budget</field>
+            <field name="arch" type="xml">
+                <search>
+                    <searchpanel>
+                        <field name="job_type_id" icon="fa-filter" enable_counters="1"/>
+                        <field name="sub_category_id" icon="fa-filter" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+        <!--Job
+        Order Material line-->
+        <record id="budget_job_order_material_view_tree" model="ir.ui.view">
+            <field name="name">budget.job.order.material.view.list</field>
+            <field name="model">order.material.line</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="job_sheet_id"/>
+                    <field name="job_order_id"/>
+                    <field name="material_id"/>
+                    <field name="name"/>
+                    <field name="qty" sum="qty"/>
+                    <field name="price"/>
+                    <field name="total_price" sum="total_price"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="uom_id"/>
+                </list>
+            </field>
+        </record>
+        <record id="budget_job_order_material_view_search" model="ir.ui.view">
+            <field name="name">budget.job.order.material.view.search</field>
+            <field name="model">order.material.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="1" string="Group By">
+                        <filter string="Product" name="group_by_product"
+                                context="{'group_by': 'material_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="job_sheet_id" icon="fa-filter" enable_counters="1"/>
+                        <field name="job_order_id" icon="fa-filter" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+        <!--Job
+        Order Equipment line-->
+        <record id="budget_job_order_equipment_view_tree" model="ir.ui.view">
+            <field name="name">budget.job.order.equipment.view.list</field>
+            <field name="model">order.equipment.line</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="job_sheet_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="equipment_id"/>
+                    <field name="desc"/>
+                    <field name="cost_type"/>
+                    <field name="qty" sum="qty"/>
+                    <field name="cost"/>
+                    <field name="total_cost" sum="total_cost"/>
+                    <field name="currency_id" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="budget_job_order_equipment_view_search" model="ir.ui.view">
+            <field name="name">budget.job.order.equipment.view.search</field>
+            <field name="model">order.equipment.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="1" string="Group By">
+                        <filter string="Product" name="group_by_product"
+                                context="{'group_by': 'equipment_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="job_sheet_id" icon="fa-filter" enable_counters="1"/>
+                        <field name="job_order_id" icon="fa-filter" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+        <!--Job
+        Order Labour line-->
+        <record id="budget_job_order_labour_view_tree" model="ir.ui.view">
+            <field name="name">budget.job.order.labour.view.list</field>
+            <field name="model">order.labour.line</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="job_sheet_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="product_id"/>
+                    <field name="name"/>
+                    <field name="hours"/>
+                    <field name="cost" sum="cost"/>
+                    <field name="sub_total" sum="sub_total"/>
+                    <field name="currency_id" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="budget_job_order_labour_view_search" model="ir.ui.view">
+            <field name="name">budget.job.order.labour.view.search</field>
+            <field name="model">order.labour.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="1" string="Group By">
+                        <filter string="Product" name="group_by_product"
+                                context="{'group_by': 'product_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="job_sheet_id" icon="fa-filter" enable_counters="1"/>
+                        <field name="job_order_id" icon="fa-filter" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+        <!--Job
+        Order Overhead line-->
+        <record id="budget_job_order_overhead_view_tree" model="ir.ui.view">
+            <field name="name">budget.job.order.overhead.view.list</field>
+            <field name="model">order.overhead.line</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="job_sheet_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="product_id"/>
+                    <field name="name"/>
+                    <field name="qty" sum="qty"/>
+                    <field name="uom_id"/>
+                    <field name="cost" sum="cost"/>
+                    <field name="sub_total" sum="sub_total"/>
+                    <field name="currency_id" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="budget_job_order_overhead_view_search" model="ir.ui.view">
+            <field name="name">budget.job.order.overhead.view.search</field>
+            <field name="model">order.overhead.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="1" string="Group By">
+                        <filter string="Product" name="group_by_product"
+                                context="{'group_by': 'product_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                    </group>
+                    <searchpanel>
+                        <field name="job_sheet_id" icon="fa-filter" enable_counters="1"/>
+                        <field name="job_order_id" icon="fa-filter" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--For Material Requisition-->
+        <record id="import_material_view_form" model="ir.ui.view">
+            <field name="name">import.material.view.form</field>
+            <field name="model">import.material</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="material_req_id" invisible="1"/>
+                            <field name="template_id"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Import" type="object" class="btn btn-primary"
+                                name="action_import_material"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="import_material_action" model="ir.actions.act_window">
+            <field name="name">Import Material Line</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.material</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!--For Project Phase-->
+        <record id="import_material_sheet_view_form" model="ir.ui.view">
+            <field name="name">import.material.sheet.view.form</field>
+            <field name="model">import.material.sheet</field>
+            <field name="arch" type="xml">
+                <form>
+                    <h6>
+                        <field name="import_from" widget="radio" options="{'horizontal':True}" required="1"/>
+                    </h6>
+                    <hr/>
+                    <group>
+                        <group>
+                            <field name="job_cost_id" invisible="1"/>
+                            <field name="material_req_id" required="import_from == 'from_material'" invisible="import_from != 'from_material'"/>
+                            <field name="template_id" required="import_from == 'from_template'" invisible="import_from != 'from_template'"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Import" type="object" class="btn btn-primary"
+                                name="action_import_material"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="import_material_sheet_action" model="ir.actions.act_window">
+            <field name="name">Import Material Line</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.material.sheet</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

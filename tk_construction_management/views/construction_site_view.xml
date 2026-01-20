@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="constriction_site_view_form" model="ir.ui.view">
+            <field name="name">construction.site.view.form</field>
+            <field name="model">tk.construction.site</field>
+            <field name="arch" type="xml">
+                <form duplicate="0">
+                    <header>
+                        <field name="status" widget="statusbar"/>
+                        <button name="%(construction_site_project_action)d" type="action"
+                                string="Create Sub Project"
+                                invisible="status != 'in_progress'" class="btn btn-primary"/>
+                        <button name="action_site_complete" type="object" string="Complete"
+                                class="btn btn-primary"
+                                confirm="Are you sure want to complete this project ?"
+                                invisible="status != 'in_progress'"/>
+                        <button name="action_site_in_progress" type="object" string="In Progress"
+                                class="btn btn-primary" invisible="status != 'draft'"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_project"
+                                    icon="fa-briefcase">
+                                <field name="project_count" string='Sub Projects' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_gmap_location"
+                                    icon="fa-location-arrow" string="Map Location"
+                                    invisible="not latitude or not longitude">
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_site_document"
+                                    icon="fa-file-text">
+                                <field name="document_count" string='Documents' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_invoice"
+                                    icon="fa-credit-card">
+                                <field name="invoice_count" string='Progress Billing'
+                                       widget="statinfo"/>
+                            </button>
+                            <button name="action_view_gantt" type="object" class="oe_stat_button" icon="fa-tasks"
+                                    string="Project Gantt"></button>
+                        </div>
+                        <h1>
+                            <field name="name" placeholder="Project Name" required="1" readonly="status == 'complete'"/>
+                        </h1>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="warehouse_id" required="1" options="{'no_create':True}"
+                                       readonly="status == 'complete'" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="company_id" options="{'no_create':True}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Address">
+                                <span class="o_form_label o_td_label" name="address_name">
+                                    <b>Address</b>
+                                </span>
+                                <div class="o_address_format">
+                                    <field name="street" placeholder="Street..."
+                                           class="o_address_street" readonly="status == 'complete'"
+                                           force_save="1"/>
+                                    <field name="street2" placeholder="Street 2..."
+                                           class="o_address_street" readonly="status == 'complete'"
+                                           force_save="1"/>
+                                    <field name="city" placeholder="City" class="o_address_city"
+                                           required="1" readonly="status == 'complete'" force_save="1"/>
+                                    <field name="state_id" class="o_address_state"
+                                           placeholder="State" readonly="status == 'complete'"
+                                           force_save="1"
+                                           options="{'no_open': True, 'no_quick_create': True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"
+                                           readonly="status == 'complete'" force_save="1"/>
+                                    <field name="country_id" placeholder="Country"
+                                           class="o_address_country" readonly="status == 'complete'"
+                                           force_save="1"
+                                           options="{'no_open': True, 'no_quick_create': True}"/>
+                                </div>
+                            </group>
+                            <group string="Duration">
+                                <field name="start_date" required="1"
+                                       readonly="status == 'complete'" force_save="1"/>
+                                <field name="end_date" required="1" readonly="status == 'complete'"
+                                       force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Geographic Location">
+                                <field name="longitude" readonly="status == 'complete'"
+                                       force_save="1"/>
+                                <field name="latitude" readonly="status == 'complete'"
+                                       force_save="1"/>
+                            </group>
+                            <group string="Contact Details">
+                                <field name="phone" widget="phone" readonly="status == 'complete'"
+                                       force_save="1"/>
+                                <field name="mobile" widget="phone" readonly="status == 'complete'"
+                                       force_save="1"/>
+                                <field name="email" widget="email" readonly="status == 'complete'"
+                                       force_save="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Sub Projects" name="con_project">
+                                <field name="construction_project_ids" readonly="1" force_save="1">
+                                    <kanban>
+                                        <field name="name"/>
+                                        <field name="project_progress"/>
+                                        <field name="code"/>
+                                        <templates>
+                                            <t t-name="card">
+                                                <div t-attf-class="oe_kanban_global_click">
+                                                    <div class="row mb4">
+                                                        <div class="col-8">
+                                                            <h3>
+                                                                <field name="name"
+                                                                       class="text-primary"/>
+                                                            </h3>
+                                                            <h6 t-if="record.warehouse_id.raw_value">
+                                                                <i class="fa fa-building-o"
+                                                                   role="img"
+                                                                   aria-label="Warehouse"
+                                                                   title="Warehouse"/>
+                                                                <field name="warehouse_id"
+                                                                       class="ms-1"/>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-4" style="text-align:right;">
+                                                            <t
+                                                                    t-if="record.project_progress.raw_value  > 100">
+                                                                <field name="project_progress"
+                                                                       widget="percentpie"
+                                                                       class="text-danger"
+                                                                       nolabel="1"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <field name="project_progress"
+                                                                       widget="percentpie"
+                                                                       nolabel="1"/>
+                                                            </t>
+                                                            <br/>
+                                                            <field name="stage" widget="badge"
+                                                                   decoration-success="stage=='Handover'"
+                                                                   decoration-primary="stage=='Procurement'"
+                                                                   decoration-warning="stage=='Planning'"
+                                                                   decoration-info="stage=='Construction'"/>
+                                                        </div>
+                                                    </div>
+                                                    <hr style="margin: 5px 0px 5px 0px;"/>
+                                                    <h6 class="text-center text-primary">
+                                                        <strong>
+                                                            Project States
+                                                        </strong>
+                                                    </h6>
+                                                    <hr style="margin: 5px 0px 5px 0px;"/>
+                                                    <div class="row">
+                                                        <div class="col-6 mb4">
+                                                            <button name="action_view_budget"
+                                                                    type="object"
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    icon="fa-briefcase">
+                                                                Budget Analysis
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 mb4">
+                                                            <button
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    type="object"
+                                                                    name="action_view_job_sheet"
+                                                                    icon="fa-files-o">
+                                                                Phase(WBS)
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 mb4">
+                                                            <button
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    type="object"
+                                                                    name="action_view_job_order"
+                                                                    icon="fa-folder-open">
+                                                                Work Order
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 mb4">
+                                                            <button
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    type="object"
+                                                                    name="action_view_jo_purchase_orders"
+                                                                    icon="fa-list-ul">
+                                                                Work Order PO
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 mb4">
+                                                            <button
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    type="object"
+                                                                    name="action_view_material_requisition"
+                                                                    icon="fa-gears">
+                                                                MREQ
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 mb4">
+                                                            <button
+                                                                    class="btn btn-outline-primary w-100"
+                                                                    type="object"
+                                                                    name="action_view_mrq_purchase_orders"
+                                                                    icon="fa-list-ol">
+                                                                MREQ PO
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </page>
+                            <page string="StackHolder" name="construction_stakeholder">
+                                <field name="stakeholder_ids" readonly="status == 'complete'"
+                                       force_save="1">
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="stakeholder_id"
+                                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"/>
+                                            </group>
+                                            <group>
+                                                <field name="percentage"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                    <kanban>
+                                        <field name="id"/>
+                                        <field name="stakeholder_id"/>
+                                        <field name="percentage"/>
+                                        <field name="phone"/>
+                                        <field name="email"/>
+                                        <templates>
+                                            <t t-name="card">
+                                                <div class="oe_kanban_global_click">
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            <div class="o_kanban_image">
+                                                                <field name="image_1920"
+                                                                       widget="image" class="oe_avtar"
+                                                                       options="{'img_class': 'object-fit-contain'}"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6"
+                                                             style="padding-left: 0px;">
+                                                            <div class="oe_kanban_details">
+                                                                <field name="stakeholder_id"/>
+                                                                <div t-if="record.email.raw_value">
+                                                                    <field name="email"
+                                                                           widget="email"/>
+                                                                </div>
+                                                                <div t-if="record.phone.raw_value">
+                                                                    Phone:
+                                                                    <t
+                                                                            t-esc="record.phone.value"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <field name="percentage"
+                                                                   widget="percentpie"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </page>
+                            <page string="Images" name="site_images">
+                                <field name="site_image_ids" readonly="status == 'complete'"
+                                       force_save="1">
+                                    <form>
+                                        <div class="oe_title float-left">
+                                            <label for="name"/>
+                                            <h1>
+                                                <field name="name" required="1"/>
+                                            </h1>
+                                        </div>
+                                        <div style="width:40%;height:40%;" class="float-right">
+                                            <field name="image" style="width:40%;height:40%;"
+                                                   class="img-thumbnail float-right" widget="image"
+                                                   required="1"/>
+                                        </div>
+                                    </form>
+                                    <kanban>
+                                        <field name="id"/>
+                                        <field name="name"/>
+                                        <field name="image"/>
+                                        <templates>
+                                            <t t-name="card" class="border-0">
+                                                <div
+                                                        class="card oe_kanban_global_click p-0 border-0">
+                                                    <div class="row">
+                                                        <div class="col-8">
+                                                            <field name="name"/>
+                                                        </div>
+                                                        <div class="col-4 text-end">
+                                                            <t
+                                                                    t-if="record.image.raw_value.length &lt; 100*1000">
+                                                                <t t-set="size_status"
+                                                                   t-value="'text-bg-success'"/>
+                                                                <t t-set="message">Acceptable file
+                                                                    size
+                                                                </t>
+                                                            </t>
+                                                            <t
+                                                                    t-elif="record.image.raw_value.length &lt; 1000*1000">
+                                                                <t t-set="size_status"
+                                                                   t-value="'text-bg-warning'"/>
+                                                                <t t-set="message">Huge file size.
+                                                                    The image
+                                                                    should be optimized/reduced.
+                                                                </t>
+                                                            </t>
+                                                            <t t-else="1">
+                                                                <t t-set="size_status"
+                                                                   t-value="'text-bg-danger'"/>
+                                                                <t t-set="message">Optimization
+                                                                    required!
+                                                                    Reduce the image size or
+                                                                    increase your
+                                                                    compression settings.
+                                                                </t>
+                                                            </t>
+                                                            <span
+                                                                    t-attf-class="badge #{size_status} o_product_image_size"
+                                                                    t-esc="record.image.value"
+                                                                    t-att-title="message"/>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="mb-1 mt-1"/>
+                                                    <div class="h-100 w-100">
+                                                        <field name="image" widget="image"
+                                                               class="card-img-top"
+                                                               style="height:223px;"
+                                                               options="{'img_class': 'object-fit-cover h-100 w-100', 'size': [360, 223]}"/>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </page>
+                            <page name="site_dimension" string="Project Measurement">
+                                <field name="site_dimension_ids" readonly="status == 'complete'"
+                                       force_save="1">
+                                    <list editable="bottom">
+                                        <field name="name" required="1"/>
+                                        <field name="length" required="1"/>
+                                        <field name="width" required="1"/>
+                                        <field name="area" string="Area(m&#178;)"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <group class="oe_subtotal_footer oe_right"
+                                           style="text-align: right">
+                                        <field name="total_area" string="Total Area(m&#178;)"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Permits &amp; Approvals" name="document_permit">
+                                <field name="document_permit_ids" readonly="status == 'complete'"
+                                       force_save="1">
+                                    <list editable="bottom">
+                                        <field name="date" readonly="status in ['r','a']" force_save="1"/>
+                                        <field name="document_type_id" required="1" readonly="status in ['r','a']"
+                                               force_save="1"
+                                               options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"/>
+                                        <field name="file_name" column_invisible="1"/>
+                                        <field name="document" filename="file_name" widget="binary"
+                                               readonly="status in ['r','a']" force_save="1"/>
+                                        <field name="submitted_by" required="1" readonly="status in ['r','a']"
+                                               force_save="1"/>
+                                        <field name="feedback" readonly="status in ['r','a']" force_save="1"/>
+                                        <field name="status" widget="badge"
+                                               decoration-success="status=='a'"
+                                               decoration-danger="status=='r'"/>
+                                        <button name="action_approve" type="object" string="Approve"
+                                                invisible="status in ['r','a']" class="btn btn-success"/>
+                                        <button name="action_reject" type="object" string="Reject"
+                                                invisible="status in ['r','a']" class="btn btn-danger"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="construction_site_view_tree" model="ir.ui.view">
+            <field name="name">construction.site.list.view</field>
+            <field name="model">tk.construction.site</field>
+            <field name="arch" type="xml">
+                <list duplicate="0">
+                    <field name="name"/>
+                    <field name="warehouse_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="city"/>
+                    <field name="country_id"/>
+                    <field name="status" widget="badge" decoration-success="status=='complete'"
+                           decoration-warning="status=='in_progress'"/>
+                </list>
+            </field>
+        </record>
+        <record id="construction_site_view_search" model="ir.ui.view">
+            <field name="name">construction.site.view.search</field>
+            <field name="model">tk.construction.site</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="warehouse_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="city"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                </search>
+            </field>
+        </record>
+        <record id="construction_site_action" model="ir.actions.act_window">
+            <field name="name">Construction Projects</field>
+            <field name="res_model">tk.construction.site</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">list,form,activity</field>
+        </record>
+    </data>
+</odoo>

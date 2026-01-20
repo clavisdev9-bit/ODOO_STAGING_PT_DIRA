@@ -1,0 +1,195 @@
+.tk-project-charts{
+    width:100%;
+    height:90vh;
+    overflow: auto;
+}
+.gantt_grid_scale {
+    position: absolute;
+    z-index: 1;
+}
+.gantt_tree_icon {
+    width: 17px;
+    height: 80%;
+    margin-right: 4px;
+}
+
+.gantt_grid_data {
+    position: absolute;
+    top: 2.2rem;
+}
+.hidden-task {
+    display: none;
+}
+.tk-header{
+    margin-top: 15px;
+    margin-bottom: 0px;
+}
+hr{
+    margin-bottom: 0px !important;
+}
+.gantt_task_line {
+    border-radius: 15px !important; /* Adjust the radius as needed */
+    overflow: hidden;
+}
+.highlighted-column-orange {
+  background-color: rgba(255, 165, 0, 0.1) !important;
+  border-right: 1px solid #FF9800 !important;
+  border-left: 1px solid #FF9800 !important;
+}
+.today-marker {
+       background-color: rgba(255, 165, 0, 0.1) !important;
+       border-right: 1px solid #FF9800 !important;
+       border-left: 1px solid #FF9800 !important;
+}
+.today-column{
+      background-color: rgba(255, 165, 0, 0.1) !important;
+       border-right: 1px solid #FF9800 !important;
+       border-left: 1px solid #FF9800 !important;
+       border-top: 1px solid #FF9800 !important;
+}
+.gantt_tree_icon {
+    width: 17px;
+    height: 17px;
+    margin-right: 4px;
+    margin-top: 9px;
+}
+
+/* Job Order Popup Styles */
+.job-order-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.job-order-popup {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-width: 400px;
+    max-width: 500px;
+    animation: popupFadeIn 0.3s ease-out;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.gantt-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.gantt-popup-header h5 {
+    margin: 0;
+}
+
+.gantt-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.gantt-close-btn:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.gantt-popup-content {
+    padding: 20px;
+}
+
+.gantt-popup-content p {
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.gantt-popup-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.gantt-popup-buttons .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.gantt-popup-buttons .btn-primary {
+    background-color: #80D8C3;
+    color: white;
+}
+
+.gantt-popup-buttons .btn-primary:hover {
+    background-color: #80D8C3;
+    transform: translateY(-1px);
+}
+
+.gantt-popup-buttons .btn-success {
+    background-color: #4DA8DA;
+    color: white;
+}
+
+.gantt-popup-buttons .btn-success:hover {
+    background-color: #4DA8DA;
+    transform: translateY(-1px);
+}
+
+.gantt-popup-buttons .btn i {
+    font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .job-order-popup {
+        min-width: 90%;
+        margin: 20px;
+    }
+
+    .gantt-popup-buttons {
+        flex-direction: column;
+    }
+
+    .gantt-popup-buttons .btn {
+        width: 100%;
+    }
+}

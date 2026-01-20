@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="scrap_order_view_form" model="ir.ui.view">
+            <field name="name">scrap.order.view.form</field>
+            <field name="model">scrap.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_create_invoice" type="object" string="Create Invoice" class="btn btn-primary" invisible="invoice_id or not scrap_order_line_ids"/>
+                    </header>
+                    <sheet>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="vendor_id" required="1"/>
+                                <field name="job_order_id" required="1"/>
+                                <field name="note"/>
+                            </group>
+                            <group>
+                                <field name="date" required="1"/>
+                                <field name="invoice_id" readonly="1" invisible="not invoice_id" force_sace="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Scrap Order">
+                                <field name="scrap_order_line_ids">
+                                    <list editable="bottom">
+                                        <field name="scrap_type" required="1"/>
+                                        <field name="product_id" required="1"/>
+                                        <field name="qty" required="1"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="dep_cost" required="1"/>
+                                        <field name="net_total" required="1"/>
+                                    </list>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="total" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </page>
+                        </notebook>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="scrap_order_view_tree" model="ir.ui.view">
+            <field name="name">scrap.order.view.list</field>
+            <field name="model">scrap.order</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="job_order_id"/>
+                    <field name="date"/>
+                    <field name="total"/>
+                </list>
+            </field>
+        </record>
+        <record id="scrap_order_action" model="ir.actions.act_window">
+            <field name="name">Scrap Order</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">scrap.order</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+
+    </data>
+</odoo>

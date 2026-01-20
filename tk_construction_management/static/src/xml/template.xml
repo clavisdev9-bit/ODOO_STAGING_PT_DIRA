@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="tk_construction_management.construction_dashboard" owl="1">
+        <section class="section tk_construction_dash">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 mt32 align-middle">
+                        <h4 class="tk-primary">Project Statics</h4>
+                    </div>
+                    <div class="col-md-6 mt32 text-end">
+                        <form class="form-group d-flex justify-content-end just-end">
+                            <select id="cons_site" class="form-control tk-form-control col-md-4 mr8" t-on-change="getProjectList" t-model="state.activeSite">
+                                <option value="all_site" selected="selected">All Projects</option>
+                                <t t-foreach="state.constructionSite" t-as="key" t-key="key_index" t-value="key_value">
+                                    <option t-att-value="key">
+                                        <t t-esc="state.constructionSite[key]"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <select id="site_project" class="form-control tk-form-control col-md-4 mr8" t-model="state.activeProject" t-on-change="getProjectStates">
+                                <option value="all_project" selected="selected">All Sub Projects</option>
+                                <t t-foreach="state.constructionProjects" t-as="key" t-key="key_index" t-value="key_value">
+                                    <option t-att-value="key">
+                                        <t t-esc="state.constructionProjects[key]"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-md-12 mt-8">
+                        <hr class="border-primary"/>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_site','total')">
+                        <div class="card info-bg p-32">
+                            <div class="card-body info-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/infrastructure.svg" />
+                                <h4 class="tk-st-1 info-bg"> Projects </h4>
+                                <h6 class="tk-st-2 info-bg">
+                                    <t t-esc="state.constructionStats['total_site']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_project','total')">
+                        <div class="card success-bg p-32">
+                            <div class="card-body success-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/crane.svg" />
+                                <h4 class="tk-st-1 success-bg"> Sub Projects </h4>
+                                <h6 class="tk-st-2 success-bg">
+                                    <t t-esc="state.constructionStats['total_project']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_mrq','total')">
+                        <div class="card purple-bg p-32">
+                            <div class="card-body purple-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/cement.svg" />
+                                <h4 class="tk-st-1 purple-bg"> Material Requisitions </h4>
+                                <h6 class="tk-st-2 purple-bg">
+                                    <t t-esc="state.constructionStats['total_mrq']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_job_sheet','total')">
+                        <div class="card danger-bg p-32">
+                            <div class="card-body danger-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/building.svg" />
+                                <h4 class="tk-st-1 danger-bg"> Phases(WBS) </h4>
+                                <h6 class="tk-st-2 danger-bg">
+                                    <t t-esc="state.constructionStats['job_sheet_count']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_job_order','total')">
+                        <div class="card active-bg p-32">
+                            <div class="card-body active-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/management.svg" />
+                                <h4 class="tk-st-1 active-bg"> Work Orders </h4>
+                                <h6 class="tk-st-2 active-bg">
+                                    <t t-esc="state.constructionStats['job_order_count']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('total_budget','total')">
+                        <div class="card info-bg p-32">
+                            <div class="card-body info-bg tk-card-body-height">
+                                <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/department.svg" />
+                                <h4 class="tk-st-1 info-bg"> Budgets </h4>
+                                <h6 class="tk-st-2 info-bg">
+                                    <t t-esc="state.constructionStats['budget']" />
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 mb-4 mt8 mb16">
+                        <h4 class="tk-primary">Project Timeline</h4>
+                        <hr class="border-primary"/>
+                        <div class="tk-project-chart" t-ref="siteTimeline"></div>
+                    </div>
+                    <div class="col-md-4 mb-4 mt8 mb16">
+                        <h4 class="tk-primary">Project Status</h4>
+                        <hr class="border-primary"/>
+                        <div class="tk-project-chart" t-ref="siteStatus"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-12 mt32">
+                            <h4 class="tk-primary">Sub Projects</h4>
+                            <hr class="border-primary"/>
+                        </div>
+                    </div>
+                    <div class="col-md-4 align-items-stretch">
+                        <div class="row">
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('Planning','project')">
+                                <div class="card purple-bg p-32">
+                                    <div class="card-body purple-bg tk-card-body">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/technical-drawing.svg" />
+                                        <h4 class="tk-st-1 purple-bg"> Planning </h4>
+                                        <h6 class="tk-st-2 purple-bg">
+                                            <t t-esc="state.constructionStats['project_planning']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('Procurement','project')">
+                                <div class="card danger-bg p-32">
+                                    <div class="card-body danger-bg tk-card-body">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/purchasing.svg" />
+                                        <h4 class="tk-st-1 danger-bg"> Procurement </h4>
+                                        <h6 class="tk-st-2 danger-bg">
+                                            <t t-esc="state.constructionStats['project_procurement']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('Construction','project')">
+                                <div class="card active-bg p-32">
+                                    <div class="card-body active-bg tk-card-body">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/construction-site.svg" />
+                                        <h4 class="tk-st-1 active-bg"> Construction </h4>
+                                        <h6 class="tk-st-2 active-bg">
+                                            <t t-esc="state.constructionStats['project_construction']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('Handover','project')">
+                                <div class="card warn-bg p-32">
+                                    <div class="card-body warn-bg tk-card-body">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/deliverable.svg" />
+                                        <h4 class="tk-st-1 warn-bg"> Handover </h4>
+                                        <h6 class="tk-st-2 warn-bg">
+                                            <t t-esc="state.constructionStats['project_handover']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 align-items-stretch">
+                        <div class="col-md-12 mb-4 mt8 mb16">
+                            <div class="tk-center-primary">Status</div>
+                            <div class="tk-project-chart" t-ref="projectStatus" id="project_status"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 align-items-stretch">
+                        <div class="col-md-12 mb-4 mt8 mb16">
+                            <div class="tk-center-primary">Timeline</div>
+                            <div class="tk-project-chart" t-ref="projectTimeline" id="project_time_line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 align-items-stretch">
+                        <div class="row">
+                            <div class="col-md-12 mt32">
+                                <h4 class="tk-primary">Material Requisitions</h4>
+                                <hr class="border-primary"/>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('draft','mrq')">
+                                <div class="card info-bg p-32">
+                                    <div class="card-body info-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/draft.svg" />
+                                        <h4 class="tk-st-1 info-bg"> Draft </h4>
+                                        <h6 class="tk-st-2 info-bg">
+                                            <t t-esc="state.constructionStats['mr_draft']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('department_approval','mrq')">
+                                <div class="card warn-bg p-32">
+                                    <div class="card-body warn-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/waiting.svg" />
+                                        <h4 class="tk-st-1 warn-bg"> Waiting Approvals </h4>
+                                        <h6 class="tk-st-2 warn-bg">
+                                            <t t-esc="state.constructionStats['mr_waiting_approval']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('approve','mrq')">
+                                <div class="card active-bg p-32">
+                                    <div class="card-body active-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/inventory-management.svg" />
+                                        <h4 class="tk-st-1 active-bg"> In Progress</h4>
+                                        <h6 class="tk-st-2 active-bg">
+                                            <t t-esc="state.constructionStats['mr_approved']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('ready_delivery','mrq')">
+                                <div class="card purple-bg p-32">
+                                    <div class="card-body purple-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/truck.svg"/>
+                                        <h4 class="tk-st-1 purple-bg"> Ready for Delivery </h4>
+                                        <h6 class="tk-st-2 purple-bg">
+                                            <t t-esc="state.constructionStats['mr_ready_delivery']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('material_arrived','mrq')">
+                                <div class="card success-bg p-32">
+                                    <div class="card-body success-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/processing.svg" />
+                                        <h4 class="tk-st-1 success-bg"> Material Arrive </h4>
+                                        <h6 class="tk-st-2 success-bg">
+                                            <t t-esc="state.constructionStats['mr_material_arrive']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('internal_transfer','mrq')">
+                                <div class="card purple-bg p-32">
+                                    <div class="card-body purple-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/supply-chain.svg" />
+                                        <h4 class="tk-st-1 purple-bg"> Internal Transfers </h4>
+                                        <h6 class="tk-st-2 purple-bg">
+                                            <t t-esc="state.constructionStats['mr_internal_transfer']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('back_order','mrq')">
+                                <div class="card danger-bg p-32">
+                                    <div class="card-body danger-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/order-delivery.svg" />
+                                        <h4 class="tk-st-1 danger-bg"> Back Order </h4>
+                                        <h6 class="tk-st-2 danger-bg">
+                                            <t t-esc="state.constructionStats['back_order']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-4 mt8 mb16">
+                                <div class="tk-center-primary">MREQ Status</div>
+                                <div class="card-graph p-16" t-ref="materialRequisition" id="mrq_state"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 align-items-stretch">
+                        <div class="row">
+                            <div class="col-md-12 mt32">
+                                <h4 class="tk-primary">Internal Transfers</h4>
+                                <hr class="border-primary"/>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('draft','internal')">
+                                <div class="card warn-bg p-32">
+                                    <div class="card-body warn-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/inventory.svg" />
+                                        <h4 class="tk-st-1 warn-bg"> Draft </h4>
+                                        <h6 class="tk-st-2 warn-bg">
+                                            <t t-esc="state.constructionStats['it_draft']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('in_progress','internal')">
+                                <div class="card danger-bg p-32">
+                                    <div class="card-body danger-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/replacement.svg" />
+                                        <h4 class="tk-st-1 danger-bg"> In Progress </h4>
+                                        <h6 class="tk-st-2 danger-bg">
+                                            <t t-esc="state.constructionStats['it_in_progress']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('done','internal')">
+                                <div class="card active-bg p-32">
+                                    <div class="card-body active-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/inventory-com.svg" />
+                                        <h4 class="tk-st-1 active-bg"> Done </h4>
+                                        <h6 class="tk-st-2 active-bg">
+                                            <t t-esc="state.constructionStats['it_done']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('is_forward_transfer','internal')">
+                                <div class="card info-bg p-32">
+                                    <div class="card-body info-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/fw.svg" />
+                                        <h4 class="tk-st-1 info-bg"> Forward Transfer </h4>
+                                        <h6 class="tk-st-2 info-bg">
+                                            <t t-esc="state.constructionStats['forward_transfer']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb32">
+                    <div class="col-md-12">
+                        <div class="col-md-12 mt32">
+                            <h4 class="tk-primary">Purchase Orders</h4>
+                            <hr class="border-primary"/>
+                        </div>
+                    </div>
+                    <div class="col-md-8 align-items-stretch">
+                        <div class="tk-os-chart" t-ref="purchaseOrder" id="job_order_po"></div>
+                    </div> 
+                    <div class="col-md-4 align-items-stretch">
+                        <div class="row">
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('equip','po')">
+                                <div class="card info-bg p-32">
+                                    <div class="card-body info-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/crane-equip.svg" />
+                                        <h4 class="tk-st-1 info-bg"> Equipments </h4>
+                                        <h6 class="tk-st-2 info-bg">
+                                            <t t-esc="state.constructionStats['equip_po']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('labour','po')">
+                                <div class="card danger-bg p-32">
+                                    <div class="card-body danger-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/builder.svg"/>
+                                        <h4 class="tk-st-1 danger-bg"> Labours </h4>
+                                        <h6 class="tk-st-2 danger-bg">
+                                            <t t-esc="state.constructionStats['labour_po']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('overhead','po')">
+                                <div class="card warn-bg p-32">
+                                    <div class="card-body warn-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/cost.svg"/>
+                                        <h4 class="tk-st-1 warn-bg"> Overheads </h4>
+                                        <h6 class="tk-st-2 warn-bg">
+                                            <t t-esc="state.constructionStats['overhead_po']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="col-md-6 mb-4 mt8 mb16" t-on-click="() => this.viewDashboardStatic('material','po')">
+                                <div class="card success-bg p-32">
+                                    <div class="card-body success-bg tk-card-body-height">
+                                        <img alt="users" width="40" src="/tk_construction_management/static/src/img/dash/coment-material.svg" />
+                                        <h4 class="tk-st-1 success-bg"> Material Requisitions </h4>
+                                        <h6 class="tk-st-2 success-bg">
+                                            <t t-esc="state.constructionStats['mr_po']" />
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </t>
+</templates>

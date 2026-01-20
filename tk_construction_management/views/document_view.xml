@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Document View-->
+        <record id="site_documents_view_tree" model="ir.ui.view">
+            <field name="name">site.documents.view.list</field>
+            <field name="model">site.documents</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="site_id" readonly="1" force_save="1"/>
+                    <field name="document_type_id" required="1"/>
+                    <field name="date"/>
+                    <field name="file_name" invisible="True"/>
+                    <field name="document" filename="file_name" widget="binary"/>
+                </list>
+            </field>
+        </record>
+        <!--Document Type-->
+        <record id="document_type_view_tree" model="ir.ui.view">
+            <field name="name">document.type.list.view</field>
+            <field name="model">site.document.type</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" required="1"/>
+                </list>
+            </field>
+        </record>
+        <record id="site_document_type_action" model="ir.actions.act_window">
+            <field name="name">Documents Types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">site.document.type</field>
+            <field name="view_mode">list</field>
+        </record>
+    </data>
+</odoo>

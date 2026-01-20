@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="construction_project_budget_report_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 style="border-bottom:1px solid black;padding-bottom:10px;">
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h5 style="padding-left: 7px; padding-bottom: 10px; padding-top: 10px; border-left: 10px solid #e3e3e3; background-color: #f3f4f5;">
+                                Project Details
+                            </h5>
+                            <table class="table table-borderless" style="margin-bottom:0px;">
+                                <tr>
+                                    <td style="width:50%;padding:0px;">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Project
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.site_id"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Start Date
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.start_date"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Company
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.company_id"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:50%;padding:0px;">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Sub Project
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.sub_project_id"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    End Date
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.end_date"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Responsible
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.responsible_id"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <h5 style="padding-left: 7px; padding-bottom: 10px; padding-top: 10px; border-left: 10px solid #e3e3e3; background-color: #f3f4f5;">
+                                Budget Details
+                            </h5>
+                            <table class="table table-borderless" style="marin-bottom:0px;">
+                                <tr>
+                                    <td style="width:50%;padding:0px;">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Total Budget
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.total_budget_amount"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:50%;padding:0px;">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Utilization(%)
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.progress"/>
+                                                        %
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:35%;">
+                                                    Utilization (<span t-field="o.company_id.currency_id.symbol"/>)
+                                                </td>
+                                                <td style="width:2%;">
+                                                    :
+                                                </td>
+                                                <td style="width:63%;">
+                                                    <strong>
+                                                        <span t-field="o.utilization_amount"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <h5 style="padding-left: 7px; padding-bottom: 10px; padding-top: 10px; border-left: 10px solid #e3e3e3; background-color: #f3f4f5;">
+                                Budget Lines
+                            </h5>
+                            <t t-foreach="o.budget_line_ids" t-as="b">
+                                <table class="table table-borderless" style="margin-bottom: 10px;border:1px solid grey;">
+                                    <tr style="border-bottom:1px solid grey;">
+                                        <td style="width:50%;padding:0px;">
+                                            <table class="table table-borderless" style="margin-bottom: 0px;">
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Work Type
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.job_type_id"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        BOQ Qty
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.boq_qty"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Additional Qty
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.additional_qty"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Total Qty
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.total_qty"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Price / Qty
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.price_per_qty"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td style="width:50%;padding:0px;">
+                                            <table class="table table-borderless" style="margin-bottom: 0px;">
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Sub Type
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.sub_category_id"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Untaxed Amount
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.untaxed_amount"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Tax Amount
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.tax_amount"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Total
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.budget"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:50%;padding:0px;">
+                                            <table class="table table-borderless" style="margin-bottom: 0px;">
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Total Budget
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.budget"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Remaining Budget
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.remaining_budget"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Used Qty
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.boq_used_qty"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Utilization(%)
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.total_spent"/>
+                                                            %
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td style="width:50%;padding:0px;">
+                                            <table class="table table-borderless" style="margin-bottom: 0px;">
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Material Spent
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.material_spent"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Equipment Spent
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.equipment_spent"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Labour Spent
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.labour_spent"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:35%;padding:3px;">
+                                                        Overhead Spent
+                                                    </td>
+                                                    <td style="width:2%;padding:3px;">
+                                                        :
+                                                    </td>
+                                                    <td style="width:63%;padding:3px;">
+                                                        <strong>
+                                                            <span t-field="b.overhead_spent"/>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <record id="construction_budget_qweb_report" model="ir.actions.report">
+            <field name="name">Budget Report</field>
+            <field name="model">sub.project.budget</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">tk_construction_management.construction_project_budget_report_template</field>
+            <field name="report_file">tk_construction_management.construction_project_budget_report_template</field>
+            <field name="binding_model_id" ref="model_sub_project_budget"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Budget Report'</field>
+        </record>
+    </data>
+</odoo>

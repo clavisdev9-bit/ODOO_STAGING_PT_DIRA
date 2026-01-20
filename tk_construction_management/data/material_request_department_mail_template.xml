@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="material_request_department_approval_mail_template" model="mail.template">
+            <field name="name">Material Request Department Approval Mail Template</field>
+            <field name="model_id" ref="tk_construction_management.model_material_requisition"/>
+            <field name="subject">Approval Needed for New Material Requisition {{ object.name }}</field>
+            <field name="email_from">{{object.company_id.email}}</field>
+            <field name="partner_to"></field>
+            <field name="body_html" type="html">
+                <p>
+                    This is a friendly reminder that a new material requisition has been created and requires your
+                    attention for approval or rejection.
+                </p>
+                <strong>
+                    The details of the requisition are as follows:
+                </strong>
+                <ul>
+                    <li>
+                        <strong>
+                            Requisition Ref :
+                        </strong>
+                        <span t-field="object.name"/>
+                    </li>
+                    <li>
+                        <strong>
+                        Title :
+                        </strong>
+                        <span t-field="object.title"/>
+
+                    </li>
+                    <t t-if="object.desc">
+                        <li>
+                            <strong>
+                                Description :
+                            </strong>
+                            <span t-field="object.desc"/>
+                        </li>
+                    </t>
+                    <li>
+                        <strong>
+                            Project :
+                        </strong>
+                        <span t-field="object.site_id"/>
+                    </li>
+                    <li>
+                        <strong>
+                            Sub Project :
+                        </strong>
+                        <span t-field="object.project_id"/>
+                    </li>
+                </ul>
+                <p>
+                    Your approval is crucial to proceed with the acquisition of these materials for our ongoing
+                    projects. Kindly review the details at your earliest convenience.
+                </p>
+                <p>
+                    Thank you very much for your attention to this request.
+                </p>
+                <p>
+                    <strong>Best Regards,</strong>
+                    <br/>
+                    <strong>
+                        <t t-out="object.company_id.name"/>
+                    </strong>
+                </p>
+                <hr class="mb-1 mt-1"/>
+                <p>
+                    <t t-out="object.company_id.phone"/>
+                    <br/>
+                    <t t-out="object.company_id.email"/>
+                    <br/>
+                    <t t-out="object.company_id.website"/>
+                </p>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    </data>
+</odoo>

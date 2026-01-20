@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="job_order_view_form" model="ir.ui.view">
+            <field name="name">job.order.view.form</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,material_request,material_arrive,in_progress,complete"/>
+                        <field name="id" invisible="1"/>
+                        <field name="is_partial_arrived" invisible="1"/>
+                        <field name="is_user" invisible="1"/>
+                        <field name="is_material_requisition" invisible="1"/>
+                        <button name="action_request_material" type="object" string="Material Request"
+                                class="btn btn-primary"
+                                invisible="not id or state != 'draft' or not is_material_requisition"/>
+                        <button name="action_in_progress" type="object" string="In Progress" class="btn btn-primary"
+                                invisible="state not in ['material_arrive']"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_in_progress" type="object" string="In Progress" class="btn btn-primary"
+                                invisible="state != 'material_request' or not is_partial_arrived"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_in_progress" type="object" string="In Progress" class="btn btn-primary"
+                                invisible="is_material_requisition or state != 'draft'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_complete_work_order" type="object" string="Complete"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                class="btn btn-primary" invisible="state != 'in_progress'"
+                                confirm="Are you sure you want to complete this work order ?"/>
+                        <button name="action_reset_draft" type="object" string="Reset to Draft"
+                                invisible="state not in ['cancel']"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_timesheet"
+                                    icon="fa-calendar" invisible="not task_id" string="Timesheet">
+                                <span>
+                                    Timesheet
+                                    <br/>
+                                    <field name="timesheet_hours" string='Timesheet' widget="float_time"/>
+                                    Hours
+                                </span>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_purchase_order"
+                                    icon="fa-credit-card" invisible="po_count == 0">
+                                <field name="po_count" string='Purchase Order' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_bills" icon="fa-money"
+                                    invisible="bill_count == 0">
+                                <field name="bill_count" string='Bills' widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_delivery_order"
+                                    icon="fa-truck" invisible="delivery_count == 0">
+                                <field name="delivery_count" string='Delivery Orders' widget="statinfo"/>
+                            </button>
+                        </div>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h5>
+                            <field name="title" required="1" placeholder="Title"/>
+                        </h5>
+                        <br/>
+                        <group>
+                            <group string="Project Details">
+                                <field name="site_id" required="1" readonly="1" force_save="1"/>
+                                <field name="project_id" required="1" readonly="1" force_save="1"/>
+                                <field name="company_id" force_save="1" readonly="state in ['complete','cancel']"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="warehouse_id"/>
+                            </group>
+                            <group string="Other Details">
+                                <field name="start_date" required="1" force_save="1"
+                                       readonly="state in ['complete','cancel']"/>
+                                <field name="end_date" required="1" force_save="1"
+                                       readonly="state in ['complete','cancel']"/>
+                                <field name="responsible_id" required="1" widget="many2one_avatar_user" force_save="1"
+                                       readonly="state in ['complete','cancel']"/>
+                            </group>
+                        </group>
+                        <group string="Work Type &amp; Phase">
+                            <group>
+                                <field name="work_type_id" required="1" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="job_sheet_id" required="1" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Task Details">
+                                <group>
+                                    <group>
+                                        <field name="project_project_id"/>
+                                        <field name="task_name" required="1" placeholder="Task Title" force_save="1"
+                                               readonly="state in ['complete','cancel']"/>
+                                        <field name="assignees_ids" widget="many2many_tags" reaquired="1" force_save="1"
+                                               readonly="state in ['complete','cancel']" options="{'no_create':True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="task_id" readonly="1" force_save="1" invisible="not task_id"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="task_desc" required="1" placeholder="Task Description" force_save="1"
+                                           readonly="state in ['complete','cancel']"/>
+                                </group>
+                            </page>
+                            <page string="Required Materials" name="order_material">
+                                <div class="alert alert-info text-center" role="alert"
+                                     invisible="not is_partial_arrived">
+                                    Not all material arrived, so create a consumption order accordingly.
+                                    <br/>
+                                    <button name="action_view_partial_arrive_material" type="object"
+                                            string="View Partial Arrived Material" class="btn btn-link"/>
+                                </div>
+                                <div class="row" invisible="state in ['draft','material_request','cancel']">
+                                    <div class="col-6 text-start">
+                                        <button name="action_create_material_consume_order" type="object"
+                                                invisible="state not in ['in_progress']" string="Create Consume Order"
+                                                class="btn btn-primary"
+                                                confirm="Are you sure you want to create consume order"/>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button class="btn btn-outline-dark" type="object"
+                                                name="action_view_material_consume_order"
+                                                invisible="state not in ['in_progress','complete']">
+                                            <span class="badge badge-dark border border-dark me-1">
+                                                <field name="material_consume_count" nolabel="1"/>
+                                            </span>
+                                            View Consume Orders
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <group>
+                                    <group>
+                                        <field name="material_req_id" readonly="1" force_save="1"
+                                               invisible="not material_req_id"/>
+                                        <field name="mreq_status" string="Status" widget="badge" invisible="not material_req_id"/>
+                                    </group>
+                                </group>
+                                <field name="material_order_ids"
+                                       readonly="state in ['in_progress','complete','cancel','material_request']">
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-success="phase_forcast_qty > qty"
+                                          decoration-warning="qty > phase_forcast_qty">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="material_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="state" column_invisible="1"/>
+                                        <field name="qty" required="1" readonly="state == 'material_arrive'"/>
+                                        <field name="usage_qty" required="1" readonly="1" force_save="1"/>
+                                        <field name="remain_qty" required="1" readonly="1" force_save="1"/>
+                                        <field name="uom_id"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="price"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="tax_id"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="total_price"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="phase_forcast_qty" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Required Equipments" name="order_equipment">
+                                <div class="row">
+                                    <div class="col-6 text-start">
+                                        <button name="action_create_equipment_subcontract" type="object"
+                                                string="Create Subcontracts" class="btn btn-primary"
+                                                invisible="state != 'in_progress'"/>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button class="btn btn-outline-dark" type="object"
+                                                name="action_view_contract_equipment"
+                                                invisible="state not in ['in_progress','complete']">
+                                            <span class="badge badge-dark border border-dark me-1">
+                                                <field name="equip_contract_count" nolabel="1"/>
+                                            </span>
+                                            View Subcontracts
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <field name="equipment_order_ids" force_save="1"
+                                       readonly="state in ['in_progress','complete','cancel']">
+                                    <list editable="bottom" create="false"
+                                          decoration-success="phase_forcast_qty > qty"
+                                          decoration-warning="qty > phase_forcast_qty">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="vendor_id" required="1" options="{'no_create':True}"/>
+                                        <field name="equipment_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="cost_type" required="1"/>
+                                        <field name="desc" required="1" readonly="1" force_save="1"/>
+                                        <field name="qty" required="1"/>
+                                        <field name="cost" required="1" readonly="1" force_save="1"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="tax_id"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="total_cost"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="equip_sub_contract_id" readonly="1" force_save="1"
+                                               widget="many2one_clickable"/>
+                                        <field name="equip_sub_contract_stage" widget="badge" string="Status"
+                                               decoration-success="equip_sub_contract_stage == 'done'"
+                                               decoration-warning="equip_sub_contract_stage == 'in_progress'"
+                                               optional="hide"/>
+                                        <field name="phase_forcast_qty" column_invisible="1"/>
+                                        <field name="job_sheet_id" column_invisible="1"/>
+                                        <field name="project_id" column_invisible="1"/>
+                                        <field name="work_type_id" column_invisible="1"/>
+                                        <field name="state" column_invisible="1"/>
+                                    </list>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="equipment_total_cost" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </page>
+                            <page string="Required Labours" name="order_labour">
+                                <div class="row">
+                                    <div class="col-6 text-start">
+                                        <button name="action_create_labour_subcontract" type="object"
+                                                string="Create Subcontracts" class="btn btn-primary"
+                                                invisible="state != 'in_progress'"/>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button class="btn btn-outline-dark" type="object"
+                                                name="action_view_contract_labour"
+                                                invisible="state not in ['in_progress','complete']">
+                                            <span class="badge badge-dark border border-dark me-1">
+                                                <field name="labour_contract_count" nolabel="1"/>
+                                            </span>
+                                            View Subcontracts
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <field name="labour_order_ids" create="false" delete="false"
+                                       readonly="state in ['in_progress','complete','cancel']">
+                                    <list editable="bottom" decoration-info="internal_entry == True">
+                                        <field name="sub_category_id" required="1" readonly="not internal_entry"
+                                               force_save="1"/>
+                                        <field name="vendor_id" required="1" options="{'no_create':True}"/>
+                                        <field name="product_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="hours" widget="float_time"/>
+                                        <field name="remain_hours" widget="float_time" readonly="1" force_save="1"
+                                               invisible="internal_entry"/>
+                                        <field name="cost" required="1" readonly="1" force_save="1"
+                                               invisible="internal_entry"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="tax_id" invisible="internal_entry"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="sub_total" invisible="internal_entry"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="labour_sub_contract_id" readonly="1" force_save="1"
+                                               widget="many2one_clickable"/>
+                                        <field name="labour_sub_contract_stage" string="Status" widget="badge"
+                                               decoration-success="labour_sub_contract_stage == 'done'"
+                                               decoration-warning="labour_sub_contract_stage == 'in_progress'"
+                                               optional="hide"/>
+                                        <field name="phase_forcast_qty" column_invisible="1"/>
+                                        <field name="job_sheet_id" column_invisible="1"/>
+                                        <field name="project_id" column_invisible="1"/>
+                                        <field name="work_type_id" column_invisible="1"/>
+                                        <field name="internal_entry" column_invisible="1"/>
+                                        <field name="state" column_invisible="1"/>
+                                        <field name="bill_id" invisible="not bill_id" string="Internal Bill"
+                                               optional="hide" widget="many2one_clickable" readonly="1" force_save="1"/>
+                                        <button name="action_view_timesheet" type="object" string="Timesheet"
+                                                class="btn btn-primary"
+                                                invisible="not bill_id" icon="fa-hourglass"/>
+                                    </list>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="labour_total_cost" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </page>
+                            <page string="Required Overheads" name="order_overhead">
+                                <div class="row">
+                                    <div class="col-6 text-start">
+                                        <button name="action_create_overhead_subcontract" type="object"
+                                                string="Create Subcontracts" class="btn btn-primary"
+                                                invisible="state != 'in_progress'"/>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button class="btn btn-outline-dark" type="object"
+                                                name="action_view_contract_overhead"
+                                                invisible="state not in ['in_progress','complete']">
+                                            <span class="badge badge-dark border border-dark me-1">
+                                                <field name="overhead_contract_count" nolabel="1"/>
+                                            </span>
+                                            View Subcontracts
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <field name="overhead_order_ids" create="false" delete="false"
+                                       readonly="state in ['in_progress','complete','cancel']">
+                                    <list editable="bottom" decoration-success="phase_forcast_qty > qty"
+                                          decoration-warning="qty > phase_forcast_qty">
+                                        <field name="sub_category_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="vendor_id" required="1" options="{'no_create':True}"/>
+                                        <field name="product_id" required="1" readonly="1" force_save="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="name" required="1" readonly="1" force_save="1"/>
+                                        <field name="qty" required="1"/>
+                                        <field name="uom_id"/>
+                                        <field name="cost" required="1" readonly="1" force_save="1"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="tax_id"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="sub_total"
+                                               groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                        <field name="overhead_sub_contract_id" readonly="1" force_save="1"
+                                               widget="many2one_clickable"/>
+                                        <field name="overhead_sub_contract_stage" string="Status" widget="badge"
+                                               decoration-success="overhead_sub_contract_stage == 'done'"
+                                               decoration-warning="overhead_sub_contract_stage == 'in_progress'"
+                                               optional="hide"/>
+                                        <field name="phase_forcast_qty" column_invisible="1"/>
+                                        <field name="job_sheet_id" column_invisible="1"/>
+                                        <field name="project_id" column_invisible="1"/>
+                                        <field name="work_type_id" column_invisible="1"/>
+                                        <field name="state" column_invisible="1"/>
+                                    </list>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="overhead_total_cost" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="job_order_view_tree" model="ir.ui.view">
+            <field name="name">job.order.view.list</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="job_sheet_id"/>
+                    <field name="company_id"/>
+                    <field name="project_id"/>
+                    <field name="state" widget="badge"/>
+                    <button name="action_create_material_consume_order" type="object"
+                            invisible="state not in ['in_progress']" string="Create Consume Order"
+                            class="btn btn-primary"
+                            confirm="Are you sure you want to create consume order"/>
+                </list>
+            </field>
+        </record>
+        <record id="job_order_view_search" model="ir.ui.view">
+            <field name="name">job.order.view.search</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="job_sheet_id"/>
+                    <field name="project_id"/>
+                    <filter name="filter_by_archive" string="Archived" domain="[('active','=',False)]"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Project Phase(WBS)" name="group_by_job_sheet"
+                                context="{'group_by': 'job_sheet_id'}"/>
+                        <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="job_order_action" model="ir.actions.act_window">
+            <field name="name">Work Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">list,form,activity</field>
+        </record>
+        <!-- Order Material Form-->
+        <record id="construction_order_material_view_form" model="ir.ui.view">
+            <field name="name">construction.order.material.form</field>
+            <field name="model">order.material.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="material_id"/>
+                                <field name="name"/>
+                                <field name="sub_category_id"/>
+                                <field name="state" invisible="1"/>
+                                <field name="qty"/>
+                                <field name="usage_qty" required="1" readonly="1" force_save="1"/>
+                                <field name="remain_qty" required="1" readonly="1" force_save="1"/>
+                                <field name="uom_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="phase_forcast_qty" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="price"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="tax_id"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="total_price"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Order Equipment Form-->
+        <record id="construction_order_equipment_view_form" model="ir.ui.view">
+            <field name="name">construction.order.equipment.form</field>
+            <field name="model">order.equipment.line</field>
+            <field name="arch" type="xml">
+                <form create="0" delete="0" edit="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="sub_category_id"/>
+                                <field name="vendor_id"/>
+                                <field name="equipment_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="cost_type"/>
+                                <field name="desc"/>
+                                <field name="equip_sub_contract_id"/>
+                                <field name="phase_forcast_qty" invisible="1"/>
+                                <field name="job_sheet_id" invisible="1"/>
+                                <field name="project_id" invisible="1"/>
+                                <field name="work_type_id" invisible="1"/>
+                                <field name="state" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="qty"/>
+                                <field name="cost"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="tax_id"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="total_cost"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Order Labour Form-->
+        <record id="construction_order_labour_view_form" model="ir.ui.view">
+            <field name="name">construction.order.labour.form</field>
+            <field name="model">order.labour.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="sub_category_id"/>
+                                <field name="vendor_id"/>
+                                <field name="product_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="name"/>
+                                <field name="labour_sub_contract_id"
+                                       widget="many2one_clickable"/>
+                                <field name="phase_forcast_qty" invisible="1"/>
+                                <field name="job_sheet_id" invisible="1"/>
+                                <field name="project_id" invisible="1"/>
+                                <field name="work_type_id" invisible="1"/>
+                                <field name="internal_entry" invisible="1"/>
+                                <field name="state" invisible="1"/>
+                                <field name="bill_id" invisible="not bill_id" string="Internal Bill"
+                                       optional="hide" widget="many2one_clickable" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="hours" widget="float_time"/>
+                                <field name="remain_hours" widget="float_time"
+                                       invisible="internal_entry"/>
+                                <field name="cost"
+                                       invisible="internal_entry"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="tax_id" invisible="internal_entry"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="sub_total" invisible="internal_entry"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- Order Overhead Form -->
+        <record id="construction_order_overhead_view_form" model="ir.ui.view">
+            <field name="name">construction.order.overhead.form</field>
+            <field name="model">order.overhead.line</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="sub_category_id"/>
+                                <field name="vendor_id"/>
+                                <field name="product_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="name"/>
+                                <field name="overhead_sub_contract_id" widget="many2one_clickable"/>
+                                <field name="phase_forcast_qty" invisible="1"/>
+                                <field name="job_sheet_id" invisible="1"/>
+                                <field name="project_id" invisible="1"/>
+                                <field name="work_type_id" invisible="1"/>
+                                <field name="state" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="qty"/>
+                                <field name="uom_id"/>
+                                <field name="cost"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="tax_id"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                <field name="sub_total"
+                                       groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

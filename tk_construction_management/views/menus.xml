@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Root Menu-->
+        <menuitem name="Construction" id="menu_advance_construction_root" sequence="-1"
+                  web_icon="tk_construction_management,static/description/icon.png"/>
+
+        <!--Dashboard Menu-->
+        <menuitem name="Dashboard" id="menu_construction_dashboard" action="action_tk_construction_dashboard"
+                  sequence="0" parent="menu_advance_construction_root"
+                  groups="tk_construction_management.advance_construction_manager"/>
+
+        <!--Construction Site-->
+        <menuitem id="menu_construction_site" name="Projects" parent="menu_advance_construction_root" sequence="1"
+                  action="construction_site_action"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+
+        <!--Construction Project-->
+        <menuitem id="menu_advance_con_project" name="Sub Projects" parent="menu_advance_construction_root"
+                  action="construction_project_action_act" sequence="2"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+
+        <!--Budget-->
+        <menuitem id="menu_sub_project_budget" name="Budgets" parent="menu_advance_construction_root"
+                  action="sub_project_budget_action" sequence="3"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+
+        <!--Rate Analysis-->
+        <menuitem id="menu_advance_rate_analysis" name="Rate Analysis" parent="menu_advance_construction_root"
+                  action="rate_analysis_action" sequence="4"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+
+        <!--Job Costing-->
+        <menuitem id="menu_execution" name="Executions" parent="menu_advance_construction_root" sequence="5"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+        <!--Project Phase-->
+        <menuitem id="menu_project_phase" name="Project Phases (WBS)" parent="menu_execution"
+                  action="job_costing_action"
+                  sequence="1"/>
+        <!--Work Order-->
+        <menuitem id="menu_work_orders" name="Work Orders" parent="menu_execution" action="job_order_action"
+                  sequence="2"/>
+        <!--Material Requisition-->
+        <menuitem id="menu_material_requisition" name="Material Requests" parent="menu_execution"
+                  action="material_requisition_action" sequence="3"/>
+
+
+        <!--Tasks-->
+        <menuitem id="menu_construction_project_task" name="Tasks" parent="menu_advance_construction_root"
+                  action="action_view_all_task_construction" sequence="6"
+                  groups="tk_construction_management.advance_construction_manager"/>
+
+
+        <!--Operations-->
+        <menuitem id="menu_con_operations" name="Operations" parent="menu_advance_construction_root" sequence="7"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+        <!--Internal Transfer-->
+        <menuitem id="menu_internal_transfer" name="Internal Transfers" parent="menu_con_operations"
+                  action="internal_transfer_action" sequence="1"/>
+        <!--Scrap Order-->
+        <menuitem id="menu_scrap_order" name="Scrap Orders" parent="menu_con_operations" action="scrap_order_action"
+                  sequence="2"/>
+        <!--Delivery Orders-->
+        <menuitem id="menu_delivery_order" name="Delivery Orders" parent="menu_con_operations"
+                  action="stock.action_picking_tree_all" sequence="3"/>
+
+        <!--Contract-->
+        <menuitem id="menu_con_sub_contract" name="Contracts" parent="menu_advance_construction_root" sequence="8"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+        <!--Equipment Subcontract-->
+        <menuitem id="menu_equipment_subcontract" name="Equipments" parent="menu_con_sub_contract"
+                  action="equipment_subcontract_action" sequence="1"/>
+        <!--Labour Subcontract-->
+        <menuitem id="menu_labour_subcontract" name="Labours" parent="menu_con_sub_contract"
+                  action="labour_subcontract_action" sequence="2"/>
+        <!--Overhead Subcontract-->
+        <menuitem id="menu_overhead_subcontract" name="Overheads" parent="menu_con_sub_contract"
+                  action="overhead_subcontract_action" sequence="3"/>
+
+        <!--Quality Check-->
+        <menuitem id="menu_con_qc_check" name="Quality Checks" parent="menu_advance_construction_root" sequence="9"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+        <!-- Equipment Quality Check -->
+        <menuitem id="menu_con_equipment_qc_check" name="Equipments" parent="menu_con_qc_check"
+                  action="equip_contract_line_action" sequence="1"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+        <!-- Labour Quality Check -->
+        <menuitem id="menu_con_labour_qc_check" name="Labours" parent="menu_con_qc_check"
+                  action="labour_contract_line_action" sequence="2"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+        <!-- Overhead Quality Check -->
+        <menuitem id="menu_con_overhead_qc_check" name="Overheads" parent="menu_con_qc_check"
+                  action="overhead_contract_line_action" sequence="3"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+        <!-- Material Quality Check -->
+        <menuitem id="menu_con_material_qc_check" name="Materials" parent="menu_con_qc_check"
+                  action="material_consume_action" sequence="4"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+
+
+        <!--Construction Tools-->
+        <menuitem id="menu_product_root" name="Tools" parent="menu_advance_construction_root" sequence="11"
+                  groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_user"/>
+        <menuitem id="menu_construction_material" name="Materials" parent="menu_product_root"
+                  action="construction_product_material_action" sequence="1"/>
+        <menuitem id="menu_construction_equipment" name="Equipments" parent="menu_product_root"
+                  action="construction_product_equipment_action" sequence="2"/>
+        <menuitem id="menu_construction_labour" name="Labours" parent="menu_product_root"
+                  action="construction_product_labour_action" sequence="3"/>
+        <menuitem id="menu_construction_overhead" name="Overheads" parent="menu_product_root"
+                  action="construction_product_overhead_action" sequence="4"/>
+        <menuitem id="menu_construction_expense" name="Expenses" parent="menu_product_root"
+                  action="construction_product_expense_action" sequence="5"/>
+
+
+        <!--Configuration-->
+        <menuitem id="configuration_root" name="Configurations" parent="menu_advance_construction_root" sequence="20"
+                  groups="tk_construction_management.advance_construction_manager"/>
+
+        <!--Work Type-->
+        <menuitem id="configuration_job_types_root" name="Work Types" parent="configuration_root" sequence="1"/>
+        <!--Work Type-->
+        <menuitem id="menu_job_type" name="Work Types" parent="configuration_job_types_root" action="job_type_action"
+                  sequence="1"/>
+        <!--Work Sub Type-->
+        <menuitem id="menu_job_category" name="Work Sub Types" parent="configuration_job_types_root"
+                  action="job_category_action" sequence="2"/>
+
+        <!--Users-->
+        <menuitem id="menu_construction_employee_root" name="Users" parent="configuration_root" sequence="2"/>
+        <!--Engineers-->
+        <menuitem id="menu_construction_employee_engineers" name="Employees"
+            parent="menu_construction_employee_root"
+            action="hr.open_view_employee_list_my" sequence="1" />
+        <!-- Stack Holder-->
+        <menuitem id="menu_construction_site_stack_holder" name="Stakeholders"
+            parent="menu_construction_employee_root"
+            sequence="2" action="construction_stack_holder_action" />
+
+
+        <!--Types-->
+        <menuitem id="configuration_types_root" name="Tags" parent="configuration_root" sequence="3"/>
+        <!--Document Type-->
+        <menuitem id="menu_document_type" name="Document Types" parent="configuration_types_root"
+                  action="site_document_type_action" sequence="1"/>
+        <!--Insurance Risk-->
+        <menuitem id="menu_insurance_risk" name="Insurance Risks" parent="configuration_types_root"
+                  action="policy_risk_action" sequence="2"/>
+        <!--Employee Type-->
+        <menuitem id="menu_construction_employee_tags" name="Employee Tags" parent="configuration_types_root"
+                  action="hr.open_view_categ_form" sequence="3"/>
+
+        <!--Rate Analysis Template-->
+        <menuitem id="configuration_template_root" name="Templates" parent="configuration_root" sequence="4"/>
+        <!-- Rate Analysis Template-->
+        <menuitem id="menu_ra_template" name="Rate Analysis Templates" parent="configuration_template_root"
+                  action="rate_analysis_template_action" sequence="1"/>
+
+    </data>
+</odoo>

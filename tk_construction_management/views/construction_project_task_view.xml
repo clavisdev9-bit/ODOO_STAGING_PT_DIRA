@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="construction_project_form_inherit" model="ir.ui.view">
+            <field name="name">construction.project.form.inherit</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='project_id']" position="before">
+                    <field name="is_inspection_task" readonly="1" force_save="1"
+                           invisible="not is_inspection_task"/>
+                </xpath>
+                <xpath expr="//field[@name='tag_ids']" position="after">
+                    <field name="job_order_id"/>
+                    <field name="con_project_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="con_project_project_form" model="ir.ui.view">
+            <field name="name">con.project.project.form</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='label_tasks']" position="after">
+                    <field name="construction_project_id" readonly="1" force_save="1"
+                           invisible="not construction_project_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="action_view_all_task_construction" model="ir.actions.act_window">
+            <field name="name">Tasks</field>
+            <field name="res_model">project.task</field>
+            <field name="view_mode">kanban,list,form,calendar,pivot,graph,activity</field>
+            <field name="context">{'search_default_stage': 1}</field>
+            <field name="domain">[('con_project_id','!=',False)]</field>
+            <!-- <field name="search_view_id" ref="project.view_task_search_form_extended"/> -->
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No tasks found. Let's create one!
+                </p>
+                <p>
+                    Organize your tasks by dispatching them across the pipeline.
+                    <br/>
+                    Collaborate efficiently by chatting in real-time or via email.
+                </p>
+            </field>
+        </record>
+        <!-- Time Sheet Entry -->
+        <record id="construction_project_timesheet_inherit_view_tree" model="ir.ui.view">
+            <field name="name">construction.project.timesheet.inherit.view.list</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_tree"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="attributes">
+                    <attribute name="decoration-warning">is_validate == False</attribute>
+                    <attribute name="decoration-success">is_validate == True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='task_id']" position="after">
+                    <field name="sub_project_id"/>
+                    <field name="job_order_id"/>
+                </xpath>
+                <xpath expr="//field[@name='unit_amount']" position="before">
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="hourly_cost" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='unit_amount']" position="after">
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="total_amount" widget="total_amount"
+                           groups="tk_construction_management.advance_construction_manager"/>
+                    <field name="is_validate" column_invisible="1"/>
+                    <button name="action_validate_timesheet" type="object" icon="fa-check"
+                            groups="tk_construction_management.advance_construction_manager"
+                            string="Validate" invisible="is_validate" class="btn btn-outline-success"/>
+                    <field name="bill_id" invisible="not bill_id" readonly="1" force_save="1"
+                           widget="many2one_clickable"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="construction_project_timesheet_inherit_view_search" model="ir.ui.view">
+            <field name="name">construction.project.timesheet.inherit.view.search</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_search"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='groupby_employee']" position="after">
+                    <filter string="Pending Validation" name="filter_pending_validation"
+                            domain="[('is_validate','=',False)]"/>
+                    <filter string="Validated" name="filter_validated_timesheet"
+                            domain="[('is_validate','=',True)]"/>
+                    <separator/>
+                    <filter string="Construction Project" name="group_by_construction_project" domain="[]"
+                            context="{'group_by': 'sub_project_id'}"/>
+                    <filter string="Job Order" name="group_by_job_order" domain="[]"
+                            context="{'group_by': 'job_order_id'}"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="ir_actions_server_timesheet_bill" model="ir.actions.server">
+            <field name="name">Timesheet Bill</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_account_analytic_line"/>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                action = records.action_create_timesheet_bill()
+            </field>
+            <field name="binding_model_id" ref="tk_construction_management.model_account_analytic_line"/>
+            <field name="binding_view_types">list</field>
+        </record>
+        <record id="ir_actions_server_timesheet_validation" model="ir.actions.server">
+            <field name="name">Validate Timesheets</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_account_analytic_line"/>
+            <field name="groups_id" eval="[(4, ref('tk_construction_management.advance_construction_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                action = records.action_tree_validate_timesheet()
+            </field>
+            <field name="binding_model_id" ref="tk_construction_management.model_account_analytic_line"/>
+            <field name="binding_view_types">list</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="construction_phase_start_date_cron" model="ir.cron">
+        <field name="name">Construction Management : Phase Start Date Adjustment</field>
+        <field name="model_id" ref="tk_construction_management.model_job_costing" />
+        <field name="state" eval="'code'" />
+        <field name="code" eval="'model.process_phase_start_date()'" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False" />
+    </record>
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_tk_construction_dashboard" model="ir.actions.client">
+            <field name="name">Construction Management</field>
+            <field name="tag">construction_dash</field>
+        </record>
+    </data>
+</odoo>

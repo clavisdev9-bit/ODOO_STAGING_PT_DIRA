@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Purchase-->
+        <record id="construction_purchase_view_form_inherit" model="ir.ui.view">
+            <field name="name">construction.purchase.view.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='currency_id']" position="after">
+                    <field name="material_req_id" readonly="1" force_save="1" invisible="not material_req_id"/>
+                    <field name="job_order_id" readonly="1" force_save="1" invisible="not job_order_id"/>
+                    <field name="purchase_order" readonly="1" force_save="1" invisible="not job_order_id"/>
+                    <field name="equipment_subcontract_id" readonly="1" force_save="1"
+                           invisible="not equipment_subcontract_id"/>
+                    <field name="labour_subcontract_id" readonly="1" force_save="1"
+                           invisible="not labour_subcontract_id"/>
+                    <field name="overhead_subcontract_id" readonly="1" force_save="1"
+                           invisible="not overhead_subcontract_id"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <!--Stock-->
+        <record id="construction_stock_warehouse_view_form" model="ir.ui.view">
+            <field name="name">construction.stock.warehouse.view.form</field>
+            <field name="model">stock.warehouse</field>
+            <field name="inherit_id" ref="stock.view_warehouse"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='code']" position="after">
+                    <field name="project_id" readonly="1" force_save="1" invisible="not project_id"/>
+                </xpath>
+            </field>
+        </record>
+        <!--Products-->
+        <record id="construction_product_form_inherit_view" model="ir.ui.view">
+            <field name="name">construction.product.form.inherit.view</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//label[@for='purchase_ok']" position="after">
+                    <span class="d-inline-block">
+                        <field name="is_material"/>
+                        <label for="is_material"/>
+                    </span>
+                    <span class="d-inline-block" invisible="type != 'service'">
+                        <field name="is_equipment"/>
+                        <label for="is_equipment"/>
+                    </span>
+                    <span class="d-inline-block" invisible="type != 'service'">
+                        <field name="is_labour"/>
+                        <label for="is_labour"/>
+                    </span>
+                    <span class="d-inline-block">
+                        <field name="is_overhead"/>
+                        <label for="is_overhead"/>
+                    </span>
+                    <span class="d-inline-block">
+                        <field name="is_expense"/>
+                        <label for="is_expense"/>
+                    </span>
+                </xpath>
+            </field>
+        </record>
+        <record id="construction_product_material_action" model="ir.actions.act_window">
+            <field name="name">Materials</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_material','=',True),('type','=','consu')]</field>
+            <field name="context">{'default_is_material':True,'default_type':'consu'}</field>
+        </record>
+        <record id="construction_product_equipment_action" model="ir.actions.act_window">
+            <field name="name">Equipments</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_equipment','=',True),('type','=','service')]</field>
+            <field name="context">{'default_is_equipment':True,'default_type':'service'}</field>
+        </record>
+        <record id="construction_product_labour_action" model="ir.actions.act_window">
+            <field name="name">Labours</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_labour','=',True),('type','=','service')]</field>
+            <field name="context">{'default_is_labour':True,'default_type':'service'}</field>
+        </record>
+        <record id="construction_product_overhead_action" model="ir.actions.act_window">
+            <field name="name">Overheads</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_overhead','=',True)]</field>
+            <field name="context">{'default_is_overhead':True}</field>
+        </record>
+        <record id="construction_product_expense_action" model="ir.actions.act_window">
+            <field name="name">Expenses</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('is_expense','=',True)]</field>
+            <field name="context">{'default_is_expense':True}</field>
+        </record>
+
+        <!--Account-->
+        <record id="construction_account_view_form_inherit" model="ir.ui.view">
+            <field name="name">construction.account.view.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_vendor_bill_id']" position="after">
+                    <field name="material_req_id" readonly="1" force_save="1" invisible="not material_req_id"/>
+                    <field name="project_id" readonly="1" force_save="1" invisible="not material_req_id"/>
+                    <field name="job_order_id" invisible="not job_order_id" readonly="1" force_save="1"/>
+                    <field name="purchase_order" invisible="not job_order_id" readonly="1" force_save="1"/>
+                    <field name="equipment_subcontract_id" readonly="1" force_save="1"
+                           invisible="not equipment_subcontract_id"/>
+                    <field name="labour_subcontract_id" readonly="1" force_save="1"
+                           invisible="not labour_subcontract_id"/>
+                    <field name="overhead_subcontract_id" readonly="1" force_save="1"
+                           invisible="not overhead_subcontract_id"/>
+                    <field name="progress_bill_id" readonly="1" force_save="1" invisible="not progress_bill_id"/>
+                    <field name="bill_of" readonly="1" force_save="1" invisible="not bill_of"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

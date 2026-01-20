@@ -1,0 +1,1013 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Equipment
+        Subcontract-->
+        <record id="equipment_subcontract_view_form" model="ir.ui.view">
+            <field name="name">equipment.subcontract.view.form</field>
+            <field name="model">equipment.subcontract</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="stage" widget="statusbar" statusbar_visible="draft,request,approve"/>
+                        <button string="In Progress" name="action_in_progress" type="object"
+                                class="oe_highlight" invisible="stage != 'draft'"/>
+                        <button string="Done" name="action_state_done" type="object"
+                                class="oe_highlight"
+                                invisible="stage in ['done','draft'] or progress != 100"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-6">
+                                <h1>
+                                    <field name="seq"/>
+                                </h1>
+                                <h4>
+                                    <field name="po_bill" widget="radio"
+                                           options="{'horizontal':True}"
+                                           readonly="stage in ['in_progress','done']" force_save="1"/>
+                                </h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <field name="progress" widget="progressbar"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="company_id"/>
+                            </group>
+                        </group>
+                        <group string="Project Details">
+                            <group>
+                                <field name="project_id"/>
+                                <field name="phase_id"/>
+                            </group>
+                            <group>
+                                <field name="job_order_id" readonly="1" force_save="1"/>
+                                <field name="task_id"/>
+                            </group>
+                        </group>
+                        <group string="Equipment Details">
+                            <group>
+                                <field name="name" required="1"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="vendor_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="equipment_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="job_type_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="cost" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="cost_type" required="1"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="sub_category_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group string="Calculation">
+                            <group>
+                                <field name="qty" readonly="1" force_save="1"/>
+                                <field name="total_cost" readonly="1" force_save="1"/>
+                                <field name="completion_date" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="remain_qty" readonly="1" force_save="1"/>
+                                <field name="remaining_amount" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="equipment_ra_bill" string="Subcontract Bills/PO">
+                                <field name="ra_bill_ids"
+                                       readonly="stage == 'draft' or progress == 100">
+                                    <form>
+                                        <header>
+                                            <field name="qc_status" widget="statusbar"/>
+                                        </header>
+                                        <group>
+                                            <group>
+                                                <field name="po_bill" invisible="1"/>
+                                                <field name="date" required="1"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group invisible="not bill_id or po_bill != 'bill'">
+                                            <group>
+                                                <field name="bill_id" readonly="1"
+                                                       widget="many2one_clickable" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="payment_state" widget="badge"
+                                                       decoration-success="payment_state=='paid'"
+                                                       decoration-danger="payment_state=='not_paid'"
+                                                       decoration-info="payment_state=='in_payment'"
+                                                       decoration-primary="payment_state=='partial'"
+                                                       decoration-warning="payment_state=='reversed'"/>
+                                            </group>
+                                        </group>
+                                        <group
+                                                invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                                            <group>
+                                                <field name="purchase_order_id"
+                                                       widget="many2one_clickable" readonly="1"
+                                                       force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="state" widget="badge"
+                                                       decoration-success="state == 'purchase' or state == 'done'"
+                                                       decoration-warning="state == 'to approve'"
+                                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="qty" required="1"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                                <field name="percentage" readonly="1" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="amount" required="1" sum="amount"/>
+                                                <field name="retention_percentage"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"/>
+                                                <field name="retention_amount"/>
+                                                <field name="final_amount" required="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="qc_user_id" invisible="not qc_user_id"
+                                                       readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <field name="remark" required="0"
+                                                   readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                   force_save="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="reject_reason"
+                                                   invisible="qc_status != 'reject'"/>
+                                        </group>
+                                    </form>
+                                    <list decoration-success="qc_status == 'approve'"
+                                          decoration-danger="qc_status == 'reject'">
+                                        <field name="date"/>
+                                        <field name="qty"/>
+                                        <field name="percentage"/>
+                                        <field name="amount"/>
+                                        <field name="retention_percentage"/>
+                                        <field name="retention_amount"/>
+                                        <field name="final_amount"/>
+                                        <field name="remark"/>
+                                        <field name="purchase_order_id" widget="many2one_clickable"
+                                               column_invisible="parent.po_bill == 'bill'"/>
+                                        <field name="state" widget="badge"
+                                               column_invisible="parent.po_bill == 'bill'"
+                                               decoration-success="state == 'purchase' or state == 'done'"
+                                               decoration-warning="state == 'to approve'"
+                                               decoration-info="state == 'draft' or state == 'sent'"/>
+                                        <field name="bill_id" widget="many2one_clickable"
+                                               column_invisible="parent.po_bill == 'purchase_order'"/>
+                                        <field name="payment_state" widget="badge"
+                                               column_invisible="parent.po_bill == 'purchase_order'"
+                                               decoration-success="payment_state=='paid'"
+                                               decoration-danger="payment_state=='not_paid'"
+                                               decoration-info="payment_state=='in_payment'"
+                                               decoration-primary="payment_state=='partial'"
+                                               decoration-warning="payment_state=='reversed'"/>
+                                        <field name="qc_status" widget="badge"
+                                               decoration-danger="qc_status == 'reject'"
+                                               decoration-success="qc_status == 'approve'"
+                                               decoration-info="qc_status == 'request'"/>
+                                        <button string="QC Request" name="action_quality_check"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'draft'"/>
+                                        <button string="Approve" name="action_quality_check_approve"
+                                                type="object" class="btn btn-success"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reject" name="action_quality_check_reject"
+                                                type="object" class="btn btn-danger"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reset to Draft" name="action_reset_to_draft"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'reject'"/>
+                                        <button string="Create Bill/PO" name="action_create_ra_bill"
+                                                type="object" class="oe_highlight"
+                                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="equipment_subcontract_view_tree" model="ir.ui.view">
+            <field name="name">equipment.subcontract.view.list</field>
+            <field name="model">equipment.subcontract</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="cost_type"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="qty"/>
+                    <field name="cost"/>
+                    <field name="total_cost"/>
+                    <field name="stage" widget="badge" decoration-success="stage == 'done'"
+                           decoration-warning="stage == 'in_progress'"/>
+                    <field name="progress" widget="progressbar"/>
+                </list>
+            </field>
+        </record>
+        <record id="equipment_subcontract_view_search" model="ir.ui.view">
+            <field name="name">equipment.subcontract.view.search</field>
+            <field name="model">equipment.subcontract</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="project_id"/>
+                    <field name="phase_id"/>
+                    <field name="task_id"/>
+                    <field name="vendor_id"/>
+                    <field name="stage"/>
+                    <field name="progress"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                    <searchpanel>
+                        <field name="po_bill" string="Type" enable_counters="1" icon="fa-filter"/>
+                        <field name="stage" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project"
+                                context="{'group_by': 'project_id'}"/>
+                        <filter string="Phase(WBS)" name="group_by_phase"
+                                context="{'group_by': 'phase_id'}"/>
+                        <filter string="Work Order" name="group_by_work_order"
+                                context="{'group_by': 'job_order_id'}"/>
+                        <filter string="Task" name="group_by_task" context="{'group_by': 'task_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                        <filter string="Work Type" name="group_by_job_type"
+                                context="{'group_by': 'job_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="equipment_subcontract_action" model="ir.actions.act_window">
+            <field name="name">Equipment Subcontract</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">equipment.subcontract</field>
+            <field name="view_mode">list,form,search</field>
+        </record>
+        <!--Labour
+        Subcontract-->
+        <record id="labour_subcontract_view_form" model="ir.ui.view">
+            <field name="name">labour.subcontract.view.form</field>
+            <field name="model">labour.subcontract</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="stage" widget="statusbar"/>
+                        <button string="In Progress" name="action_in_progress" type="object"
+                                class="oe_highlight" invisible="stage != 'draft'"/>
+                        <button string="Done" name="action_state_done" type="object"
+                                class="oe_highlight"
+                                invisible="stage in ['done','draft'] or progress != 100"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-6">
+                                <h1>
+                                    <field name="seq"/>
+                                </h1>
+                                <h4>
+                                    <field name="po_bill" widget="radio"
+                                           options="{'horizontal':True}"
+                                           readonly="stage in ['in_progress','done']" force_save="1"/>
+                                </h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <field name="progress" widget="progressbar"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="company_id"/>
+                            </group>
+                        </group>
+                        <group string="Project Details">
+                            <group>
+                                <field name="project_id"/>
+                                <field name="phase_id"/>
+
+                            </group>
+                            <group>
+                                <field name="job_order_id" readonly="1" force_save="1"/>
+                                <field name="task_id"/>
+                            </group>
+                        </group>
+                        <group string="Labour Details">
+                            <group>
+                                <field name="name" required="1"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="vendor_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="product_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="cost" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="job_type_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="sub_category_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group string="Calculation">
+                            <group>
+                                <field name="hours" readonly="1" force_save="1" widget="float_time"/>
+                                <field name="total_cost" readonly="1" force_save="1"/>
+                                <field name="completion_date" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="remain_hours" readonly="1" widget="float_time"
+                                       force_save="1"/>
+                                <field name="remaining_amount" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="equipment_ra_bill" string="Subcontract Bills/PO">
+                                <field name="ra_bill_ids"
+                                       readonly="stage == 'draft' or progress == 100">
+                                    <form>
+                                        <header>
+                                            <field name="qc_status" widget="statusbar"/>
+                                        </header>
+                                        <group>
+                                            <group>
+                                                <field name="po_bill" invisible="1"/>
+                                                <field name="date" required="1"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group invisible="not bill_id or po_bill != 'bill'">
+                                            <group>
+                                                <field name="bill_id" readonly="1"
+                                                       widget="many2one_clickable" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="payment_state" widget="badge"
+                                                       decoration-success="payment_state=='paid'"
+                                                       decoration-danger="payment_state=='not_paid'"
+                                                       decoration-info="payment_state=='in_payment'"
+                                                       decoration-primary="payment_state=='partial'"
+                                                       decoration-warning="payment_state=='reversed'"/>
+                                            </group>
+                                        </group>
+                                        <group
+                                                invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                                            <group>
+                                                <field name="purchase_order_id"
+                                                       widget="many2one_clickable" readonly="1"
+                                                       force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="state" widget="badge"
+                                                       decoration-success="state == 'purchase' or state == 'done'"
+                                                       decoration-warning="state == 'to approve'"
+                                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="hours" required="1" widget="float_time"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                                <field name="percentage" readonly="1" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="amount" required="1" sum="amount"/>
+                                                <field name="retention_percentage"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"/>
+                                                <field name="retention_amount"/>
+                                                <field name="final_amount" required="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="qc_user_id" invisible="not qc_user_id"
+                                                       readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <field name="remark" required="0"
+                                                   readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                   force_save="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="reject_reason"
+                                                   invisible="qc_status != 'reject'"/>
+                                        </group>
+                                    </form>
+                                    <list decoration-success="qc_status == 'approve'"
+                                          decoration-danger="qc_status == 'reject'">
+                                        <field name="date"/>
+                                        <field name="hours" widget="float_time"/>
+                                        <field name="amount"/>
+                                        <field name="percentage"/>
+                                        <field name="retention_percentage"/>
+                                        <field name="retention_amount"/>
+                                        <field name="final_amount"/>
+                                        <field name="remark" required="0" force_save="1"
+                                               readonly="purchase_order_id or bill_id"/>
+                                        <field name="purchase_order_id" widget="many2one_clickable"
+                                               readonly="1" force_save="1"
+                                               column_invisible="parent.po_bill == 'bill'"/>
+                                        <field name="state" widget="badge"
+                                               column_invisible="parent.po_bill == 'bill'"
+                                               decoration-success="state == 'purchase' or state == 'done'"
+                                               decoration-warning="state == 'to approve'"
+                                               decoration-info="state == 'draft' or state == 'sent'"/>
+                                        <field name="bill_id" readonly="1"
+                                               widget="many2one_clickable" force_save="1"
+                                               column_invisible="parent.po_bill == 'purchase_order'"/>
+                                        <field name="payment_state" widget="badge"
+                                               column_invisible="parent.po_bill == 'purchase_order'"
+                                               decoration-success="payment_state=='paid'"
+                                               decoration-danger="payment_state=='not_paid'"
+                                               decoration-info="payment_state=='in_payment'"
+                                               decoration-primary="payment_state=='partial'"
+                                               decoration-warning="payment_state=='reversed'"/>
+                                        <field name="qc_status" widget="badge"
+                                               decoration-danger="qc_status == 'reject'"
+                                               decoration-success="qc_status == 'approve'"
+                                               decoration-info="qc_status == 'request'"/>
+                                        <button string="QC Request" name="action_quality_check"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'draft'"/>
+                                        <button string="Approve" name="action_quality_check_approve"
+                                                type="object" class="btn btn-success"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reject" name="action_quality_check_reject"
+                                                type="object" class="btn btn-danger"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reset to Draft" name="action_reset_to_draft"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'reject'"/>
+                                        <button string="Create Bill/PO" name="action_create_ra_bill"
+                                                type="object" class="oe_highlight"
+                                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="labour_subcontract_view_tree" model="ir.ui.view">
+            <field name="name">labour.subcontract.view.list</field>
+            <field name="model">labour.subcontract</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="hours" widget="float_time"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="cost"/>
+                    <field name="total_cost"/>
+                    <field name="stage" widget="badge" decoration-success="stage == 'done'"
+                           decoration-warning="stage == 'in_progress'"/>
+                    <field name="progress" widget="progressbar"/>
+                </list>
+            </field>
+        </record>
+        <record id="labour_subcontract_view_search" model="ir.ui.view">
+            <field name="name">labour.subcontract.view.search</field>
+            <field name="model">labour.subcontract</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="project_id"/>
+                    <field name="phase_id"/>
+                    <field name="task_id"/>
+                    <field name="vendor_id"/>
+                    <field name="stage"/>
+                    <field name="progress"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                    <searchpanel>
+                        <field name="po_bill" string="Type" enable_counters="1" icon="fa-filter"/>
+                        <field name="stage" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project"
+                                context="{'group_by': 'project_id'}"/>
+                        <filter string="Phase(WBS)" name="group_by_phase"
+                                context="{'group_by': 'phase_id'}"/>
+                        <filter string="Work Order" name="group_by_work_order"
+                                context="{'group_by': 'job_order_id'}"/>
+                        <filter string="Task" name="group_by_task" context="{'group_by': 'task_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                        <filter string="Work Type" name="group_by_job_type"
+                                context="{'group_by': 'job_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="labour_subcontract_action" model="ir.actions.act_window">
+            <field name="name">Labour Subcontract</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">labour.subcontract</field>
+            <field name="view_mode">list,form,search</field>
+        </record>
+        <!--Overhead
+        Subcontract-->
+        <record id="overhead_subcontract_view_form" model="ir.ui.view">
+            <field name="name">overhead.subcontract.view.form</field>
+            <field name="model">overhead.subcontract</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="stage" widget="statusbar"/>
+                        <button string="In Progress" name="action_in_progress" type="object"
+                                class="oe_highlight" invisible="stage != 'draft'"/>
+                        <button string="Done" name="action_state_done" type="object"
+                                class="oe_highlight"
+                                invisible="stage in ['done','draft'] or progress != 100"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-6">
+                                <h1>
+                                    <field name="seq"/>
+                                </h1>
+                                <h4>
+                                    <field name="po_bill" widget="radio"
+                                           options="{'horizontal':True}"
+                                           readonly="stage in ['in_progress','done']" force_save="1"/>
+                                </h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <field name="progress" widget="progressbar"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="company_id"/>
+                            </group>
+                        </group>
+                        <group string="Project Details">
+                            <group>
+                                <field name="project_id"/>
+                                <field name="phase_id"/>
+                            </group>
+                            <group>
+                                <field name="job_order_id" readonly="1" force_save="1"/>
+                                <field name="task_id"/>
+                            </group>
+                        </group>
+                        <group string="Overhead Details">
+                            <group>
+                                <field name="name" required="1"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="vendor_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="product_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="job_type_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                                <field name="cost" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="uom_id"/>
+                                <field name="sub_category_id" required="1"
+                                       options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_quick_create':True}"
+                                       readonly="stage in ['in_progress','done']" force_save="1"/>
+                            </group>
+                        </group>
+                        <group string="Calculation">
+                            <group>
+                                <field name="qty" readonly="1" force_save="1"/>
+                                <field name="total_cost" readonly="1" force_save="1"/>
+                                <field name="completion_date" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="remain_qty" readonly="1" force_save="1"/>
+                                <field name="remaining_amount" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="equipment_ra_bill" string="Subcontract Bills/PO">
+                                <field name="ra_bill_ids"
+                                       readonly="stage == 'draft' or progress == 100">
+                                    <form>
+                                        <header>
+                                            <field name="qc_status" widget="statusbar"/>
+                                        </header>
+                                        <group>
+                                            <group>
+                                                <field name="po_bill" invisible="1"/>
+                                                <field name="date" required="1"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group invisible="not bill_id or po_bill != 'bill'">
+                                            <group>
+                                                <field name="bill_id" readonly="1"
+                                                       widget="many2one_clickable" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="payment_state" widget="badge"
+                                                       decoration-success="payment_state=='paid'"
+                                                       decoration-danger="payment_state=='not_paid'"
+                                                       decoration-info="payment_state=='in_payment'"
+                                                       decoration-primary="payment_state=='partial'"
+                                                       decoration-warning="payment_state=='reversed'"/>
+                                            </group>
+                                        </group>
+                                        <group
+                                                invisible="not purchase_order_id or po_bill != 'purchase_order'">
+                                            <group>
+                                                <field name="purchase_order_id"
+                                                       widget="many2one_clickable" readonly="1"
+                                                       force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="state" widget="badge"
+                                                       decoration-success="state == 'purchase' or state == 'done'"
+                                                       decoration-warning="state == 'to approve'"
+                                                       decoration-info="state == 'draft' or state == 'sent'"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="qty" required="1"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                       force_save="1"/>
+                                                <field name="percentage" readonly="1" force_save="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="amount" required="1" sum="amount"/>
+                                                <field name="retention_percentage"
+                                                       readonly="purchase_order_id or qc_status != 'draft' or bill_id"/>
+                                                <field name="retention_amount"/>
+                                                <field name="final_amount" required="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="qc_user_id" invisible="not qc_user_id"
+                                                       readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <field name="remark" required="0"
+                                                   readonly="purchase_order_id or qc_status != 'draft' or bill_id"
+                                                   force_save="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="reject_reason"
+                                                   invisible="qc_status != 'reject'"/>
+                                        </group>
+                                    </form>
+                                    <list decoration-success="qc_status == 'approve'"
+                                          decoration-danger="qc_status == 'reject'">
+                                        <field name="date"/>
+                                        <field name="qty"/>
+                                        <field name="percentage" sum="percentage"/>
+                                        <field name="amount" sum="amount"/>
+                                        <field name="retention_percentage"/>
+                                        <field name="retention_amount" sum="amount"/>
+                                        <field name="final_amount"/>
+                                        <field name="remark"/>
+                                        <field name="purchase_order_id" widget="many2one_clickable"
+                                               readonly="1" force_save="1"
+                                               column_invisible="parent.po_bill == 'bill'"/>
+                                        <field name="state" widget="badge"
+                                               column_invisible="parent.po_bill == 'bill'"
+                                               decoration-success="state == 'purchase' or state == 'done'"
+                                               decoration-warning="state == 'to approve'"
+                                               decoration-info="state == 'draft' or state == 'sent'"/>
+                                        <field name="bill_id" readonly="1"
+                                               widget="many2one_clickable" force_save="1"
+                                               column_invisible="parent.po_bill == 'purchase_order'"/>
+                                        <field name="payment_state" widget="badge"
+                                               column_invisible="parent.po_bill == 'purchase_order'"
+                                               decoration-success="payment_state=='paid'"
+                                               decoration-danger="payment_state=='not_paid'"
+                                               decoration-info="payment_state=='in_payment'"
+                                               decoration-primary="payment_state=='partial'"
+                                               decoration-warning="payment_state=='reversed'"/>
+                                        <field name="qc_status" widget="badge"
+                                               decoration-danger="qc_status == 'reject'"
+                                               decoration-success="qc_status == 'approve'"
+                                               decoration-info="qc_status == 'request'"/>
+                                        <button string="QC Request" name="action_quality_check"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'draft'"/>
+                                        <button string="Approve" name="action_quality_check_approve"
+                                                type="object" class="btn btn-success"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reject" name="action_quality_check_reject"
+                                                type="object" class="btn btn-danger"
+                                                invisible="qc_status != 'request'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department,tk_construction_management.advance_construction_qc_user"/>
+                                        <button string="Reset to Draft" name="action_reset_to_draft"
+                                                type="object" class="oe_highlight"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"
+                                                invisible="qc_status != 'reject'"/>
+                                        <button string="Create Bill/PO" name="action_create_ra_bill"
+                                                type="object" class="oe_highlight"
+                                                invisible="bill_id or purchase_order_id or qc_status != 'approve'"
+                                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="overhead_subcontract_view_tree" model="ir.ui.view">
+            <field name="name">overhead.subcontract.view.list</field>
+            <field name="model">overhead.subcontract</field>
+            <field name="arch" type="xml">
+                <list create="false">
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="qty"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="uom_id"/>
+                    <field name="cost"/>
+                    <field name="total_cost"/>
+                    <field name="stage" widget="badge" decoration-success="stage == 'done'"
+                           decoration-warning="stage == 'in_progress'"/>
+                    <field name="progress" widget="progressbar"/>
+                </list>
+            </field>
+        </record>
+        <record id="overhead_subcontract_view_search" model="ir.ui.view">
+            <field name="name">overhead.subcontract.view.search</field>
+            <field name="model">overhead.subcontract</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="seq"/>
+                    <field name="name"/>
+                    <field name="job_order_id"/>
+                    <field name="vendor_id"/>
+                    <field name="project_id"/>
+                    <field name="phase_id"/>
+                    <field name="task_id"/>
+                    <field name="vendor_id"/>
+                    <field name="stage"/>
+                    <field name="progress"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                    <searchpanel>
+                        <field name="po_bill" string="Type" enable_counters="1" icon="fa-filter"/>
+                        <field name="stage" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project"
+                                context="{'group_by': 'project_id'}"/>
+                        <filter string="Phase(WBS)" name="group_by_phase"
+                                context="{'group_by': 'phase_id'}"/>
+                        <filter string="Work Order" name="group_by_work_order"
+                                context="{'group_by': 'job_order_id'}"/>
+                        <filter string="Task" name="group_by_task" context="{'group_by': 'task_id'}"/>
+                        <filter string="Vendor" name="group_by_vendor"
+                                context="{'group_by': 'vendor_id'}"/>
+                        <filter string="Work Type" name="group_by_job_type"
+                                context="{'group_by': 'job_type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="overhead_subcontract_action" model="ir.actions.act_window">
+            <field name="name">Overhead Subcontract</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">overhead.subcontract</field>
+            <field name="view_mode">list,form,search</field>
+        </record>
+        <!-- Material Consume-->
+        <record id="material_consume_view_form" model="ir.ui.view">
+            <field name="name">material.consume.view.form</field>
+            <field name="model">material.consume</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="qc_status" widget="statusbar" statusbar_visible="draft,request,approve"/>
+                        <button string="QC Request" name="action_quality_check" type="object"
+                                class="oe_highlight" invisible="qc_status != 'draft'"/>
+                        <button string="Approve" name="action_quality_check_approve" type="object"
+                                class="btn btn-success" invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Reject" name="action_quality_check_reject" type="object"
+                                class="btn btn-danger" invisible="qc_status != 'request'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button string="Reset to Draft" name="action_reset_to_draft" type="object"
+                                class="oe_highlight" invisible="qc_status not in ['reject','cancel']"/>
+                        <button string="Create Consume Order" name="action_create_consume_order"
+                                type="object" class="oe_highlight"
+                                invisible="consume_order_id or qc_status != 'approve'"
+                                groups="tk_construction_management.advance_construction_manager,tk_construction_management.advance_construction_department"/>
+                        <button name="action_cancel_consume_order" type="object" string="Cancel"
+                                class="btn btn-danger"
+                                invisible="qc_status in ['approve','reject','cancel']"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="col-6">
+                                <h1>
+                                    <field name="seq"/>
+                                </h1>
+                            </div>
+                        </div>
+                        <br/>
+                        <group>
+                            <group>
+                                <field name="date" required="1"/>
+                            </group>
+                            <group>
+                                <field name="warehouse_id" readonly="1" force_save="1"/>
+                                <field name="company_id"/>
+                            </group>
+                        </group>
+                        <group string="Project Details">
+                            <group>
+                                <field name="project_id"/>
+                                <field name="phase_id"/>
+                            </group>
+                            <group>
+                                <field name="job_order_id" readonly="1" force_save="1"/>
+                                <field name="task_id"/>
+                            </group>
+                        </group>
+                        <group invisible="not consume_order_id" string="Consume Order">
+                            <group>
+                                <field name="consume_order_id" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="state" widget="badge"
+                                       decoration-danger="state=='cancel'"
+                                       decoration-info="state== 'assigned'"
+                                       decoration-muted="state == 'draft'"
+                                       decoration-success="state == 'done'"
+                                       decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Remark">
+                                <field name="remark" required="0" readonly="qc_status != 'draft'"/>
+                            </group>
+                            <group string="Quality Checks" invisible="not qc_user_id">
+                                <field name="qc_user_id" readonly="1" force_save="1"
+                                       invisible="not qc_user_id"/>
+                            </group>
+                        </group>
+                        <group invisible="not reject_reason">
+                            <field name="reject_reason" invisible="qc_status != 'reject'"/>
+                        </group>
+                        <notebook>
+                            <page string="Consume Orders">
+                                <field name="consume_order_ids">
+                                    <list editable="bottom" create="0">
+                                        <field name="material_id" readonly="1" force_save="1"/>
+                                        <field name="name" readonly="1" force_save="1"/>
+                                        <field name="qc_status" column_invisible="1"/>
+                                        <field name="qty" readonly="qc_status != 'draft'"/>
+                                        <field name="remain_qty" readonly="1" force_save="1" column_invisible="1"/>
+                                        <field name="uom_id"/>
+                                        <field name="material_line_id" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <record id="material_consume_view_tree" model="ir.ui.view">
+            <field name="name">material.consume.view.list</field>
+            <field name="model">material.consume</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="seq"/>
+                    <field name="company_id"/>
+                    <field name="job_order_id"/>
+                    <field name="job_order_id"/>
+                    <field name="phase_id"/>
+                    <field name="qc_status" widget="badge" decoration-danger="qc_status == 'reject'"
+                           decoration-success="qc_status == 'approve'"
+                           decoration-info="qc_status == 'request'"/>
+                </list>
+            </field>
+        </record>
+        <record id="material_consume_view_search" model="ir.ui.view">
+            <field name="name">material.consume.view.search</field>
+            <field name="model">material.consume</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="seq"/>
+                    <field name="job_order_id"/>
+                    <field name="job_order_id"/>
+                    <field name="project_id"/>
+                    <field name="task_id"/>
+                    <field name="phase_id"/>
+                    <field name="qc_status"/>
+                    <filter name="filter_by_archive" string="Archived"
+                            domain="[('active','=',False)]"/>
+                    <searchpanel>
+                        <field name="qc_status" string="Status" enable_counters="1" icon="fa-filter"/>
+                    </searchpanel>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project"
+                                context="{'group_by': 'project_id'}"/>
+                        <filter string="Phase(WBS)" name="group_by_phase"
+                                context="{'group_by': 'phase_id'}"/>
+                        <filter string="Work Order" name="group_by_work_order"
+                                context="{'group_by': 'job_order_id'}"/>
+                        <filter string="Task" name="group_by_task" context="{'group_by': 'task_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="material_consume_action" model="ir.actions.act_window">
+            <field name="name">Material Quality Check</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">material.consume</field>
+            <field name="view_mode">list,form,search</field>
+        </record>
+    </data>
+</odoo>

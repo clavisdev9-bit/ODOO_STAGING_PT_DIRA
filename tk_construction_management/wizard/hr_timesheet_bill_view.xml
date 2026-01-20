@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_timesheet_bill_view_form" model="ir.ui.view">
+            <field name="name">hr.timesheet.bill.view.form</field>
+            <field name="model">timesheet.billing</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <field name="is_diff_work_order" invisible="1"/>
+                        <field name="is_bill_created" invisible="1"/>
+                        <div class="alert alert-info text-center" role="alert"
+                             invisible="not is_diff_work_order">
+                            Please select timesheets with one Work Order
+                        </div>
+                        <div class="alert alert-success text-center" role="alert"
+                             invisible="not is_bill_created">
+                            All timesheets bill are created or you timesheets are not validated.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="vendor_id" required="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="product_id" required="1"/>
+                                <field name="sub_category_ids" invisible="1"/>
+                                <field name="sub_category_id"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="is_diff_work_order" invisible="1"/>
+                            </group>
+                        </group>
+                        <separator string="Bill For Timesheets"/>
+                        <div class="font-italic text-muted">
+                            Note: For billing, timesheets must be validated with a one(unique) work order.
+                        </div>
+                        <field name="timesheet_ids" nolable="1" readonly="1" force_save="1">
+                            <list>
+                                <field name="date"/>
+                                <field name="employee_id" widget="many2one_avatar_employee"/>
+                                <field name="task_id"/>
+                                <field name="name"/>
+                                <field name="hourly_cost"/>
+                                <field name="unit_amount"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="total_amount" sum="total_amount" widget="monetary"/>
+                            </list>
+                        </field>
+                        <footer>
+                            <button string="Create Bill" type="object" class="btn btn-primary"
+                                    invisible="not timesheet_ids or is_diff_work_order"
+                                    name="action_move_timesheet_bill"/>
+                            <button string="Cancel" special="cancel"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>
