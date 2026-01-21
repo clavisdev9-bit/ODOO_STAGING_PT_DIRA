@@ -4,8 +4,42 @@
         <field name="model">budget.analytic</field>
         <field name="inherit_id" ref="account_budget.view_budget_analytic_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='account_id']" position="after">
-                <field name="code"/>
+            <xpath expr="//field[@name='budget_line_ids']/list"
+                   position="attributes">
+                <attribute name="editable"/>
+            </xpath>
+            <xpath expr="//field[@name='budget_line_ids']/list/field[@name='budget_amount']" position="after">
+                <field name="request"/>
+                <field name="remaining"/>
+                <field name="request_ids" column_invisible="True"/>
+            </xpath>
+            <xpath expr="//page[@name='budget_lines']//field[@name='budget_line_ids']" position="inside">
+                <form>
+                    <group>
+                        <group>
+                            <field name="account_id"/>
+                            <field name="x_plan2_id"/>
+                            <field name="x_plan3_id"/>
+                        </group>
+                        <group>
+                            <field name="budget_amount"/>
+                            <field name="request"/>
+                            <field name="remaining"/>
+                        </group>
+                        <notebook>
+                            <page string="Request Details">
+                                <field name="request_ids">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="reference"/>
+                                        <field name="product_id"/>
+                                        <field name="amount"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+                </form>
             </xpath>
         </field>
     </record>

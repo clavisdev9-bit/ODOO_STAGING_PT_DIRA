@@ -10,12 +10,9 @@
                     <button name="button_cancel" type="object" string="Cancel" class="btn-secondary" invisible="state != 'confirmed'"/>
                 </header>
             </xpath>
-            <!--<xpath expr="//header/button[@name='action_preview_sale_order']" position="replace">
-                <button name="action_preview_sale_order" string="Preview" type="object" class="btn-secondary" invisible="state in ['confirm', 'manager']"/>
-            </xpath>-->
             <xpath expr="//field[@name='order_line']/list/field[@name='taxes_id']" position="after">
-                <field name="budget_id"/>
-                <field name="budget_line_id"/>
+                <field name="budget_id" required="product_id != False"/>
+                <field name="budget_line_id" required="product_id != False"/>
             </xpath>
         </field>
     </record>
