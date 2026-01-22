@@ -50,32 +50,6 @@
                         icon="fa-external-link"
                         title="Open Budget Line"/>
             </xpath>
-            <!--<xpath expr="//page[@name='budget_lines']//field[@name='budget_line_ids']" position="inside">
-                <form>
-                    <group>
-                        <group>
-                            <field name="account_id"/>
-                        </group>
-                        <group>
-                            <field name="budget_amount"/>
-                            <field name="request"/>
-                            <field name="remaining"/>
-                        </group>
-                        <notebook>
-                            <page string="Request Details">
-                                <field name="request_ids">
-                                    <list>
-                                        <field name="date"/>
-                                        <field name="reference"/>
-                                        <field name="product_id"/>
-                                        <field name="amount"/>
-                                    </list>
-                                </field>
-                            </page>
-                        </notebook>
-                    </group>
-                </form>
-            </xpath>-->
         </field>
     </record>
 </odoo>
