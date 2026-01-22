@@ -15,3 +15,17 @@ class BudgetLine(models.Model):
             total_request = sum(line.request_ids.mapped('amount'))
             line.request = total_request
             line.remaining = line.budget_amount - total_request
+
+    def action_open_budget_line_form(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Budget Line Details',
+            'res_model': 'budget.line',
+            'view_mode': 'form',
+            'views': [(self.env.ref(
+                'purchase_order_budget.view_budget_line_form_custom'
+            ).id, 'form')],
+            'res_id': self.id,
+            'target': 'new',
+        }

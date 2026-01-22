@@ -1,19 +1,56 @@
 <odoo>
+    <record id="view_budget_line_form_custom" model="ir.ui.view">
+        <field name="name">budget.line.form.custom</field>
+        <field name="model">budget.line</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <form string="Budget Line Details" create="False" edit="False">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="account_id"/>
+                        </group>
+                        <group>
+                            <field name="budget_amount"/>
+                            <field name="request"/>
+                            <field name="remaining"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Request Details">
+                            <field name="request_ids">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="reference"/>
+                                    <field name="product_id"/>
+                                    <field name="amount"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
     <record id="budget_analytic_view_form_inherit" model="ir.ui.view">
         <field name="name">budget.analytic.view.form.inherit</field>
         <field name="model">budget.analytic</field>
         <field name="inherit_id" ref="account_budget.view_budget_analytic_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='budget_line_ids']/list"
-                   position="attributes">
-                <attribute name="editable"/>
-            </xpath>
             <xpath expr="//field[@name='budget_line_ids']/list/field[@name='budget_amount']" position="after">
                 <field name="request"/>
                 <field name="remaining"/>
                 <field name="request_ids" column_invisible="True"/>
             </xpath>
-            <xpath expr="//page[@name='budget_lines']//field[@name='budget_line_ids']" position="inside">
+            <xpath expr="//field[@name='budget_line_ids']/list" position="inside">
+                <button name="action_open_budget_line_form"
+                        type="object"
+                        icon="fa-external-link"
+                        title="Open Budget Line"/>
+            </xpath>
+            <!--<xpath expr="//page[@name='budget_lines']//field[@name='budget_line_ids']" position="inside">
                 <form>
                     <group>
                         <group>
@@ -38,7 +75,7 @@
                         </notebook>
                     </group>
                 </form>
-            </xpath>
+            </xpath>-->
         </field>
     </record>
 </odoo>
