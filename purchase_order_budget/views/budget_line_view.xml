@@ -18,8 +18,6 @@
                     <group>
                         <group>
                             <field name="account_id"/>
-                            <field name="x_plan2_id"/>
-                            <field name="x_plan3_id"/>
                         </group>
                         <group>
                             <field name="budget_amount"/>
