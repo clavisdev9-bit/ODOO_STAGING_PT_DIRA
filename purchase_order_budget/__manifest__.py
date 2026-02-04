@@ -3,7 +3,7 @@
     'version': '1.0',
     'category': 'Sales',
     'description': """Add budget to Sales Order""",
-    'depends': ['sale'],
+    'depends': ['sale','account_budget'],
     'data': [
         'security/ir.model.access.csv',
         'views/purchase_order_view.xml',
