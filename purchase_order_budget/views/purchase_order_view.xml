@@ -14,6 +14,9 @@
                 <field name="budget_id" required="product_id != False"/>
                 <field name="budget_line_id" required="product_id != False"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='analytic_distribution']" position="attributes">
+                <attribute name="required">product_id</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

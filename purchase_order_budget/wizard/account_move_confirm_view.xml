@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_account_move_post_confirm_wizard" model="ir.ui.view">
+        <field name="name">account.move.post.confirm.wizard.form</field>
+        <field name="model">account.move.post.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Konfirmasi Posting">
+                <group>
+                    <label class="o_form_label" string="Apakah Anda yakin telah mengisi Analytic Distribution dan Journal sudah sesuai?" for="move_ids"/>
+                    <field name="move_ids" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm"
+                            string="Ya, Lanjutkan"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Batal"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
