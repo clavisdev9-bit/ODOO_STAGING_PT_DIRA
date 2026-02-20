@@ -1,0 +1,17 @@
+
+<odoo>
+    <!-- Menu Utama di dalam aplikasi Attendances -->
+    <menuitem
+        id="menu_hr_biometric_root"
+        name="Biometric"
+        parent="hr_attendance.menu_hr_attendance_root"
+        sequence="90"/>
+
+
+    <menuitem
+        id="menu_hr_biometric_config"
+        name="Configuration"
+        parent="menu_hr_biometric_root"
+        sequence="100"
+        action="hr.hr_config_settings_action"/>
+</odoo>
