@@ -2,6 +2,7 @@
     'name': 'Purchase Order Budget',
     'version': '1.0',
     'license': 'LGPL-3',
+    'author': 'Usamah',
     'category': 'Sales',
     'description': """Add budget to Sales Order""",
     'depends': ['sale','account_budget'],
