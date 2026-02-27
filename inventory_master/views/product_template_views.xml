@@ -9,6 +9,7 @@
                 <field name="dira_brand_id" options="{'no_create': False, 'no_open': True}"/>
                 <field name="dira_sub_category_id" options="{'no_create': False, 'no_open': True}"/>
                 <field name="dira_spesifikasi_id" options="{'no_create': False}"/>
+                <field name="dira_division_id" options="{'no_create': False, 'no_open': True}"/>
             </xpath>
         </field>
     </record>

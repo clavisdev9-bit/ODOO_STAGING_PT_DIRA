@@ -15,3 +15,7 @@ class ProductTemplate(models.Model):
         'dira.spesifikasi', 
         string='Spesifikasi'
     )
+    dira_division_id = fields.Many2one(
+        'dira.division', 
+        string='Division'
+    )

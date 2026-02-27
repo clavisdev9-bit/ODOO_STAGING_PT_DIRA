@@ -75,3 +75,27 @@ class DiraSpesifikasi(models.Model):
         if vals.get('code'):
             vals['code'] = str(vals['code']).strip().zfill(3)
         return super().write(vals)
+    
+class DiraDivision(models.Model):
+    _name = 'dira.division'
+    _description = 'Master Data Division'
+
+    code = fields.Char(string='Division Code', required=True)
+    name = fields.Char(string='Division Name', required=True)
+
+    _sql_constraints = [
+        ('code_unique', 'unique(code)', 'Gagal! Division Code sudah dipakai.'),
+        ('name_unique', 'unique(name)', 'Gagal! Nama Division sudah terdaftar.')
+    ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('code'):
+                vals['code'] = str(vals['code']).strip().zfill(3)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if vals.get('code'):
+            vals['code'] = str(vals['code']).strip().zfill(3)
+        return super().write(vals)
