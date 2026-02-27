@@ -72,7 +72,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">product.product</field>
             <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('is_material','=',True),('type','=','consu')]</field>
+            <!--<field name="domain">[('is_material','=',True),('type','=','consu')]</field>-->
             <field name="context">{'default_is_material':True,'default_type':'consu'}</field>
         </record>
         <record id="construction_product_equipment_action" model="ir.actions.act_window">
