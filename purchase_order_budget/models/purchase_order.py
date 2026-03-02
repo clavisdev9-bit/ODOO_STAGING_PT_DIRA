@@ -36,6 +36,10 @@ class PurchaseOrder(models.Model):
                             'budget_line_id': line.budget_line_id.id,
                             'po_id': rec.id
                         })
+            else:
+                raise UserError(
+                    "Budget dan Item tidak ditemukan!\n"
+                )
 
             rec.write({'state': 'confirmed'})
 
