@@ -1,99 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="view_dira_brand_list" model="ir.ui.view">
-        <field name="name">dira.brand.list</field>
-        <field name="model">dira.brand</field>
-        <field name="arch" type="xml">
-            <list string="Master Brand">
-                <field name="code"/>
-                <field name="name"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_dira_brand_form" model="ir.ui.view">
-        <field name="name">dira.brand.form</field>
-        <field name="model">dira.brand</field>
-        <field name="arch" type="xml">
-            <form string="Brand">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only" string="Brand Name"/>
-                        <h1><field name="name" placeholder="e.g. Holcim"/></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="code"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_dira_sub_category_list" model="ir.ui.view">
-        <field name="name">dira.sub.category.list</field>
-        <field name="model">dira.sub.category</field>
-        <field name="arch" type="xml">
-            <list string="Master Sub Category">
-                <field name="code"/>
-                <field name="name"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_dira_sub_category_form" model="ir.ui.view">
-        <field name="name">dira.sub.category.form</field>
-        <field name="model">dira.sub.category</field>
-        <field name="arch" type="xml">
-            <form string="Sub Category">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only" string="Sub Category Name"/>
-                        <h1><field name="name" placeholder="e.g. Beton"/></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="code"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_dira_spesifikasi_list" model="ir.ui.view">
-        <field name="name">dira.spesifikasi.list</field>
-        <field name="model">dira.spesifikasi</field>
-        <field name="arch" type="xml">
-            <list string="Master Spesifikasi">
-                <field name="code"/>
-                <field name="name"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_dira_spesifikasi_form" model="ir.ui.view">
-        <field name="name">dira.spesifikasi.form</field>
-        <field name="model">dira.spesifikasi</field>
-        <field name="arch" type="xml">
-            <form string="Spesifikasi">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only" string="Spec Name"/>
-                        <h1><field name="name" placeholder="e.g. Kuat Tekan 25 MPa"/></h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="code"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
+    <!-- Views -->
+    <!-- Division -->
     <record id="view_dira_division_list" model="ir.ui.view">
         <field name="name">dira.division.list</field>
         <field name="model">dira.division</field>
@@ -113,11 +22,11 @@
                 <sheet>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" string="Division Name"/>
-                        <h1><field name="name" placeholder="e.g. Konstruksi"/></h1>
+                        <h1><field name="name" placeholder="Division Name"/></h1>
                     </div>
                     <group>
                         <group>
-                            <field name="code" placeholder="e.g. DIV001 atau 1"/>
+                            <field name="code"/>
                         </group>
                     </group>
                 </sheet>
@@ -125,9 +34,145 @@
         </field>
     </record>
 
-    <record id="action_dira_brand" model="ir.actions.act_window">
-        <field name="name">Master Brand</field>
-        <field name="res_model">dira.brand</field>
+    <!-- Item Category -->
+    <record id="view_dira_item_category_list" model="ir.ui.view">
+        <field name="name">dira.item.category.list</field>
+        <field name="model">dira.item.category</field>
+        <field name="arch" type="xml">
+            <list string="Master Item Category">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dira_item_category_form" model="ir.ui.view">
+        <field name="name">dira.item.category.form</field>
+        <field name="model">dira.item.category</field>
+        <field name="arch" type="xml">
+            <form string="Item Category">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Item Category Name"/>
+                        <h1><field name="name" placeholder="Item Category Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sub Category -->
+    <record id="view_dira_sub_category_list" model="ir.ui.view">
+        <field name="name">dira.sub.category.list</field>
+        <field name="model">dira.sub.category</field>
+        <field name="arch" type="xml">
+            <list string="Master Sub Category">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dira_sub_category_form" model="ir.ui.view">
+        <field name="name">dira.sub.category.form</field>
+        <field name="model">dira.sub.category</field>
+        <field name="arch" type="xml">
+            <form string="Sub Category">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Sub Category Name"/>
+                        <h1><field name="name" placeholder="Sub Category Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Brand -->
+    <record id="view_dira_brand_list" model="ir.ui.view">
+        <field name="name">dira.brand.list</field>
+        <field name="model">dira.brand</field>
+        <field name="arch" type="xml">
+            <list string="Master Brand">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dira_brand_form" model="ir.ui.view">
+        <field name="name">dira.brand.form</field>
+        <field name="model">dira.brand</field>
+        <field name="arch" type="xml">
+            <form string="Brand">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Brand Name"/>
+                        <h1><field name="name" placeholder="Brand Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Specification -->
+    <record id="view_dira_specification_list" model="ir.ui.view">
+        <field name="name">dira.specification.list</field>
+        <field name="model">dira.specification</field>
+        <field name="arch" type="xml">
+            <list string="Master Specification">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dira_specification_form" model="ir.ui.view">
+        <field name="name">dira.specification.form</field>
+        <field name="model">dira.specification</field>
+        <field name="arch" type="xml">
+            <form string="Specification">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Spec Name"/>
+                        <h1><field name="name" placeholder="Specification Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Action Window -->
+    <record id="action_dira_division" model="ir.actions.act_window">
+        <field name="name">Master Division</field>
+        <field name="res_model">dira.division</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+     <record id="action_dira_item_category" model="ir.actions.act_window">
+        <field name="name">Master Item Category</field>
+        <field name="res_model">dira.item.category</field>
         <field name="view_mode">list,form</field>
     </record>
 
@@ -137,22 +182,24 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <record id="action_dira_spesifikasi" model="ir.actions.act_window">
-        <field name="name">Master Spesifikasi</field>
-        <field name="res_model">dira.spesifikasi</field>
+    <record id="action_dira_brand" model="ir.actions.act_window">
+        <field name="name">Master Brand</field>
+        <field name="res_model">dira.brand</field>
         <field name="view_mode">list,form</field>
     </record>
 
-    <record id="action_dira_division" model="ir.actions.act_window">
-        <field name="name">Master Division</field>
-        <field name="res_model">dira.division</field>
+    <record id="action_dira_specification" model="ir.actions.act_window">
+        <field name="name">Master Specification</field>
+        <field name="res_model">dira.specification</field>
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- Menus -->
     <menuitem id="menu_dira_master_material_root" name="Master" parent="stock.menu_stock_root" sequence="99"/>
     
-    <menuitem id="menu_dira_brand" name="Brand" parent="menu_dira_master_material_root" action="action_dira_brand" sequence="1"/>
-    <menuitem id="menu_dira_sub_category" name="Sub Category" parent="menu_dira_master_material_root" action="action_dira_sub_category" sequence="2"/>
-    <menuitem id="menu_dira_spesifikasi" name="Spesifikasi" parent="menu_dira_master_material_root" action="action_dira_spesifikasi" sequence="3"/>
-    <menuitem id="menu_dira_division" name="Division" parent="menu_dira_master_material_root" action="action_dira_division" sequence="4"/>
+    <menuitem id="menu_dira_division" name="Division" parent="menu_dira_master_material_root" action="action_dira_division" sequence="1"/>
+    <menuitem id="menu_dira_item_category" name="Item Category" parent="menu_dira_master_material_root" action="action_dira_item_category" sequence="2"/>
+    <menuitem id="menu_dira_sub_category" name="Sub Category" parent="menu_dira_master_material_root" action="action_dira_sub_category" sequence="3"/>
+    <menuitem id="menu_dira_brand" name="Brand" parent="menu_dira_master_material_root" action="action_dira_brand" sequence="4"/>
+    <menuitem id="menu_dira_specification" name="Specification" parent="menu_dira_master_material_root" action="action_dira_specification" sequence="5"/>
 </odoo>
