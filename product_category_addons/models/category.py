@@ -13,3 +13,10 @@ class SubCategory(models.Model):
 
     name = fields.Char('Name')
     code = fields.Char('Code')
+
+class Brand(models.Model):
+    _name = 'brand'
+    _rec_name = 'name'
+
+    name = fields.Char('Name')
+    code = fields.Char('Code')

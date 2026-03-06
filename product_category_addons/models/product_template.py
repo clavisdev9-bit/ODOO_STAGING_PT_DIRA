@@ -3,6 +3,7 @@ from odoo import models, fields, api
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+    brand_id = fields.Many2one('brand', string='Brand')
     item_category_id = fields.Many2one('item.category', string='Item Category')
     sub_category_id = fields.Many2one('sub.category', string='Sub Category')
 
@@ -14,9 +15,9 @@ class ProductTemplate(models.Model):
             sub = self.env['sub.category'].browse(vals.get('sub_category_id'))
 
             prefix = "%s%s%s" % (
-                categ.code or '00',
-                item.code or '00',
-                sub.code or '00'
+                (categ.code or '').zfill(2),
+                (item.code or '').zfill(2),
+                (sub.code or '').zfill(3)
             )
 
             last_product = self.search(

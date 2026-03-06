@@ -6,8 +6,12 @@
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='barcode']" position="after">
+                <field name="brand_id"/>
                 <field name="item_category_id"/>
                 <field name="sub_category_id"/>
+            </xpath>
+            <xpath expr="//field[@name='default_code']" position="attributes">
+                <attribute name="readonly">1</attribute>
             </xpath>
         </field>
     </record>
