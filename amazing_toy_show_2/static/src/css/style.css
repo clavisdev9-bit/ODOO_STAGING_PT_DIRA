@@ -1,0 +1,46 @@
+.cart-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #dc3545;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    font-weight: bold;
+    z-index: 999;
+}
+
+.header-box {
+    width: 100%;
+    height: 60px;
+    margin: 0 auto;
+}
+
+/* Tenants */
+.floor-title {
+    font-size: 13px;
+    background: #f3e5c3;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+/* Product */
+.product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* max 2 baris */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3em; /* jaga tinggi konsisten */
+}
+
+.tenant-title {
+    font-size: 13px;
+    background: #f3e5c3;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}

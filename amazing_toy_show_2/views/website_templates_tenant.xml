@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="tenant_order_list_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div class="bg-white me-2 d-flex align-items-center justify-content-center"
+                     style="width: 35px; height: 35px;">
+                    <span>🛒</span>
+                </div>
+                <div class="d-flex flex-column">
+                    <span class="h5 mb-0">Orders</span>
+                    <span class="small opacity-75">
+                        <t t-esc="tenant.name"/>
+                        • Booth
+                        <t t-esc="tenant.booth_code"/>
+                    </span>
+                </div>
+                <a href="/tenant/dashboard" class="fw-bold ms-auto btn btn-sm btn-outline-light rounded-pill">
+                    📊 Dashboard
+                </a>
+            </div>
+            <div class="container py-3">
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+                    <div class="card-body p-3">
+                        <small class="text-muted fw-bold" style="font-size: 0.7em;">🔍 Find Transaction</small>
+                        <form action="/tenant/orders" method="get" class="mt-2">
+                            <div class="row">
+                                <div class="col-8 col-md-10">
+                                    <input type="text" name="search" class="form-control border-0"
+                                           placeholder="e.g. TXN-00123" t-att-value="search_query"/>
+                                </div>
+                                <div class="col-4 col-md-2">
+                                    <button class="btn btn-danger w-100" type="submit">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                        <button id="btn_scan_barcode"
+                                class="btn btn-light w-100 mt-2 border text-muted fw-bold py-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalScanner"
+                                style="border-radius: 10px;">
+                            📷 Scan Barcode
+                        </button>
+                        <div class="modal fade" id="modalScanner" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered px-3">
+                                <div class="modal-content" style="border-radius: 25px; overflow: hidden; border: none;">
+                                    <div class="modal-header bg-danger text-white border-0">
+                                        <h5 class="fw-bold mb-0">Scan Customer Barcode</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                aria-label="Close"/>
+                                    </div>
+                                    <div class="modal-body p-0">
+                                        <div id="reader" style="width: 100%; height: 100%;"/>
+                                        <div class="p-3 text-center">
+                                            <p class="text-muted small mb-0">Place the barcode inside the square</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"/>
+                    </div>
+                </div>
+                <div class="d-flex mb-3 gap-2 overflow-auto pb-2">
+                    <a t-attf-href="/tenant/orders?filter=all"
+                       t-attf-class="btn rounded-pill px-3 #{'btn-warning' if current_filter == 'all' else 'border'}">
+                        All (<t t-esc="count_all"/>)
+                    </a>
+                    <a t-attf-href="/tenant/orders?filter=ready"
+                       t-attf-class="btn rounded-pill px-3 #{'btn-warning' if current_filter == 'ready' else 'border'}">
+                        Ready (<t t-esc="count_ready"/>)
+                    </a>
+                    <a t-attf-href="/tenant/orders?filter=done"
+                       t-attf-class="btn rounded-pill px-3 #{'btn-warning' if current_filter == 'done' else 'border'}">
+                        Done (<t t-esc="count_done"/>)
+                    </a>
+                </div>
+                <div class="order-list">
+                    <t t-foreach="orders" t-as="order">
+                        <a t-attf-href="/tenant/order/#{order.id}" class="text-decoration-none">
+                            <div class="card mb-2 border-0 shadow-sm" style="border-radius: 12px;">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 text-dark">
+                                            <t t-esc="order.name"/>
+                                        </h6>
+                                        <t t-set="is_ready"
+                                           t-value="any(not l.is_handed_over and l.tenant_id.id == tenant.id for l in order.line_ids)"/>
+                                        <span t-attf-class="badge rounded-pill px-3 #{'bg-warning text-dark' if is_ready else 'bg-success-light text-success'}"
+                                              style="font-size: 0.75em;">
+                                            <t t-if="is_ready">Ready</t>
+                                            <t t-else="">Done</t>
+                                        </span>
+                                    </div>
+                                    <div class="small text-muted d-flex justify-content-between">
+                                        <span>
+                                            <t t-esc="order.partner_id.name"/>
+                                            •
+                                            <t t-esc="len(order.line_ids.filtered(lambda l: l.tenant_id.id == tenant.id))"/>
+                                            items
+                                        </span>
+                                        <span t-out="order.date_paid"
+                                              t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm"}'/>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </t>
+                    <t t-if="not orders">
+                        <div class="text-center py-5 text-muted">
+                            <p style="font-size: 3rem;">📄</p>
+                            <p>No orders found for this filter.</p>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function() {
+                    <t t-set="total_lines_count"
+                       t-value="len(tenant.env['event.order.line'].sudo().search([('tenant_id', '=', tenant.id),
+                       ('order_id.state', 'in', ['paid', 'done'])]))"/>
+                    const initialCount = parseInt("<t t-esc='total_lines_count'/>") || 0;
+                    let checkInterval;
+                    const checkNewOrders = () => {
+                        fetch('/tenant/orders/check_count', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ params: {} })
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Connection failed');
+                            return response.json();
+                        })
+                        .then(data => {
+                            const result = data.result;
+                            if (result &amp;&amp; result.status === 'success') {
+                                if (result.count > initialCount) {
+                                    clearInterval(checkInterval);
+                                    location.reload();
+                                }
+                            }
+                        })
+                        .catch(err => console.error("Failed to check new order:", err));
+                    };
+                    checkInterval = setInterval(checkNewOrders, 10000);
+                });
+            </script>
+        </t>
+    </template>
+
+    <template id="tenant_handover_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <a href="/tenant/orders"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;">
+                    <i class="fa fa-arrow-left"/>
+                </a>
+                <h5 class="mb-0">Order &amp; Handover</h5>
+                <div class="ms-auto badge bg-white rounded-pill px-3">
+                    <t t-esc="handed_over_count"/>
+                    /
+                    <t t-esc="total_items"/>
+                    ✓
+                </div>
+            </div>
+            <div class="container py-3">
+                <div class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Transaction</span>
+                            <span>
+                                <t t-esc="order.name"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Customer</span>
+                            <span>
+                                <t t-esc="order.partner_id.name"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Paid at</span>
+                            <span class="small" t-out="order.date_paid"
+                                  t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm"}'/>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted small mb-1">Tap each item when handed over</p>
+                <div class="progress mb-4" style="height: 8px; border-radius: 4px;">
+                    <div class="progress-bar bg-success" role="progressbar"
+                         t-attf-style="width: #{progress}%" t-att-aria-valuenow="progress" aria-valuemin="0"
+                         aria-valuemax="100"/>
+                </div>
+                <div class="item-checklist">
+                    <t t-foreach="lines" t-as="line">
+                        <div t-attf-class="item-row card mb-2 border-0 shadow-sm #{'bg-light opacity-75' if line.is_handed_over else ''}"
+                             t-att-data-line-id="line.id" t-attf-style="border-radius: 12px; cursor: #{'default' if line.is_handed_over else 'pointer'}; pointer-events: #{'none' if line.is_handed_over else 'auto'};">
+                            <div class="card-body d-flex align-items-center p-3">
+                                <div style="flex: 1;">
+                                    <h6 class="mb-0">
+                                        <t t-esc="line.product_id.name"/>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <t t-esc="int(line.qty)"/>
+                                        • SKU
+                                        <t t-esc="line.product_id.default_code or 'N/A'"/>
+                                    </small>
+                                </div>
+                                <div t-attf-class="check-circle d-flex align-items-center justify-content-center rounded-circle border border-2 #{'checked' if line.is_handed_over else ''}"
+                                     t-attf-style="width: 30px; height: 30px; #{'background-color: #28a745; border-color: #28a745;' if line.is_handed_over else 'border-color: #dee2e6;'}">
+                                    <i t-attf-class="fa fa-check text-white #{'' if line.is_handed_over else 'd-none'}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                <div class="fixed-bottom p-3 bg-white border-top shadow-lg">
+                    <t t-set="is_all_done" t-value="handed_over_count == total_items"/>
+                    <div id="handover_status_msg" class="text-center small text-muted mb-2">
+                        <t t-if="not is_all_done">Check all items to unlock</t>
+                        <t t-else="">All items successfully handed over ✓</t>
+                    </div>
+                    <button id="btn_complete_handover"
+                            t-attf-class="btn btn-lg w-100 rounded-pill py-3 fw-bold
+                         #{'btn-success' if is_all_done else 'btn-danger' if handed_over_count == total_items else 'btn-light text-muted'}"
+                            t-att-disabled="handed_over_count &lt; total_items or is_all_done">
+
+                        <t t-if="is_all_done">
+                            <i class="fa fa-check-circle me-2"/>
+                            Handover Completed
+                        </t>
+                        <t t-else="">
+                            Complete Handover
+                        </t>
+                    </button>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="tenant_dashboard_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <a href="/tenant/orders"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;">
+                    <i class="fa fa-arrow-left"/>
+                </a>
+                <h5 class="mb-0">Sales Dashboard</h5>
+                <a href="/tenant/logout" class="small ms-auto me-1 text-white"
+                   style="text-decoration:none; color:inherit;">Logout
+                </a>
+            </div>
+            <div class="container py-3">
+                <div class="my-4">
+                    <label class="small fw-bold">Date</label>
+                    <input type="date" id="recap_date_filter"
+                           class="form-control form-control-lg"
+                           t-att-value="today_val"
+                           onchange="window.location.href='/tenant/dashboard?date_str=' + this.value"
+                           style="border-radius: 12px;"/>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px; background: #f3e5c3;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                Rp
+                                <t t-esc="'{:,.1f}M'.format(total_sales / 1000000).replace(',', '.') if total_sales >= 1000000 else '{:,.0f}'.format(total_sales).replace(',', '.')"/>
+                            </h3>
+                            <span class="small text-muted">Today's Revenue</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px; background: #f3e5c3;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                <t t-esc="total_orders"/>
+                            </h3>
+                            <span class="small text-muted">Orders</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px; background: #f3e5c3;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                <t t-esc="total_items"/>
+                            </h3>
+                            <span class="small text-muted">Items Sold</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px; background: #f3e5c3;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                <t t-esc="pending"/>
+                            </h3>
+                            <span class="small text-muted">Pending Pickup</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Today's Top Products</h6>
+                    <div class="card border-0 shadow-sm p-3" style="border-radius: 15px;">
+                        <t t-if="top_products">
+                            <t t-foreach="top_products" t-as="prod">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small text-truncate" style="max-width: 70%;">
+                                            <t t-esc="prod['name']"/>
+                                        </span>
+                                        <span class="small">
+                                            <t t-esc="prod['qty']"/>
+                                            pcs
+                                        </span>
+                                    </div>
+                                    <div class="progress" style="height: 8px; border-radius: 10px; background: #eee;">
+                                        <div class="progress-bar bg-danger" role="progressbar"
+                                             t-attf-style="width: #{prod['percent']}%"
+                                             t-att-aria-valuenow="prod['percent']"
+                                             aria-valuemin="0" aria-valuemax="100"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <div class="text-center py-3 text-muted small">No sales data for this date.</div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

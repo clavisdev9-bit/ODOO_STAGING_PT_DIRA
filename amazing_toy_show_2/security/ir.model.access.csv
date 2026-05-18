@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_event_order,event.order,model_event_order,,1,1,1,1
+access_event_order_line,event.order.line,model_event_order_line,,1,1,1,1
+access_event_tenant,event.tenant,model_event_tenant,,1,1,1,1
+access_event_cashier,event.cashier,model_event_cashier,,1,1,1,1
+access_event_order_portal,event.order,model_event_order,base.group_portal,1,0,0,0
+access_event_order_line_portal,event.order.line,model_event_order_line,base.group_portal,1,0,0,0
+access_event_tenant_portal,event.tenant,model_event_tenant,base.group_portal,1,0,0,0

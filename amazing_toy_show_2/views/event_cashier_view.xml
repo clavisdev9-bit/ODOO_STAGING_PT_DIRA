@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_event_cashier_list" model="ir.ui.view">
+        <field name="name">event.cashier.list - view</field>
+        <field name="model">event.cashier</field>
+        <field name="arch" type="xml">
+            <list string="cashier">
+                <field name="name"/>
+                <field name="code"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_event_cashier_form" model="ir.ui.view">
+        <field name="name">event.cashier.form - view</field>
+        <field name="model">event.cashier</field>
+        <field name="arch" type="xml">
+            <form string="cashier">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="pin"/>
+                            <field name="is_active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_event_cashier" model="ir.actions.act_window">
+        <field name="name">Cashier</field>
+        <field name="res_model">event.cashier</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                Please create a record
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_event_cashier"
+              name="Cashier"
+              action="action_event_cashier"
+              parent="menu_event_order_root"
+              sequence="20"/>
+</odoo>

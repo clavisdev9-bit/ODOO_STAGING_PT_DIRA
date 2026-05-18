@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="cashier_login_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="container-fluid bg-light" style="min-height: 100vh;">
+                <div class="row justify-content-center pt-5">
+                    <div class="col-12 col-md-4 text-center">
+                        <div class="mb-4">
+                            <span style="font-size: 50px;">🔐</span>
+                            <h3 class="fw-bold mt-2">Cashier Access</h3>
+                            <p class="text-muted">Enter your personal PIN to start shift</p>
+                        </div>
+                        <t t-if="request.params.get('error')">
+                            <div class="alert alert-danger rounded-pill">
+                                Invalid PIN. Please try again.
+                            </div>
+                        </t>
+                        <form action="/cashier/login/submit" method="post" id="pin-form">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="password" name="pin" id="cashier-pin"
+                                   class="form-control form-control-lg text-center mb-4"
+                                   readonly="readonly"
+                                   style="font-size: 32px; letter-spacing: 15px; border-radius: 15px; background: white;"/>
+                            <div class="row g-2 px-4" id="numpad">
+                                <t t-foreach="['1','2','3','4','5','6','7','8','9','C','0','⌫']" t-as="num">
+                                    <div class="col-4">
+                                        <button type="button"
+                                                t-attf-class="btn w-100 py-3 fw-bold shadow-sm #{'btn-outline-danger' if num in ['C','⌫'] else 'btn-white bg-white text-dark'}"
+                                                t-att-data-val="num"
+                                                style="border-radius: 15px; font-size: 20px;">
+                                            <t t-esc="num"/>
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-lg w-100 mt-4 rounded-pill shadow"
+                                    id="btn-login" disabled="disabled">
+                                Open Register
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.querySelectorAll('#numpad button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                const val = this.getAttribute('data-val');
+                const input = document.getElementById('cashier-pin');
+                const btnLogin = document.getElementById('btn-login');
+                if (val === 'C') {
+                input.value = '';
+                } else if (val === '⌫') {
+                input.value = input.value.slice(0, -1);
+                } else if (input.value.length &lt; 6) {
+                input.value += val;
+                }
+                btnLogin.disabled = input.value.length &lt; 4;
+                });
+                });
+            </script>
+        </t>
+    </template>
+
+    <template id="cashier_scan_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white">
+                <div class="bg-white me-2" style="width: 35px; height: 35px;"/>
+                <div class="d-flex flex-column">
+                    <span class="small opacity-75">
+                        Cashier
+                    </span>
+                    <span class="fw-bold h5">
+                        <a href="/cashier/recap" style="text-decoration:none; color:inherit;">
+                            <t t-esc="request.session.get('cashier_name')"/>
+                            -
+                            <t t-esc="request.session.get('cashier_code')"/>
+                        </a>
+                    </span>
+                </div>
+                <a href="/cashier/logout" class="small ms-auto me-1 text-white"
+                   style="text-decoration:none; color:inherit;">Logout
+                </a>
+            </div>
+            <div class="container py-5">
+                <div class="card shadow-sm p-4" style="border-radius: 20px;">
+                    <div class="text-center">
+                        <div class="bg-light d-inline-block p-4 rounded-circle mb-2">
+                            <span style="font-size: 40px;">📷</span>
+                        </div>
+                        <h5>Scan Customer QR</h5>
+                        <p class="small text-muted">Point barcode reader at customer's screen</p>
+                    </div>
+                    <div class="text-center my-3 text-muted small">
+                        ------- or enter manually -------
+                    </div>
+                    <div class="mb-3">
+                        <label class="small">TRANSACTION ID</label>
+                        <input type="text" id="scan_transaction_id" class="form-control form-control-lg"
+                               placeholder="#TXN-XXXXX" autofocus="autofocus"/>
+                    </div>
+                    <button type="button" id="btn_find_transaction"
+                            class="btn btn-danger btn-lg w-100 mt-4 rounded-pill">
+                        Find Transaction
+                    </button>
+                </div>
+            </div>
+            <div class="modal fade" id="modalScanError" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 20px;">
+                        <div class="modal-body text-center p-4">
+                            <div id="error_icon" class="mb-3" style="font-size: 50px;">⚠️</div>
+                            <h5 id="error_title" class="fw-bold">Invalid Transaction</h5>
+                            <p id="error_message" class="text-muted small"/>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="cashier_review_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 bg-danger text-white d-flex align-items-center justify-content-between sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div class="d-flex align-items-center">
+                    <a href="/cashier"
+                       class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                       style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;"><i class="fa fa-arrow-left"/>
+                    </a>
+                    <h5 class="mb-0 fw-bold">Review Order</h5>
+                </div>
+                <span class="small opacity-75">
+                    <t t-esc="cashier_name"/>
+                </span>
+            </div>
+            <div class="container py-5">
+                <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 15px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Transaction ID</div>
+                            <div class="fw-bold">
+                                <t t-esc="order.name"/>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Customer</div>
+                            <div class="fw-bold">
+                                <t t-esc="order.partner_id.name"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-items mb-4">
+                    <h6 class="fw-bold mb-3">Items List</h6>
+                    <t t-foreach="order.line_ids" t-as="line">
+                        <div class="d-flex align-items-center bg-white p-3 mb-2 shadow-sm" style="border-radius: 12px;">
+                            <div class="me-3">
+                                <img t-if="line.product_id.image_512"
+                                     t-att-src="image_data_uri(line.product_id.image_512)"
+                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"/>
+                                <div t-else="" class="bg-light d-flex align-items-center justify-content-center"
+                                     style="width: 60px; height: 60px; border-radius: 8px;">🧩
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div style="fw-bold font-size: 0.8em;">
+                                    <t t-esc="line.product_id.name"/>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.8em;">Qty:
+                                    <t t-esc="int(line.qty)"/>
+                                </div>
+                            </div>
+                            <div class="fw-bold">
+                                Rp
+                                <t t-esc="'{:,.0f}'.format(line.subtotal).replace(',', '.')"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                <div class="p-4 bg-light rounded-3 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total Items</span>
+                        <span class="fw-bold">
+                            <t t-esc="int(order.total_qty)"/>
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top pt-2">
+                        <h5 class="fw-bold">Grand Total</h5>
+                        <h5 class="fw-bold text-danger">Rp
+                            <t t-esc="'{:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                        </h5>
+                    </div>
+                </div>
+                <a t-attf-href="/cashier/payment/#{order.id}"
+                   class="btn btn-danger btn-lg w-100 rounded-pill py-3 fw-bold shadow">
+                    Proceed To Payment
+                </a>
+            </div>
+        </t>
+    </template>
+
+    <template id="cashier_payment_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 bg-danger text-white d-flex align-items-center">
+                <a t-att-href="'/cashier/review/%s' % order.id"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;"><i class="fa fa-arrow-left"/>
+                </a>
+                <h5 class="mb-0 fw-bold">Payment Selection</h5>
+            </div>
+            <div class="container py-5">
+                <div class="row d-flex align-items-center justify-content-center g-2 mb-4">
+                    <div class="col-3">
+                        <button class="btn btn-outline-danger w-100 py-3 fw-bold method-btn active" data-method="cash">
+                            Cash
+                        </button>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-outline-danger w-100 py-3 fw-bold method-btn" data-method="qr">
+                            Qris
+                        </button>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-outline-danger w-100 py-3 fw-bold method-btn" data-method="card">
+                            Card / EDC
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center mb-4">
+                    <div class="text-muted small">Total Payable</div>
+                    <h2 class="fw-bold text-danger" id="grand_total" t-att-data-amount="order.total_amount">
+                        Rp
+                        <t t-esc="'{:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                    </h2>
+                </div>
+                <div id="cash_input_section">
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">Cash Received</label>
+                        <input type="text" id="cash_received" class="form-control form-control-lg fw-bold text-center"
+                               style="font-size: 28px; border-radius: 15px;" inputmode="numeric"/>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 mb-4 text-center">
+                        <div class="text-muted small">Change</div>
+                        <h3 class="fw-bold text-success" id="change_display">Rp 0</h3>
+                    </div>
+                </div>
+                <button type="button" id="btn_confirm_payment"
+                        class="btn btn-danger btn-lg w-100 rounded-pill py-3 fw-bold shadow">
+                    Confirm Payment
+                </button>
+            </div>
+            <div class="modal fade" id="modalSuccess" data-bs-backdrop="static" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center p-4" style="border-radius: 20px;">
+                        <div class="mb-3" style="font-size: 40px;">✅</div>
+                        <h4 class="fw-bold">Payment Success!</h4>
+                        <p class="text-muted">Transaction
+                            <t t-esc="order.name"/>
+                            has been paid.
+                        </p>
+                        <button id="btn_print_receipt" class="btn btn-light w-100 rounded-pill py-2 mb-3">
+                            🖨️ Print Receipt
+                        </button>
+                        <a href="/cashier" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Next
+                            Transaction
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalFailed" data-bs-backdrop="static" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center p-4" style="border-radius: 20px;">
+                        <div class="mb-3" style="font-size: 60px;">⚠️</div>
+                        <h4 class="fw-bold">Payment Failed!</h4>
+                        <p class="text-muted">The amount of cash received is lower than expected</p>
+                        <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_cashier_receipt">
+        <t t-call="web.basic_layout">
+            <style>
+                @media print {
+                    body { margin: 0; padding: 5mm; }
+                    @page {
+                        margin: 0;
+                        size: auto;
+                    }
+                    .header-box, .btn, .modal-footer {
+                        display: none !important;
+                    }
+                }
+                .receipt-canvas {
+                    width: 300px;
+                    margin: 0 auto;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 12px;
+                    line-height: 1.2;
+                }
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                .line-dashed { border-top: 1px dashed #000; margin: 5px 0; }
+                .fw-bold { font-weight: bold; }
+                .qr-container {
+                    text-align: center;
+                    margin-top: 15px;
+                    font-size: 10px;
+                }
+                .qr-image {
+                    width: 100px;
+                    height: 100px;
+                    margin-bottom: 5px;
+                }
+            </style>
+            <div class="receipt-canvas">
+                <div class="line-dashed my-3"/>
+                <div class="text-center">
+                    <h4 class="fw-bold">AMAZING TOY SHOW INDONESIA</h4>
+                    <p>Gandaria City<br/>Date:
+                        <span><t t-esc="date_paid_jakarta.strftime('%d/%m/%Y %H:%M')"/></span>
+                    </p>
+                </div>
+                <div class="line-dashed"/>
+                <table style="width: 100%;">
+                    <tr>
+                        <td>No:
+                            <t t-esc="order.name"/>
+                        </td>
+                        <td class="text-right">Cashier:
+                            <t t-esc="order.cashier_id.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Customer:
+                            <t t-esc="order.partner_id.name"/>
+                        </td>
+                        <td>Status: Paid</td>
+                    </tr>
+                </table>
+                <div class="line-dashed"/>
+                <table style="width: 100%;">
+                    <t t-foreach="order.line_ids" t-as="line">
+                        <tr>
+                            <td colspan="2">
+                                <t t-esc="line.product_id.name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <t t-esc="int(line.qty)"/>
+                                x Rp
+                                <t t-esc="'{0:,.0f}'.format(line.price_unit).replace(',', '.')"/>
+                            </td>
+                            <td class="text-right">Rp
+                                <t t-esc="'{0:,.0f}'.format(line.subtotal).replace(',', '.')"/>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+                <div class="line-dashed"/>
+                <table style="width: 100%;">
+                    <tr>
+                        <td>TOTAL</td>
+                        <td class="text-right fw-bold">Rp
+                            <t t-esc="'{0:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Payment method: (<t t-esc="order.payment_method.upper()"/>)
+                        </td>
+                        <td class="text-right">Rp
+                            <t t-esc="'{0:,.0f}'.format(order.amount_received).replace(',', '.')"/>
+                        </td>
+                    </tr>
+                    <tr class="fw-bold">
+                        <td>Change</td>
+                        <td class="text-right">Rp
+                            <t t-esc="'{0:,.0f}'.format(order.amount_change).replace(',', '.')"/>
+                        </td>
+                    </tr>
+                </table>
+                <div class="line-dashed mb-3"/>
+                <div class="qr-container">
+                    <p class="fw-bold">Scan for your digital receipt</p>
+                    <t t-set="base_url" t-value="request.env['ir.config_parameter'].sudo().get_param('web.base.url')"/>
+                    <img t-att-src="'/report/barcode/?barcode_type=QR&amp;value=%s/receipt/digital/%s&amp;width=120&amp;height=120' % (base_url, order.token)"
+                         style="width: 100px; height: 100px;"/>
+                </div>
+                <div class="text-center mt-3">
+                    <p>Thanks for shopping!<br/>Goods that have been purchased cannot be exchanged or returned.
+                    </p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="cashier_recap_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 bg-danger text-white d-flex align-items-center">
+                <a href="/cashier"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;"><i class="fa fa-arrow-left"/>
+                </a>
+                <h5 class="mb-0 fw-bold">Daily Recap</h5>
+            </div>
+            <div class="container py-5">
+                <div class="mb-4">
+                    <label class="small text-muted fw-bold">Date</label>
+                    <input type="date" id="recap_date_filter"
+                           class="form-control form-control-lg"
+                           t-att-value="today_val"
+                           onchange="window.location.href='/cashier/recap?date_str=' + this.value"
+                           style="border-radius: 12px;"/>
+                </div>
+                <div class="row g-3 mb-4 text-center">
+                    <div class="col-6">
+                        <div class="p-3 shadow-sm h-100" style="background-color: #F8F4EA; border-radius: 20px;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                <t t-esc="orders_count"/>
+                            </h3>
+                            <small class="text-muted">Transactions</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 shadow-sm h-100" style="background-color: #F8F4EA; border-radius: 20px;">
+                            <h3 class="fw-bold text-danger mb-0">
+                                Rp
+                                <t t-esc="'{:,.1f}M'.format(total_sales / 1000000).replace(',', '.') if total_sales >= 1000000 else '{:,.0f}'.format(total_sales).replace(',', '.')"/>
+                            </h3>
+                            <small class="text-muted">Total Sales</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h6 class="small text-muted fw-bold mb-3 text-uppercase">By Payment Method</h6>
+                    <t t-set="methods" t-value="[('Cash', recap['cash'], 'cash'),('QR Code', recap['qr'], 'qr'),
+                        ('Card/EDC', recap['card'], 'card')]"/>
+                    <t t-foreach="methods" t-as="m">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width: 100px;" class="small text-muted">
+                                <t t-esc="m[0]"/>
+                            </div>
+                            <div class="progress flex-grow-1 mx-2"
+                                 style="height: 12px; border-radius: 6px; background-color: #F1F1F1;">
+                                <div class="progress-bar bg-danger" role="progressbar"
+                                     t-attf-style="width: #{(m[1] / orders_count * 100) if orders_count > 0 else 0}%"/>
+                            </div>
+                            <div style="width: 50px;" class="small text-end">
+                                <t t-esc="m[1]"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                <hr class="my-4" style="border-top: 1px dashed #ccc;"/>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Cashier</span>
+                    <span class="fw-bold">
+                        <t t-esc="cashier_name"/>
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-muted">Shift</span>
+                    <span class="fw-bold">
+                        <t t-esc="shift_time"/>
+                    </span>
+                </div>
+                <button onclick="window.print()" class="btn btn-danger btn-lg w-100 rounded-pill py-3 fw-bold shadow">
+                    🖨️ Print Shift Report
+                </button>
+            </div>
+        </t>
+    </template>
+</odoo>

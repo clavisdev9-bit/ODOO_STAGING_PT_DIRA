@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="register_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white">
+                <div class="bg-white me-2" style="width: 35px; height: 35px;"/>
+                <div class="d-flex flex-column mt-2">
+                    <h5>Amazing Toy Show Indonesia</h5>
+                </div>
+            </div>
+            <div class="container d-flex flex-column justify-content-center align-items-center"
+                 style="min-height: 90vh;">
+                <div class="card shadow p-4" style="width:100%; max-width:400px; border-radius:16px;">
+                    <p class="text-center mb-1" style="font-size: 60px;">🎪</p>
+                    <h3 class="text-center mb-1">Welcome!</h3>
+                    <p class="text-center text-muted">Create your visitor account</p>
+                    <t t-if="error == 'invalid_phone'">
+                        <div class="alert alert-danger text-center">Invalid phone number!</div>
+                    </t>
+                    <t t-if="error == 'phone_exists'">
+                        <div class="alert alert-danger text-center">Phone number already registered</div>
+                    </t>
+                    <t t-if="error == 'email_exists'">
+                        <div class="alert alert-danger text-center">Email already registered</div>
+                    </t>
+                    <t t-if="error == 'missing'">
+                        <div class="alert alert-danger text-center">Name, phone number and email are required!</div>
+                    </t>
+                    <form action="/register/submit" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="mb-3">
+                            <input type="text" name="name" t-att-value="prev_data.get('name') if prev_data else ''"
+                                   class="form-control form-control-lg" placeholder="Name"
+                                   required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <input type="tel" name="phone" t-att-value="prev_data.get('phone') if prev_data else ''"
+                                   class="form-control form-control-lg"
+                                   placeholder="Phone Number"
+                                   required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" t-att-value="prev_data.get('email') if prev_data else ''"
+                                   class="form-control form-control-lg" placeholder="Email"
+                                   required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" name="age" t-att-value="prev_data.get('age') if prev_data else ''"
+                                   class="form-control form-control-lg" placeholder="Age"
+                                   required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <select id="gender" name="gender" class="form-control form-control-lg">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Prefer not to say</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-lg w-100">Create an Account</button>
+                        <div>
+                            <a href="/login"
+                               style="text-decoration:none; color:inherit; display:block; text-align:center; margin-top:15px;">
+                                Already
+                                have an Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="login_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white">
+                <div class="bg-white me-2" style="width: 35px; height: 35px;"/>
+                <div class="d-flex flex-column mt-2">
+                    <h5>Amazing Toy Show Indonesia</h5>
+                </div>
+            </div>
+            <div class="container d-flex flex-column justify-content-center align-items-center"
+                 style="min-height: 90vh;">
+                <div class="card shadow p-4" style="width:100%; max-width:400px; border-radius:16px;">
+                    <p class="text-center mb-1" style="font-size: 60px;">🎪</p>
+                    <h3 class="text-center mb-1">Log in</h3>
+                    <t t-if="error == 'not_found'">
+                        <div class="alert alert-danger text-center">User not found</div>
+                    </t>
+                    <t t-if="error == 'invalid_phone'">
+                        <div class="alert alert-danger text-center">Invalid phone number</div>
+                    </t>
+                    <form action="/login/submit" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="mb-3">
+                            <input type="tel" name="phone" class="form-control form-control-lg"
+                                   placeholder="Phone Number" t-att-value="prev_data.get('phone') if prev_data else ''"
+                                   required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" name="email" class="form-control form-control-lg" placeholder="Email"
+                                   t-att-value="prev_data.get('email') if prev_data else ''" required="required"/>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-lg w-100">Log in</button>
+                        <div>
+                            <a href="/register"
+                               style="text-decoration:none; color:inherit; display:block; text-align:center; margin-top:15px;">
+                                Don't have an Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="browse_tenant_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <a href="/cart"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center">
+                    🛒
+                    <span id="cart-qty">
+                        <t t-esc="order.cart_qty"/>
+                    </span>
+                </a>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold h5 mb-0">Browse</span>
+                    <span class="small opacity-75">Amazing Toy Show</span>
+                </div>
+                <span class="small ms-auto me-1 text-white opacity-75">Halo,
+                    <t t-esc="request.session.get('user', {}).get('name', 'Guest')"/>
+                </span>
+            </div>
+            <div class="container py-3">
+                <form method="get" action="/tenants" class="mb-3">
+                    <div class="row">
+                        <div class="col-8 col-md-10">
+                            <input type="text" name="search" t-att-value="search"
+                                   class="form-control" placeholder="Search tenant..."/>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <button type="submit" class="btn btn-danger w-100">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="d-flex overflow-auto mb-3">
+                    <a href="/tenants"
+                       t-att-class="'btn btn-outline-secondary me-2 floor-btn rounded-pill ' + ('active' if not selected_floor else '')"
+                       data-floor="all">All Floors
+                    </a>
+                    <a href="/tenants?floor=ug"
+                       t-att-class="'btn btn-outline-secondary me-2 floor-btn rounded-pill ' + ('active' if selected_floor == 'ug' else '')"
+                       data-floor="ug">UG
+                    </a>
+                    <a href="/tenants?floor=gf"
+                       t-att-class="'btn btn-outline-secondary me-2 floor-btn rounded-pill ' + ('active' if selected_floor == 'gf' else '')"
+                       data-floor="gf">GF
+                    </a>
+                    <a href="/tenants?floor=2nd"
+                       t-att-class="'btn btn-outline-secondary me-2 floor-btn rounded-pill ' + ('active' if selected_floor == '2nd' else '')"
+                       data-floor="2nd">2nd Floor
+                    </a>
+                </div>
+                <div id="tenant-list" class="px-3">
+                    <t t-foreach="floors.items()" t-as="floor_item">
+                        <div class="floor-title">
+                            <t t-esc="floor_item[1]['label']"/>
+                        </div>
+                        <t t-foreach="floor_item[1]['tenants']" t-as="t">
+                            <a t-att-href="'/tenant/%s' % t.id" style="text-decoration:none; color:inherit;">
+                                <div class="card mb-2 p-3">
+                                    <h6>
+                                        <t t-esc="t.name"/>
+                                    </h6>
+                                    <small>
+                                        Booth
+                                        <t t-esc="t.booth_code or ''"/>
+                                        •
+                                        <t t-esc="t.description or ''"/>
+                                    </small>
+                                </div>
+                            </a>
+                        </t>
+                    </t>
+                    <t t-if="not floors">
+                        <div class="text-center text-muted mt-5">
+                            No tenants found
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="tenant_products_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <a href="/tenants"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;"><i class="fa fa-arrow-left"/>
+                </a>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold h5 mb-0">
+                        <t t-esc="tenant.name"/>
+                    </span>
+                    <span class="small opacity-75">
+                        <t t-esc="tenant.description"/>
+                    </span>
+                </div>
+                <span class="fw-bold h6 ms-auto me-1 text-white opacity-75">
+                    <t t-esc="dict(tenant._fields['floor'].selection).get(tenant.floor)"/>
+                </span>
+            </div>
+            <div class="container py-3">
+                <form method="get" t-att-action="'/tenant/%s' % tenant.id" class="mb-3">
+                    <div class="row">
+                        <div class="col-8 col-md-10">
+                            <input type="text" name="search" t-att-value="search"
+                                   class="form-control" placeholder="Search product..."/>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <button type="submit" class="btn btn-danger w-100">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="small opacity-75 text-end me-1 mb-1">
+                    <t t-esc="len(products)"/>
+                    products
+                </div>
+                <div class="row g-3 mb-3">
+                    <t t-foreach="products" t-as="product">
+                        <div class="col-6 col-md-3">
+                            <div t-attf-class="card h-100 shadow-sm product-card #{'opacity-50' if product.qty_available &lt;= 0 else ''}"
+                                 style="border-radius:12px; position: relative;">
+                                <div t-if="product.qty_available &lt;= 0"
+                                     class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
+                                     style="z-index: 2; pointer-events: none;">
+                                    <span class="badge bg-dark opacity-75 p-2">OUT OF STOCK</span>
+                                </div>
+                                <a t-att-href="'/tenant/%s/product/%s' % (tenant.id, product.id)">
+                                    <img t-att-src="image_data_uri(product.image_512)"
+                                         class="card-img-top"
+                                         style="aspect-ratio: 1/1; object-fit: cover; filter: #{'grayscale(100%)' if product.qty_available &lt;= 0 else 'none'}"/>
+                                </a>
+                                <div class="card-body p-2 pt-0">
+                                    <a t-att-href="'/tenant/%s/product/%s' % (tenant.id, product.id)"
+                                       style="text-decoration:none; color:inherit;">
+                                        <h6 class="card-title product-name mb-0">
+                                            <t t-esc="product.name"/>
+                                        </h6>
+                                    </a>
+                                    <p class="text-danger d-flex align-items-baseline mt-0 mb-0">
+                                        <small style="font-size: 0.6em; margin-right: 4px;">Rp.</small>
+                                        <span style="font-size: 1.2em; font-weight: bold;">
+                                            <t t-esc="'{:,.0f}'.format(product.lst_price).replace(',', '.')"/>
+                                        </span>
+                                        <span class="ms-auto text-muted" style="font-size: 0.6em;">
+                                            Stock:
+                                            <t t-esc="product.qty_available"/>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-if="not products">
+                        <div class="text-center text-muted mt-4">
+                            Product not found
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="product_detail_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div class="d-flex flex-column">
+                    <span class="fw-bold h5 mb-0">
+                        Product Detail
+                    </span>
+                </div>
+                <a href="/cart"
+                   class="ms-auto btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center">
+                    🛒
+                    <span id="cart-qty">
+                        <t t-esc="order.cart_qty"/>
+                    </span>
+                </a>
+            </div>
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center">
+                        <img t-att-src="image_data_uri(product.image_512)"
+                             class="img-fluid rounded shadow-sm mb-2"/>
+                    </div>
+                    <div class="col-md-6 mt-1">
+                        <h4 class="text-danger d-flex align-items-baseline">
+                            <small style="font-size: 0.6em; margin-right: 4px;">Rp.</small>
+                            <span style="font-size: 1.2em; font-weight: bold;">
+                                <t t-esc="'{:,.0f}'.format(product.lst_price).replace(',', '.')"/>
+                            </span>
+                            <span t-attf-class="ms-auto p-1 px-2 #{'bg-danger text-white' if product.qty_available &lt;= 0 else 'text-muted'}"
+                                  style="font-size: 0.6em; border-radius: 10px;">
+                                Stock:
+                                <t t-esc="int(product.qty_available)"/>
+                            </span>
+                        </h4>
+                        <h5>
+                            <t t-esc="product.name"/>
+                        </h5>
+                        <small class="text-muted tenant-title">
+                            <t t-esc="product.tenant_id.name"/>
+                        </small>
+                        <small class="text-muted">
+                            <t t-esc="product.tenant_id.description"/>
+                        </small>
+                        <span class="text-muted m-2" style="font-size: 0.8em;">
+                            <t t-esc="product.description or 'No description'"/>
+                        </span>
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="me-3 fw-bold" style="color: #666; font-size: 14px;">Qty</span>
+                            <div class="d-flex align-items-center justify-content-between" style="width: 120px;">
+                                <button t-attf-class="btn btn-outline-secondary d-flex align-items-center justify-content-center #{'disabled' if product.qty_available &lt;= 0 else ''}"
+                                        type="button" id="btn-minus"
+                                        style="width: 35px; height: 35px; border-radius: 50%; padding: 0;">
+                                    <span style="color: black; font-weight: bold;">−</span>
+                                </button>
+                                <input type="text" id="qty-input" class="form-control text-center border-0"
+                                       t-att-value="0 if product.qty_available &lt;= 0 else 1"
+                                       t-att-data-max="product.qty_available"
+                                       readonly="True"
+                                       style="width: 45px; background: transparent; font-weight: bold; font-size: 16px;"/>
+                                <button t-attf-class="btn btn-outline-secondary d-flex align-items-center justify-content-center #{'disabled' if product.qty_available &lt;= 0 else ''}"
+                                        type="button" id="btn-plus"
+                                        style="width: 35px; height: 35px; border-radius: 50%; padding: 0;">
+                                    <span style="color: black; font-weight: bold;">+</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button t-attf-class="btn btn-danger w-100 mt-3 add-to-cart-btn #{'disabled' if product.qty_available &lt;= 0 else ''}"
+                                t-att-disabled="'disabled' if product.qty_available &lt;= 0 else None"
+                                t-att-data-product-id="product.id">
+                            <t t-if="product.qty_available &gt; 0">Add to Cart</t>
+                            <t t-else="">Out of Stock</t>
+                        </button>
+                        <a t-if="product.tenant_id"
+                           t-att-href="'/tenant/%s' % tenant.id"
+                           class="btn btn-light w-100 mt-2">
+                            View all from
+                            <t t-esc="product.tenant_id.name"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalStockAlert" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered p-3">
+                    <div class="modal-content" style="border-radius: 20px; border: none;">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3" style="font-size: 40px;">⚠️</div>
+                            <h5 class="fw-bold">Out of Stock</h5>
+                            <p class="text-muted small">Oops! You've selected more than what we have in stock right
+                                now.
+                            </p>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="cart_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="header-box p-3 d-flex align-items-center bg-danger text-white sticky-top"
+                 style="z-index: 1020; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <a href="#"
+                   class="btn rounded-circle bg-white me-2 d-flex align-items-center justify-content-center js_smart_back"
+                   style="width: 35px; height: 35px; border-radius: 50%; padding: 0; border-color: #ddd;"><i class="fa fa-arrow-left"/>
+                </a>
+                <div class="d-flex flex-column">
+                    <span class="fw-bold h5 mb-0">
+                        My Cart
+                    </span>
+                </div>
+            </div>
+            <div class="container py-4">
+                <t t-foreach="order.line_ids" t-as="line">
+                    <div class="cart-item-row d-flex align-items-center py-3 border-bottom"
+                         t-att-data-line-id="line.id">
+                        <div class="me-1">
+                            <img t-if="line.product_id.image_512"
+                                 t-att-src="image_data_uri(line.product_id.image_512)"
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"/>
+                            <div t-else="" class="bg-light d-flex align-items-center justify-content-center"
+                                 style="width: 60px; height: 60px; border-radius: 8px;">🧩
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div style="font-size: 0.8em;">
+                                <t t-esc="line.product_id.name"/>
+                            </div>
+                            <div class="text-muted" style="font-size: 0.8em;">
+                                <span t-esc="line.tenant_id.name"/>
+                                · Booth
+                                <span t-esc="line.tenant_id.booth_code"/>
+                            </div>
+                        </div>
+                        <div class="text-end" style="min-width: 100px;">
+                            <t t-if="line.product_id.qty_available &lt;= 0">
+                                <span class="badge bg-light text-danger border border-danger mb-2">Unavailable</span>
+                                <button class="btn btn-link text-muted p-0 me-2 js_delete_line" type="button"
+                                        style="text-decoration:none;">❌
+                                </button>
+                            </t>
+                            <t t-else="">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center js_update_qty"
+                                            type="button" data-direction="minus"
+                                            style="width: 30px; height: 30px; border-radius: 50%; padding: 0;">
+                                        <span style="color: black; font-weight: bold;">−</span>
+                                    </button>
+                                    <span class="mx-3 js_qty_val" t-esc="int(line.qty)"/>
+                                    <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center js_update_qty"
+                                            type="button" data-direction="plus"
+                                            style="width: 30px; height: 30px; border-radius: 50%; padding: 0;">
+                                        <span style="color: black; font-weight: bold;">+</span>
+                                    </button>
+                                </div>
+                                <div class="text-danger d-flex align-items-baseline justify-content-center mt-1">
+                                    <small style="font-size: 0.6em; margin-right: 4px;">Rp.</small>
+                                    <span class="js_subtotal" style="font-size: 0.9em; font-weight: bold;">
+                                        <t t-esc="'{:,.0f}'.format(line.subtotal).replace(',', '.')"/>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+                <div t-if="order.line_ids" class="fixed-bottom p-3 bg-white border-top">
+                    <button class="btn btn-danger btn-lg w-100 js_btn_checkout" style="border-radius: 50px;">
+                        Checkout • Rp
+                        <span class="js_cart_total">
+                            <t t-esc="'{:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                        </span>
+                    </button>
+                </div>
+                <div t-if="not order.line_ids"
+                     class="text-center mt-5 text-muted d-flex flex-column justify-content-center align-items-center"
+                     style="min-height: 50vh;">
+                    <p style="font-size: 50px;">🛒</p>
+                    <p>Your cart is empty</p>
+                    <a href="/tenants" class="btn btn-outline-danger rounded-pill">Start Shopping</a>
+                </div>
+            </div>
+            <div class="modal fade" id="modalStockAlert" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered p-3">
+                    <div class="modal-content" style="border-radius: 20px; border: none;">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3" style="font-size: 40px;">⚠️</div>
+                            <h5 class="fw-bold">Out of Stock</h5>
+                            <p class="text-muted small">Oops! You've selected more than what we have in stock right
+                                now.
+                            </p>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalUnavailableAlert" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered p-3">
+                    <div class="modal-content" style="border-radius: 20px; border: none;">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3" style="font-size: 40px;">⚠️</div>
+                            <h5 class="fw-bold">Can not checkout</h5>
+                            <p class="text-muted small">Please delete unavailable item!</p>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="checkout_qr_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="container py-5 text-center">
+                <h3 class="fw-bold">Show at Cashier</h3>
+                <p class="text-muted">Go to any cashier counter and show this code</p>
+                <div class="bg-white shadow-sm p-4 d-inline-block" style="border-radius: 20px;">
+                    <div id="qrcode" class="mb-3"/>
+                    <h4 class="fw-bold mb-0">
+                        <t t-esc="order.name"/>
+                    </h4>
+                    <p class="small text-muted">
+                        <t t-esc="order.total_qty"/>
+                        items • Rp
+                        <t t-esc="'{:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                    </p>
+                </div>
+                <div class="mt-4 d-flex justify-content-center gap-3">
+                    <div class="p-2 border rounded bg-light" style="min-width: 120px;">
+                        <div class="small text-muted">Status</div>
+                        <div class="fw-bold text-warning">Pending</div>
+                    </div>
+                    <div class="p-2 border rounded bg-light" style="min-width: 120px;">
+                        <div class="small text-muted">Expires in</div>
+                        <div id="txn_timer" class="fw-bold text-danger"/>
+                    </div>
+                </div>
+                <div class="mt-5">
+                    <button type="button"
+                            class="btn btn-outline-secondary rounded-pill px-5 py-2 js_btn_edit_order"
+                            t-att-data-order-id="order.id">
+                        <i class="fa fa-pencil me-2"/> Edit Order
+                    </button>
+                </div>
+            </div>
+            <div class="modal fade" id="modalEditConfirm" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered p-3">
+                    <div class="modal-content" style="border-radius: 20px; border: none;">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3" style="font-size: 40px;">✏️</div>
+                            <h5 class="fw-bold">Edit your order?</h5>
+                            <p class="text-muted small">Are you sure you want to edit or add items? Your current
+                                transaction will be reset.
+                            </p>
+                            <button type="button" class="btn btn-danger w-100 mb-2 py-2 rounded-pill fw-bold"
+                                    id="confirm-edit-yes">
+                                Yes, edit order
+                            </button>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalTimeOutAlert" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered p-3">
+                    <div class="modal-content" style="border-radius: 20px; border: none;">
+                        <div class="modal-body text-center p-4">
+                            <div class="mb-3" style="font-size: 40px;">⏰</div>
+                            <h5 class="fw-bold">Time Out</h5>
+                            <p class="text-muted small">Transaction was automatically cancelled.</p>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;" id="btn-timeout-ok">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"/>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                const transactionID = "<t t-esc='order.name'/>";
+                new QRCode(document.getElementById("qrcode"), {
+                text: transactionID,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+                });
+                });
+            </script>
+        </t>
+    </template>
+
+    <template id="customer_success_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="container-fluid d-flex align-items-center justify-content-center"
+                 style="min-height: 100vh; background-color: #f4f7f6;">
+                <div class="card shadow border-0 text-center p-4"
+                     style="border-radius: 30px; max-width: 400px; width: 100%;">
+                    <div class="mb-4">
+                        <div class="bg-success d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm"
+                             style="width: 80px; height: 80px;">
+                            <i class="fa fa-check text-white" style="font-size: 40px;"/>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold text-dark">Payment Success!</h2>
+                    <p class="text-muted">Your items are being prepared at the booths</p>
+                    <hr class="my-4" style="border-top: 2px dashed #dee2e6;"/>
+                    <div class="text-start mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Transaction ID</span>
+                            <span class="fw-bold">
+                                <t t-esc="order.name"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Date</span>
+                            <span class="fw-bold"><t t-esc="date_paid_jakarta.strftime('%d/%m/%Y %H:%M')"/></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Payment Method</span>
+                            <span class="fw-bold">
+                                <t t-esc="order.payment_method"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                            <span class="fw-bold">Total Amount</span>
+                            <span class="fw-bold text-danger">Rp
+                                <t t-esc="'{:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <div class="alert alert-warning border-warning d-flex align-items-center justify-content-center py-3 mb-2"
+                             style="border-radius: 15px; background-color: #fff9e6; color: #856404; font-size: 0.95rem; border: 1.5px solid #ffeeba;">
+                            <span class="me-2">📋</span>
+                            <span class="fw-medium">All sales are final and non-returnable.</span>
+                        </div>
+                        <a t-attf-href="/checkout/pickup_status/#{order.token}"
+                           class="btn btn-danger btn-lg rounded-pill fw-bold py-3 shadow-sm">
+                            Track pickup status
+                        </a>
+                        <!--<a href="/tenants" class="btn btn-link text-muted mt-2">
+                            Back to Home
+                        </a>-->
+                    </div>
+                    <p class="small text-muted mt-4">Collect items at tenant booths</p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="customer_pickup_tracking_page">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="container py-4" style="max-width: 500px; background-color: #fffdf9; min-height: 100vh;">
+                <div class="d-flex align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Pickup Status</h4>
+                </div>
+                <div class="alert alert-warning border-0 shadow-sm"
+                     style="border-radius: 15px; background-color: #e9f5db;">
+                    <p class="small mb-0 text-dark">
+                        Visit each booth and show your QR code. Items update automatically.
+                    </p>
+                </div>
+                <t t-set="lines_by_tenant"
+                   t-value="order.line_ids.read_group([('order_id', '=', order.id)], ['tenant_id'], ['tenant_id'])"/>
+                <t t-foreach="order.line_ids.mapped('tenant_id')" t-as="tenant">
+                    <div class="mt-4">
+                        <h6 class="text-muted fw-bold small">
+                            <t t-esc="tenant.name"/>
+                            •
+                            <t t-esc="tenant.floor.upper()"/>, <t t-esc="tenant.booth_code"/>
+                        </h6>
+                        <t t-foreach="order.line_ids.filtered(lambda l: l.tenant_id == tenant)" t-as="line">
+                            <div class="card border-0 shadow-sm mb-2" style="border-radius: 12px;">
+                                <div class="card-body d-flex align-items-center justify-content-between py-3">
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            <t t-esc="line.product_id.name"/>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <t t-esc="line.qty"/>
+                                            · Rp
+                                            <t t-esc="'{:,.0f}'.format(line.price_unit).replace(',', '.')"/>
+                                        </div>
+                                    </div>
+                                    <span t-if="line.is_handed_over"
+                                          class="badge rounded-pill bg-success text-white p-2 px-3">
+                                        Done
+                                        <i class="fa fa-check ms-1"/>
+                                    </span>
+                                    <span t-else="" class="badge rounded-pill bg-warning p-2 px-3"
+                                          style="background-color: #fff3cd;">
+                                        Ready
+                                    </span>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <div class="fixed-bottom p-3 bg-white border-top shadow-lg" style="border-radius: 25px 25px 0 0;">
+                    <div class="text-center mb-3">
+                        <div class="small text-muted mb-1">Collected</div>
+                        <h3 class="fw-bold mb-2">
+                            <t t-esc="len(order.line_ids.filtered(lambda l: l.is_handed_over))"/>
+                            /
+                            <t t-esc="len(order.line_ids)"/>
+                            items
+                        </h3>
+                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                            <t t-set="progress"
+                               t-value="(len(order.line_ids.filtered(lambda l: l.is_handed_over)) / len(order.line_ids)) * 100"/>
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                                 role="progressbar" t-attf-style="width: #{progress}%"/>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger w-100 rounded-pill py-3 fw-bold shadow js_show_barcode">
+                        <i class="fa fa-barcode me-2"/>
+                        Show Transaction Barcode
+                    </button>
+                </div>
+                <div style="height: 180px;"/>
+            </div>
+            <div class="modal fade" id="modalBarcode" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered px-4">
+                    <div class="modal-content border-0" style="border-radius: 30px;">
+                        <div class="modal-body text-center p-5">
+                            <h5 class="fw-bold mb-4">Transaction Barcode</h5>
+                            <div class="bg-light p-4 d-inline-block mb-3" style="border-radius: 20px;">
+                                <div id="qrcode2" class="mb-3"/>
+                            </div>
+                            <h3 class="fw-bold mb-2">
+                                <t t-esc="order.name"/>
+                            </h3>
+                            <p class="text-muted small px-3">
+                                Show this to the tenant booth staff to scan
+                            </p>
+                            <button type="button" class="btn btn-light w-100 rounded-pill py-3 fw-bold mt-4"
+                                    data-bs-dismiss="modal" style="background-color: #f8f3e6;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"/>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const transactionID = "<t t-esc='order.name'/>";
+                    new QRCode(document.getElementById("qrcode2"), {
+                        text: transactionID,
+                        width: 200,
+                        height: 200,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+
+                    const orderToken = "<t t-esc='order.token'/>";
+                    let currentCollected = <t t-esc="len(order.line_ids.filtered(lambda l: l.is_handed_over))"/>;
+                    const checkStatus = () => {
+                        fetch('/checkout/pickup_status/check', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ params: { token: orderToken } })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const result = data.result;
+                            if (result.all_done) {
+                                window.location.href = '/tenants';
+                            } else if (result.handover_count !== currentCollected) {
+                                location.reload();
+                            }
+                        })
+                        .catch(err => console.error("Polling error:", err));
+                    };
+                    setInterval(checkStatus, 3000);
+                });
+            </script>
+        </t>
+    </template>
+
+    <template id="digital_receipt_layout">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <div class="container py-5" style="max-width: 500px; background: #f8f9fa; min-height: 100vh;">
+                <div class="card shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="bg-danger p-4 text-center text-white">
+                        <h4 class="fw-bold mb-0">E-RECEIPT</h4>
+                        <small>Amazing Toy Show Indonesia</small>
+                    </div>
+                    <div class="card-body p-4 bg-white" style="font-family: 'Inter', sans-serif;">
+                        <div class="text-center mb-4">
+                            <h5 class="fw-bold">
+                                <t t-esc="order.name"/>
+                            </h5>
+                            <p class="text-muted small">
+                                Status:
+                                <span class="badge bg-success">Paid</span>
+                                <br/>
+                                Date:
+                                <span class="fw-bold"><t t-esc="date_paid_jakarta.strftime('%d/%m/%Y %H:%M')"/></span>
+                            </p>
+                        </div>
+                        <div style="border-top: 1px dashed #dee2e6;" class="my-3"/>
+                        <t t-foreach="order.line_ids" t-as="line">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div style="max-width: 70%;">
+                                    <div class="fw-bold" style="font-size: 0.9em;">
+                                        <t t-esc="line.product_id.name"/>
+                                    </div>
+                                    <small class="text-muted">
+                                        <t t-esc="int(line.qty)"/>
+                                        Rp
+                                        <t t-esc="'{0:,.0f}'.format(line.price_unit).replace(',', '.')"/>
+                                    </small>
+                                </div>
+                                <div class="fw-bold text-end" style="font-size: 0.9em;">
+                                    Rp
+                                    <t t-esc="'{0:,.0f}'.format(line.subtotal).replace(',', '.')"/>
+                                </div>
+                            </div>
+                        </t>
+                        <div style="border-top: 1px dashed #dee2e6;" class="my-3"/>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Total</span>
+                            <span class="fw-bold h5 text-danger">Rp
+                                <t t-esc="'{0:,.0f}'.format(order.total_amount).replace(',', '.')"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Payment method:</span>
+                            <span>
+                                <t t-esc="order.payment_method.upper()"/>
+                            </span>
+                        </div>
+                        <div class="mt-5 text-center">
+                            <div class="p-3 bg-light rounded-3">
+                                <p class="small text-muted mb-0">Thanks for shopping!</p>
+                                <p class="small text-muted mb-0">Goods that have been purchased cannot be exchanged or returned.</p>
+                            </div>
+                            <a href="/tenants" class="btn btn-outline-danger btn-sm mt-4 rounded-pill px-4">Back to shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
