@@ -8,8 +8,8 @@
     'data': [
         'data/ir_sequence.xml',
         'security/ir.model.access.csv',
-        'views/event_cashier_view.xml',
         'views/event_order_view.xml',
+        'views/event_cashier_view.xml',
         'views/event_tenant_view.xml',
         'views/website_templates_cashier.xml',
         'views/website_templates_customer.xml',
