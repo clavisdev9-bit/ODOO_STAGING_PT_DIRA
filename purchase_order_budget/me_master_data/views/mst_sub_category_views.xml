@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mst_sub_category_tree" model="ir.ui.view">
+        <field name="name">x.mst.sub.category.tree</field>
+        <field name="model">x.mst.sub.category</field>
+        <field name="arch" type="xml">
+            <list string="Sub Category">
+                <field name="no_urut" readonly="1"/>
+                <field name="name"/>
+                <field name="prefix"/>
+                <field name="item_category_id"/>
+                <field name="is_active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mst_sub_category_form" model="ir.ui.view">
+        <field name="name">x.mst.sub.category.form</field>
+        <field name="model">x.mst.sub.category</field>
+        <field name="arch" type="xml">
+            <form string="Sub Category">
+                <sheet>
+                    <div class="alert alert-info mb-3" role="status">
+                        <p class="mb-0">
+                            <strong>No. Urut</strong> dibuat otomatis berdasarkan urutan dalam Item Category.
+                            Tambahkan Brand yang valid di tab <strong>Brand Mapping</strong> — No. Urut Brand juga otomatis.
+                        </p>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="no_urut" readonly="1"
+                                   help="Nomor urut diisi otomatis saat data disimpan"/>
+                            <field name="name"/>
+                            <field name="prefix" placeholder="Contoh: PP, AL, BJ"/>
+                        </group>
+                        <group>
+                            <field name="item_category_id"/>
+                            <field name="is_active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Brand Mapping">
+                            <field name="brand_line_ids">
+                                <list editable="bottom">
+                                    <field name="no_urut_brand" readonly="1"/>
+                                    <field name="brand_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mst_sub_category" model="ir.actions.act_window">
+        <field name="name">Sub Category</field>
+        <field name="res_model">x.mst.sub.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root menu -->
+    <menuitem id="menu_construction_root"
+        name="Construction"
+        sequence="50"
+        web_icon="construction_management,static/description/icon.png"
+        groups="construction_management.group_construction_user"/>
+
+    <!-- Level 1 menus -->
+    <menuitem id="menu_construction_contracts"
+        name="Contracts"
+        parent="menu_construction_root"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_operations"
+        name="Operations"
+        parent="menu_construction_root"
+        sequence="20"/>
+
+    <menuitem id="menu_construction_purchasing"
+        name="Purchasing"
+        parent="menu_construction_root"
+        sequence="30"/>
+
+    <menuitem id="menu_construction_finance"
+        name="Finance"
+        parent="menu_construction_root"
+        sequence="40"/>
+
+    <menuitem id="menu_construction_reports"
+        name="Reports"
+        parent="menu_construction_root"
+        sequence="50"/>
+
+    <!-- Contracts sub-menus -->
+    <menuitem id="menu_construction_job_contract"
+        name="Job Contracts"
+        parent="menu_construction_contracts"
+        sequence="10"
+        action="action_construction_job_contract"/>
+
+    <menuitem id="menu_construction_boq"
+        name="Bill of Quantities"
+        parent="menu_construction_contracts"
+        sequence="20"
+        action="action_construction_boq_line"/>
+
+    <menuitem id="menu_construction_rate_analysis"
+        name="Rate Analysis"
+        parent="menu_construction_contracts"
+        sequence="30"
+        action="action_construction_rate_analysis"/>
+
+    <!-- Operations sub-menus -->
+    <menuitem id="menu_construction_work_order"
+        name="Work Orders"
+        parent="menu_construction_operations"
+        sequence="10"
+        action="action_construction_work_order"/>
+
+    <menuitem id="menu_construction_subcontract"
+        name="Sub-Contracting"
+        parent="menu_construction_operations"
+        sequence="20"
+        action="action_construction_subcontract"/>
+
+    <menuitem id="menu_construction_scrap"
+        name="Scrap &amp; Waste"
+        parent="menu_construction_operations"
+        sequence="30"
+        action="action_construction_scrap"/>
+
+    <!-- Purchasing sub-menus -->
+    <menuitem id="menu_construction_material_req"
+        name="Material Requisitions"
+        parent="menu_construction_purchasing"
+        sequence="10"
+        action="action_construction_material_req"/>
+
+    <!-- Finance sub-menus -->
+    <menuitem id="menu_construction_ra_billing"
+        name="RA Billing"
+        parent="menu_construction_finance"
+        sequence="10"
+        action="action_construction_ra_billing"/>
+
+    <menuitem id="menu_construction_budget"
+        name="Job Budget"
+        parent="menu_construction_finance"
+        sequence="20"
+        action="action_construction_budget"/>
+
+    <menuitem id="menu_construction_job_costing"
+        name="Job Costing"
+        parent="menu_construction_finance"
+        sequence="30"
+        action="action_construction_job_costing"/>
+
+</odoo>

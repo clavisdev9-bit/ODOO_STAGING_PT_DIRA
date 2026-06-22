@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mst_item_category_tree" model="ir.ui.view">
+        <field name="name">x.mst.item.category.tree</field>
+        <field name="model">x.mst.item.category</field>
+        <field name="arch" type="xml">
+            <list string="Item Category">
+                <field name="no_urut" readonly="1"/>
+                <field name="name"/>
+                <field name="prefix"/>
+                <field name="categ_id"/>
+                <field name="is_active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mst_item_category_form" model="ir.ui.view">
+        <field name="name">x.mst.item.category.form</field>
+        <field name="model">x.mst.item.category</field>
+        <field name="arch" type="xml">
+            <form string="Item Category">
+                <sheet>
+                    <div class="alert alert-info mb-3" role="status">
+                        <p class="mb-0">
+                            <strong>No. Urut</strong> dibuat otomatis berdasarkan urutan dalam Category yang dipilih.
+                            <strong>Prefix</strong> digunakan sebagai kode singkat untuk pembentukan kode item.
+                        </p>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="no_urut" readonly="1"
+                                   help="Nomor urut diisi otomatis saat data disimpan"/>
+                            <field name="name"/>
+                            <field name="prefix" placeholder="Contoh: ME, EL, CV"/>
+                        </group>
+                        <group>
+                            <field name="categ_id"/>
+                            <field name="is_active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sub Categories">
+                            <field name="sub_category_ids">
+                                <list editable="bottom">
+                                    <field name="no_urut" readonly="1"/>
+                                    <field name="name"/>
+                                    <field name="prefix" placeholder="Contoh: PP, AL, BJ"/>
+                                    <field name="is_active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mst_item_category" model="ir.actions.act_window">
+        <field name="name">Item Category</field>
+        <field name="res_model">x.mst.item.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

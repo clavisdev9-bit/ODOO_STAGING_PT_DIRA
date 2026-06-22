@@ -15,34 +15,38 @@ class PurchaseOrder(models.Model):
     ])
 
     def button_confirm(self):
+        for rec in self:
+            if not rec.order_line:
+                raise UserError("Harap tambahkan minimal satu order line sebelum konfirmasi.")
+            for line in rec.order_line:
+                if line.product_id and not line.budget_line_id:
+                    raise UserError(
+                        f"Budget dan Item tidak ditemukan untuk produk '{line.product_id.name}'!\n"
+                        "Harap isi kolom Budget dan Item pada setiap baris order."
+                    )
+                if line.budget_line_id and line.price_subtotal > line.budget_line_id.remaining:
+                    raise UserError(
+                        "⚠️ Anggaran Tidak Mencukupi ⚠️\n\n"
+                        f"Anggaran untuk '{line.budget_line_id.account_id.name}' tidak mencukupi.\n"
+                        f"Subtotal transaksi: {line.price_subtotal}\n"
+                        f"Anggaran tersedia: {line.budget_line_id.remaining}\n\n"
+                        "Silakan kurangi jumlah transaksi atau pilih anggaran lain yang sesuai."
+                    )
+
         res = super(PurchaseOrder, self).button_confirm()
+
         for rec in self:
             for line in rec.order_line:
                 if line.budget_line_id:
-                    if line.price_subtotal > line.budget_line_id.remaining:
-                        raise UserError(
-                            "⚠️ Anggaran Tidak Mencukupi ⚠️\n\n"
-                            f"Anggaran untuk '{line.budget_line_id.account_id.name}' tidak mencukupi.\n"
-                            f"Subtotal transaksi: {line.price_subtotal}\n"
-                            f"Anggaran tersedia: {line.budget_line_id.remaining}\n\n"
-                            "Silakan kurangi jumlah transaksi atau pilih anggaran lain yang sesuai."
-                        )
-                    else:
-                        self.env['budget.request'].create({
-                            'date': fields.Date.today(),
-                            'reference': rec.name,
-                            'product_id': line.product_id.id,
-                            'amount': line.price_subtotal,
-                            'budget_line_id': line.budget_line_id.id,
-                            'po_id': rec.id
-                        })
-                else:
-                    raise UserError(
-                        "Budget dan Item tidak ditemukan!\n"
-                    )
-
+                    self.env['budget.request'].create({
+                        'date': fields.Date.today(),
+                        'reference': rec.name,
+                        'product_id': line.product_id.id,
+                        'amount': line.price_subtotal,
+                        'budget_line_id': line.budget_line_id.id,
+                        'po_id': rec.id
+                    })
             rec.write({'state': 'confirmed'})
-
 
         return res
 

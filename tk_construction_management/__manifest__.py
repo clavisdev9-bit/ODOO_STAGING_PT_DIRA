@@ -31,7 +31,8 @@
                 'hr',
                 'purchase',
                 'project',
-                'hr_timesheet'],
+                'hr_timesheet',
+                'account_budget'],
     'data': [
         # security
         'security/groups.xml',

@@ -49,6 +49,45 @@ class SubProjectBudget(models.Model):
     budget_line_confirmation_ids = fields.One2many(
         comodel_name='budget.line.confirmation', inverse_name='budget_id')
 
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account',
+        string='Analytic Account',
+        copy=False,
+        ondelete='set null',
+    )
+
+    # --- Analytic Account auto-creation ---
+
+    def _get_construction_analytic_plan(self):
+        plan = self.env['account.analytic.plan'].search(
+            [('name', '=', 'Construction Budget')], limit=1)
+        if not plan:
+            plan = self.env['account.analytic.plan'].create(
+                {'name': 'Construction Budget'})
+        return plan
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        plan = self._get_construction_analytic_plan()
+        for rec in records:
+            if not rec.analytic_account_id:
+                rec.analytic_account_id = self.env[
+                    'account.analytic.account'].create({
+                        'name': rec.name or rec.sub_project_id.name or 'Budget',
+                        'plan_id': plan.id,
+                        'company_id': rec.company_id.id,
+                    })
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'name' in vals and vals['name']:
+            for rec in self:
+                if rec.analytic_account_id:
+                    rec.analytic_account_id.name = rec.name
+        return res
+
     def _unlink_budget(self):
         for rec in self:
             if rec.status in ['approved', 'in_progress', 'complete']:

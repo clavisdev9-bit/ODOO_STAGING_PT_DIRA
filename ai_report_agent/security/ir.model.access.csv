@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ai_report_config_system,ai.report.config system,model_ai_report_config,base.group_system,1,1,1,1
+access_ai_report_config_user,ai.report.config user,model_ai_report_config,base.group_user,1,0,0,0
+access_ai_report_history_user,ai.report.history user,model_ai_report_history,base.group_user,1,1,1,0
+access_ai_report_history_system,ai.report.history system,model_ai_report_history,base.group_system,1,1,1,1
+access_ai_report_queue_user,ai.report.queue user,model_ai_report_queue,base.group_user,1,1,0,0
+access_ai_report_queue_system,ai.report.queue system,model_ai_report_queue,base.group_system,1,1,1,1
+access_report_preview_wizard_user,report.preview.wizard user,model_report_preview_wizard,base.group_user,1,1,1,1

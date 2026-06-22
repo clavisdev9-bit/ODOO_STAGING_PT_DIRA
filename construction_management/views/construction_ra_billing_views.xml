@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_ra_billing_tree" model="ir.ui.view">
+        <field name="name">construction.ra.billing.tree</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="arch" type="xml">
+            <list string="RA Billings" decoration-success="state == 'paid'"
+                  decoration-info="state == 'invoiced'" decoration-warning="state == 'approved'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="partner_id"/>
+                <field name="period_date"/>
+                <field name="amount_untaxed" sum="Total Untaxed"/>
+                <field name="retention_amount" sum="Retention"/>
+                <field name="amount_net" sum="Net Amount"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'paid'"
+                       decoration-info="state == 'invoiced'"
+                       decoration-warning="state in ('submitted','approved')"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_ra_billing_form" model="ir.ui.view">
+        <field name="name">construction.ra.billing.form</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="arch" type="xml">
+            <form string="RA Billing">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object"
+                            class="btn-primary" invisible="state != 'submitted'"
+                            groups="construction_management.group_construction_manager"/>
+                    <button name="action_create_invoice" string="Create Invoice" type="object"
+                            class="btn-primary" invisible="state != 'approved'"
+                            groups="construction_management.group_construction_manager"/>
+                    <button name="action_view_invoice" string="View Invoice" type="object"
+                            invisible="not invoice_id"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('invoiced','paid','cancelled')"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,invoiced,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group string="Billing Info">
+                            <field name="contract_id" readonly="state != 'draft'"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="analytic_account_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="period_date" readonly="state != 'draft'"/>
+                            <field name="billing_date"/>
+                            <field name="invoice_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Progress Items" name="lines">
+                            <field name="billing_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="boq_line_id"
+                                           domain="[('contract_id','=',parent.contract_id)]"/>
+                                    <field name="volume_contract" readonly="1"/>
+                                    <field name="unit_price" readonly="1"/>
+                                    <field name="subtotal_contract" readonly="1"/>
+                                    <field name="progress_prev"/>
+                                    <field name="progress_this"/>
+                                    <field name="progress_cumulative" readonly="1"/>
+                                    <field name="value_prev" readonly="1"/>
+                                    <field name="value_this" readonly="1" sum="Total This Period"/>
+                                    <field name="value_cumulative" readonly="1" sum="Total Cumulative"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer">
+                        <field name="amount_untaxed" class="oe_subtotal_footer_separator"/>
+                        <field name="retention_amount"/>
+                        <field name="amount_net" class="oe_subtotal_footer_separator"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_ra_billing_search" model="ir.ui.view">
+        <field name="name">construction.ra.billing.search</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="arch" type="xml">
+            <search string="Search RA Billings">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="partner_id"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Approved" name="approved" domain="[('state','=','approved')]"/>
+                <filter string="Invoiced" name="invoiced" domain="[('state','=','invoiced')]"/>
+                <filter string="Paid" name="paid" domain="[('state','=','paid')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_contract" string="Contract" context="{'group_by':'contract_id'}"/>
+                    <filter name="grp_period" string="Period" context="{'group_by':'period_date:month'}"/>
+                    <filter name="grp_state" string="Status" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_ra_billing" model="ir.actions.act_window">
+        <field name="name">RA Billing</field>
+        <field name="res_model">construction.ra.billing</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_ra_billing_search"/>
+    </record>
+
+</odoo>

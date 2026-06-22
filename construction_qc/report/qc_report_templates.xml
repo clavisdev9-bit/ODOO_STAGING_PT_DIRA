@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_qc_inspection_template">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h2 style="color: #1a6b5a; margin: 0;">QC Inspection Report</h2>
+                            <h4 style="color: #555; margin: 4px 0 0 0;">Laporan Inspeksi Quality Control — ME</h4>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h3 style="font-weight: bold;"><t t-out="doc.name"/></h3>
+                            <span t-attf-class="badge bg-{{ 'success' if doc.state == 'approved' else ('danger' if doc.state == 'rejected' else 'secondary') }} fs-6">
+                                <t t-out="dict(doc._fields['state'].selection).get(doc.state, doc.state).upper()"/>
+                            </span>
+                        </div>
+                    </div>
+                    <hr style="border-color: #1a6b5a; border-width: 2px;"/>
+
+                    <!-- Inspection Info -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <table class="table table-sm table-borderless">
+                                <tr><td style="width:40%; color:#666;">Project</td><td><strong><t t-out="doc.project_id.name"/></strong></td></tr>
+                                <tr><td style="color:#666;">Work Package</td><td><t t-out="doc.work_package"/></td></tr>
+                                <tr><td style="color:#666;">Area</td><td><t t-out="doc.area"/><t t-if="doc.location"> — <t t-out="doc.location"/></t></td></tr>
+                                <tr><td style="color:#666;">Drawing Ref</td><td><t t-out="doc.drawing_ref or '-'"/></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-6">
+                            <table class="table table-sm table-borderless">
+                                <tr><td style="width:40%; color:#666;">Inspection Date</td><td><t t-out="doc.inspection_date"/></td></tr>
+                                <tr><td style="color:#666;">Supervisor</td><td><t t-out="doc.spv_id.name"/></td></tr>
+                                <tr><td style="color:#666;">Project Manager</td><td><t t-out="doc.pm_id.name"/></td></tr>
+                                <tr t-if="doc.task_id"><td style="color:#666;">Task</td><td><t t-out="doc.task_id.name"/></td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Checklist -->
+                    <h5 style="background: #1a6b5a; color: white; padding: 8px 12px; border-radius: 4px;">
+                        Checklist QC
+                        <small class="float-end">
+                            Pass: <t t-out="doc.checklist_pass"/> |
+                            Fail: <t t-out="doc.checklist_fail"/> |
+                            Total: <t t-out="doc.checklist_total"/>
+                        </small>
+                    </h5>
+                    <table class="table table-sm table-bordered mb-4">
+                        <thead style="background: #e8f5e9;">
+                            <tr>
+                                <th style="width:5%">#</th>
+                                <th style="width:30%">Checklist Item</th>
+                                <th style="width:20%">Specification</th>
+                                <th style="width:20%">Actual Result</th>
+                                <th style="width:10%">Result</th>
+                                <th style="width:15%">Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.checklist_ids" t-as="line">
+                                <tr t-attf-style="{{ 'background: #ffebee;' if line.result == 'fail' else ('background: #e8f5e9;' if line.result == 'pass' else '') }}">
+                                    <td><t t-out="line_index + 1"/></td>
+                                    <td><t t-out="line.item"/></td>
+                                    <td><t t-out="line.specification or ''"/></td>
+                                    <td><t t-out="line.actual or ''"/></td>
+                                    <td style="text-align:center; font-weight:bold;"
+                                        t-attf-style="{{ 'color:green;' if line.result == 'pass' else ('color:red;' if line.result == 'fail' else 'color:gray;') }}">
+                                        <t t-out="line.result.upper() if line.result else 'N/A'"/>
+                                    </td>
+                                    <td><t t-out="line.remark or ''"/></td>
+                                </tr>
+                            </t>
+                            <tr t-if="not doc.checklist_ids">
+                                <td colspan="6" class="text-center text-muted">No checklist items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- NCR Summary -->
+                    <t t-if="doc.ncr_ids">
+                        <h5 style="background: #e65100; color: white; padding: 8px 12px; border-radius: 4px;">
+                            Non Conformance Reports (NCR)
+                        </h5>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead style="background: #fff3e0;">
+                                <tr>
+                                    <th>NCR Ref</th>
+                                    <th>Description</th>
+                                    <th>Root Cause</th>
+                                    <th>Status</th>
+                                    <th>CAs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.ncr_ids" t-as="ncr">
+                                    <tr>
+                                        <td><t t-out="ncr.name"/></td>
+                                        <td><t t-out="ncr.description"/></td>
+                                        <td><t t-out="ncr.root_cause or '-'"/></td>
+                                        <td><t t-out="ncr.status.upper()"/></td>
+                                        <td><t t-out="ncr.ca_count"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <!-- PM Notes -->
+                    <t t-if="doc.pm_note">
+                        <h5 style="background: #1565c0; color: white; padding: 8px 12px; border-radius: 4px;">
+                            PM Review Notes
+                        </h5>
+                        <div style="border: 1px solid #1565c0; padding: 12px; border-radius: 4px; margin-bottom: 16px; background: #e3f2fd;">
+                            <t t-out="doc.pm_note"/>
+                        </div>
+                    </t>
+
+                    <!-- Progress Billing -->
+                    <t t-if="doc.state in ['approved', 'closed'] and doc.progress_qty">
+                        <h5 style="background: #2e7d32; color: white; padding: 8px 12px; border-radius: 4px;">
+                            Progress / COP Billing
+                        </h5>
+                        <div style="border: 1px solid #2e7d32; padding: 12px; border-radius: 4px; margin-bottom: 16px; background: #e8f5e9;">
+                            Approved Quantity: <strong><t t-out="doc.progress_qty"/> <t t-out="doc.progress_uom.name or ''"/></strong>
+                            — Pekerjaan ini <strong>layak ditagihkan</strong>.
+                        </div>
+                    </t>
+
+                    <!-- Signature Block -->
+                    <div class="row mt-5">
+                        <div class="col-6 text-center">
+                            <div style="border-top: 1px solid #333; padding-top: 8px; margin-top: 60px;">
+                                <strong><t t-out="doc.spv_id.name"/></strong><br/>
+                                <small>Supervisor</small>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div style="border-top: 1px solid #333; padding-top: 8px; margin-top: 60px;">
+                                <strong><t t-out="doc.pm_id.name"/></strong><br/>
+                                <small>Project Manager</small>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_construction_boq_line_user,tk.construction.boq.line user,model_tk_construction_boq_line,base.group_user,1,1,1,1
+access_construction_boq_line_manager,tk.construction.boq.line manager,model_tk_construction_boq_line,base.group_system,1,1,1,1
+access_wizard_generate_so,wizard.construction.generate.so,model_wizard_construction_generate_so,base.group_user,1,1,1,1
+access_wizard_generate_so_line,wizard.construction.generate.so.line,model_wizard_construction_generate_so_line,base.group_user,1,1,1,1
+access_wizard_generate_po,wizard.construction.generate.po,model_wizard_construction_generate_po,base.group_user,1,1,1,1

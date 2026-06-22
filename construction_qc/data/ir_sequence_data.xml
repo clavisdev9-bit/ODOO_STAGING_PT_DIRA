@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_qc_inspection" model="ir.sequence">
+            <field name="name">QC Inspection</field>
+            <field name="code">qc.inspection</field>
+            <field name="prefix">QC/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_qc_ncr" model="ir.sequence">
+            <field name="name">QC NCR</field>
+            <field name="code">qc.ncr</field>
+            <field name="prefix">NCR/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_qc_corrective_action" model="ir.sequence">
+            <field name="name">QC Corrective Action</field>
+            <field name="code">qc.corrective.action</field>
+            <field name="prefix">CA/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

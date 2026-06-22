@@ -11,11 +11,11 @@
                 </header>
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='taxes_id']" position="after">
-                <field name="budget_id" required="product_id != False"/>
-                <field name="budget_line_id" required="product_id != False"/>
+                <field name="budget_id"/>
+                <field name="budget_line_id"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='analytic_distribution']" position="attributes">
-                <attribute name="required">product_id</attribute>
+                <attribute name="options">{'product_field': 'product_id', 'business_domain': 'purchase_order', 'force_applicability': 'optional'}</attribute>
             </xpath>
         </field>
     </record>

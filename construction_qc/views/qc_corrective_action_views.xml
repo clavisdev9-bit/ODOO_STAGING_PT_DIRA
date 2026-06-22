@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_qc_ca_list" model="ir.ui.view">
+        <field name="name">qc.corrective.action.list</field>
+        <field name="model">qc.corrective.action</field>
+        <field name="arch" type="xml">
+            <list string="Corrective Actions"
+                  decoration-danger="status == 'open'"
+                  decoration-warning="status == 'in_progress'"
+                  decoration-success="status in ('completed','verified')">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="inspection_id"/>
+                <field name="ncr_id"/>
+                <field name="description"/>
+                <field name="pic_id" widget="many2one_avatar_user"/>
+                <field name="target_date" decoration-danger="target_date and target_date &lt; current_date and status not in ('completed','verified')"/>
+                <field name="completion_date"/>
+                <field name="status" widget="badge"
+                       decoration-danger="status == 'open'"
+                       decoration-warning="status == 'in_progress'"
+                       decoration-success="status in ('completed','verified')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_qc_ca_form" model="ir.ui.view">
+        <field name="name">qc.corrective.action.form</field>
+        <field name="model">qc.corrective.action</field>
+        <field name="arch" type="xml">
+            <form string="Corrective Action">
+                <header>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="open,in_progress,completed,verified"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Links">
+                            <field name="inspection_id"/>
+                            <field name="ncr_id"/>
+                            <field name="project_id" readonly="1"/>
+                        </group>
+                        <group string="Responsibility">
+                            <field name="pic_id" widget="many2one_avatar_user"/>
+                            <field name="target_date"/>
+                            <field name="completion_date"/>
+                            <field name="status"/>
+                        </group>
+                    </group>
+                    <group string="What Needs To Be Fixed">
+                        <field name="description" nolabel="1" colspan="2"/>
+                    </group>
+                    <group string="Action Taken">
+                        <field name="action_taken" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_qc_ca_search" model="ir.ui.view">
+        <field name="name">qc.corrective.action.search</field>
+        <field name="model">qc.corrective.action</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="pic_id"/>
+                <filter string="Open" name="open" domain="[('status', '=', 'open')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('status', '=', 'in_progress')]"/>
+                <filter string="Overdue" name="overdue"
+                        domain="[('target_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('status', 'not in', ['completed','verified'])]"/>
+                <filter string="My CAs" name="my_ca" domain="[('pic_id', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="PIC" name="group_pic" context="{'group_by': 'pic_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_qc_corrective_action" model="ir.actions.act_window">
+        <field name="name">Corrective Actions</field>
+        <field name="res_model">qc.corrective.action</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_qc_ca_search"/>
+    </record>
+
+</odoo>

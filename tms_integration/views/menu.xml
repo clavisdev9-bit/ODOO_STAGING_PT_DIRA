@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level TMS menu (under Inventory) -->
+    <menuitem id="menu_tms_root"
+        name="TMS Integration"
+        parent="stock.menu_stock_root"
+        sequence="100"/>
+
+    <!-- TMS / Deliveries submenu -->
+    <menuitem id="menu_tms_deliveries"
+        name="Deliveries"
+        parent="menu_tms_root"
+        action="stock.action_picking_tree_all"
+        sequence="10"/>
+
+    <!-- TMS / Sync Log submenu -->
+    <menuitem id="menu_tms_sync_log"
+        name="Sync Log"
+        parent="menu_tms_root"
+        action="tms_integration.action_tms_sync_log"
+        sequence="50"/>
+
+    <!-- TMS / Fleet Configuration link -->
+    <menuitem id="menu_tms_fleet"
+        name="Fleet (TMS)"
+        parent="menu_tms_root"
+        action="fleet.fleet_vehicle_action"
+        sequence="30"/>
+
+</odoo>

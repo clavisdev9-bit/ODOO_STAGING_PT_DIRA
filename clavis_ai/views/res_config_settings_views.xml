@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="clavis_ai_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.clavis_ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Clavis AI" name="clavis_ai">
+                    <block title="AI Service Connection">
+                        <setting id="clavis_ai_enabled" string="Enable Clavis AI"
+                                 help="Activate the AI assistant in the Odoo backend.">
+                            <field name="clavis_ai_enabled"/>
+                        </setting>
+                        <setting string="AI Service URL"
+                                 help="URL of your FastAPI orchestration service (e.g. http://localhost:8000)."
+                                 invisible="not clavis_ai_enabled">
+                            <field name="clavis_ai_service_url" placeholder="http://localhost:8000"/>
+                        </setting>
+                        <setting string="API Key"
+                                 help="Shared secret sent in the X-API-Key header."
+                                 invisible="not clavis_ai_enabled">
+                            <field name="clavis_ai_api_key" password="True"/>
+                        </setting>
+                        <setting string="LLM Provider"
+                                 help="Select which LLM backend the FastAPI service will use."
+                                 invisible="not clavis_ai_enabled">
+                            <field name="clavis_ai_llm_provider"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="clavis_ai_settings_action" model="ir.actions.act_window">
+        <field name="name">Clavis AI Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'clavis_ai'}</field>
+    </record>
+
+</odoo>

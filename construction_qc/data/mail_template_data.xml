@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ── QC Submitted → Notify PM ── -->
+        <record id="mail_template_qc_submitted" model="mail.template">
+            <field name="name">QC Inspection: Submitted for Review</field>
+            <field name="model_id" ref="model_qc_inspection"/>
+            <field name="subject">🔍 QC Inspection {{ object.name }} — Awaiting Your Approval</field>
+            <field name="email_to">{{ object.pm_id.email }}</field>
+            <field name="email_from">{{ (object.spv_id.email or user.email) }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #1a6b5a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h2 style="color: white; margin: 0;">QC Inspection Submitted</h2>
+        <p style="color: #a8e6d8; margin: 5px 0 0 0;">Laporan QC telah dikirim untuk review</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; color: #666; width: 40%;">Reference</td><td style="padding: 8px 0; font-weight: bold;">{{ object.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Project</td><td style="padding: 8px 0;">{{ object.project_id.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Area</td><td style="padding: 8px 0;">{{ object.area }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Work Package</td><td style="padding: 8px 0;">{{ object.work_package }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Supervisor</td><td style="padding: 8px 0;">{{ object.spv_id.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Inspection Date</td><td style="padding: 8px 0;">{{ object.inspection_date }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Checklist Items</td><td style="padding: 8px 0;">{{ object.checklist_total }} items ({{ object.checklist_pass }} Pass / {{ object.checklist_fail }} Fail)</td></tr>
+        </table>
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/web#model=qc.inspection&amp;id={{ object.id }}" style="background: #1a6b5a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Review Inspection →
+            </a>
+        </div>
+    </div>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ── QC Approved → Notify SPV ── -->
+        <record id="mail_template_qc_approved" model="mail.template">
+            <field name="name">QC Inspection: Approved</field>
+            <field name="model_id" ref="model_qc_inspection"/>
+            <field name="subject">✅ QC Inspection {{ object.name }} — APPROVED</field>
+            <field name="email_to">{{ object.spv_id.email }}</field>
+            <field name="email_from">{{ object.pm_id.email or user.email }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #155724; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h2 style="color: white; margin: 0;">✅ QC Inspection Approved</h2>
+        <p style="color: #c3e6cb; margin: 5px 0 0 0;">Inspeksi QC telah disetujui oleh PM</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; color: #666; width: 40%;">Reference</td><td style="padding: 8px 0; font-weight: bold;">{{ object.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Project</td><td style="padding: 8px 0;">{{ object.project_id.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Work Package</td><td style="padding: 8px 0;">{{ object.work_package }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Approved By</td><td style="padding: 8px 0;">{{ object.pm_id.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Approved Qty</td><td style="padding: 8px 0;">{{ object.progress_qty }} {{ object.progress_uom.name or '' }}</td></tr>
+            {% if object.pm_note %}<tr><td style="padding: 8px 0; color: #666;">PM Notes</td><td style="padding: 8px 0;">{{ object.pm_note }}</td></tr>{% endif %}
+        </table>
+        <p style="background: #d4edda; padding: 12px; border-radius: 6px; color: #155724; margin-top: 16px;">
+            Pekerjaan ini <strong>layak ditagihkan (COP)</strong>. Silakan update progress billing sesuai quantity yang disetujui.
+        </p>
+    </div>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ── QC Rejected → Notify SPV ── -->
+        <record id="mail_template_qc_rejected" model="mail.template">
+            <field name="name">QC Inspection: Rejected</field>
+            <field name="model_id" ref="model_qc_inspection"/>
+            <field name="subject">❌ QC Inspection {{ object.name }} — REJECTED — Action Required</field>
+            <field name="email_to">{{ object.spv_id.email }}</field>
+            <field name="email_from">{{ object.pm_id.email or user.email }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background: #721c24; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h2 style="color: white; margin: 0;">❌ QC Inspection Rejected</h2>
+        <p style="color: #f5c6cb; margin: 5px 0 0 0;">Inspeksi QC ditolak — Tindakan perbaikan diperlukan</p>
+    </div>
+    <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; color: #666; width: 40%;">Reference</td><td style="padding: 8px 0; font-weight: bold;">{{ object.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Project</td><td style="padding: 8px 0;">{{ object.project_id.name }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Work Package</td><td style="padding: 8px 0;">{{ object.work_package }}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Rejected By</td><td style="padding: 8px 0;">{{ object.pm_id.name }}</td></tr>
+        </table>
+        {% if object.pm_note %}
+        <div style="background: #f8d7da; padding: 16px; border-radius: 6px; margin-top: 16px; border-left: 4px solid #f44336;">
+            <strong>Alasan Penolakan:</strong><br/>{{ object.pm_note }}
+        </div>
+        {% endif %}
+        {% if object.corrective_action_ids %}
+        <div style="background: #fff3cd; padding: 16px; border-radius: 6px; margin-top: 12px; border-left: 4px solid #ffc107;">
+            <strong>Corrective Action yang harus diselesaikan:</strong>
+            {% for ca in object.corrective_action_ids %}
+            <p style="margin: 6px 0;">• {{ ca.description }} {% if ca.target_date %}(Target: {{ ca.target_date }}){% endif %}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/web#model=qc.inspection&amp;id={{ object.id }}" style="background: #c82333; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Lihat &amp; Perbaiki →
+            </a>
+        </div>
+    </div>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

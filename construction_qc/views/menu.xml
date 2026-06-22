@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Root Menu ── -->
+    <menuitem id="menu_construction_qc_root"
+              name="Construction QC"
+              sequence="85"
+              web_icon="construction_qc,static/description/icon.png"
+              groups="construction_qc.group_qc_spv"/>
+
+    <!-- ── Dashboard ── -->
+    <menuitem id="menu_qc_dashboard"
+              name="Dashboard"
+              parent="menu_construction_qc_root"
+              action="action_qc_dashboard"
+              sequence="10"
+              groups="construction_qc.group_qc_spv"/>
+
+    <!-- ── Inspections ── -->
+    <menuitem id="menu_qc_inspections"
+              name="Inspections"
+              parent="menu_construction_qc_root"
+              sequence="20"
+              groups="construction_qc.group_qc_spv"/>
+
+    <menuitem id="menu_qc_inspection_all"
+              name="All Inspections"
+              parent="menu_qc_inspections"
+              action="action_qc_inspection_all"
+              sequence="10"
+              groups="construction_qc.group_qc_pm"/>
+
+    <menuitem id="menu_qc_inspection_mine"
+              name="My Inspections"
+              parent="menu_qc_inspections"
+              action="action_qc_inspection_mine"
+              sequence="20"
+              groups="construction_qc.group_qc_spv"/>
+
+    <menuitem id="menu_qc_inspection_pending"
+              name="Pending PM Approval"
+              parent="menu_qc_inspections"
+              action="action_qc_inspection_pending"
+              sequence="30"
+              groups="construction_qc.group_qc_pm"/>
+
+    <!-- ── NCR ── -->
+    <menuitem id="menu_qc_ncr"
+              name="NCR"
+              parent="menu_construction_qc_root"
+              action="action_qc_ncr"
+              sequence="30"
+              groups="construction_qc.group_qc_spv"/>
+
+    <!-- ── Corrective Actions ── -->
+    <menuitem id="menu_qc_ca"
+              name="Corrective Actions"
+              parent="menu_construction_qc_root"
+              action="action_qc_corrective_action"
+              sequence="40"
+              groups="construction_qc.group_qc_spv"/>
+
+    <!-- ── Reports ── -->
+    <menuitem id="menu_qc_reports"
+              name="Reports"
+              parent="menu_construction_qc_root"
+              sequence="50"
+              groups="construction_qc.group_qc_pm"/>
+
+    <menuitem id="menu_qc_report_summary"
+              name="QC Summary"
+              parent="menu_qc_reports"
+              action="action_qc_summary_report"
+              sequence="10"/>
+
+    <menuitem id="menu_qc_report_billing"
+              name="Progress vs Billing"
+              parent="menu_qc_reports"
+              action="action_qc_progress_billing_report"
+              sequence="20"/>
+
+    <!-- ── Configuration ── -->
+    <menuitem id="menu_qc_config"
+              name="Configuration"
+              parent="menu_construction_qc_root"
+              sequence="90"
+              groups="construction_qc.group_qc_admin"/>
+
+    <menuitem id="menu_qc_checklist_template"
+              name="Checklist Templates"
+              parent="menu_qc_config"
+              action="action_qc_checklist_template"
+              sequence="10"/>
+
+</odoo>

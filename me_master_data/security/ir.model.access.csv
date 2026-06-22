@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mst_brand_user,x.mst.brand user,model_x_mst_brand,base.group_user,1,0,0,0
+access_mst_brand_manager,x.mst.brand manager,model_x_mst_brand,me_master_data.group_me_master_data_manager,1,1,1,1
+access_mst_item_category_user,x.mst.item.category user,model_x_mst_item_category,base.group_user,1,0,0,0
+access_mst_item_category_manager,x.mst.item.category manager,model_x_mst_item_category,me_master_data.group_me_master_data_manager,1,1,1,1
+access_mst_sub_category_user,x.mst.sub.category user,model_x_mst_sub_category,base.group_user,1,0,0,0
+access_mst_sub_category_manager,x.mst.sub.category manager,model_x_mst_sub_category,me_master_data.group_me_master_data_manager,1,1,1,1
+access_mst_sub_cat_brand_user,x.mst.sub.cat.brand user,model_x_mst_sub_cat_brand,base.group_user,1,0,0,0
+access_mst_sub_cat_brand_manager,x.mst.sub.cat.brand manager,model_x_mst_sub_cat_brand,me_master_data.group_me_master_data_manager,1,1,1,1

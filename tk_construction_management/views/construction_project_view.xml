@@ -17,6 +17,9 @@
                         <button name="%(budget_construction_action)d" type="action"
                                 string="Create Budget" class="btn btn-primary"
                                 invisible="stage != 'Planning' or budget_id"/>
+                        <button name="action_create_budget" type="object"
+                                string="Create Analytic Budget" class="btn btn-primary"
+                                invisible="stage != 'Planning' or budget_analytic_id"/>
                         <button name="action_stage_procurement" type="object" string="Procurement"
                                 invisible="stage != 'Planning'"/>
                         <button name="action_stage_construction" type="object"
@@ -108,6 +111,8 @@
                                        invisible="not project_id"/>
                                 <field name="budget_id" readonly="1" force_save="1"
                                        invisible="not budget_id"/>
+                                <field name="budget_analytic_id" readonly="1" force_save="1"
+                                       invisible="not budget_analytic_id"/>
                             </group>
                         </group>
                         <group>

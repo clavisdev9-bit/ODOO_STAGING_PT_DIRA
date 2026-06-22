@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_budget_tree" model="ir.ui.view">
+        <field name="name">construction.budget.tree</field>
+        <field name="model">construction.budget</field>
+        <field name="arch" type="xml">
+            <list string="Job Budgets">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="analytic_account_id"/>
+                <field name="total_planned" sum="Total Planned"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_budget_form" model="ir.ui.view">
+        <field name="name">construction.budget.form</field>
+        <field name="model">construction.budget</field>
+        <field name="arch" type="xml">
+            <form string="Job Budget">
+                <header>
+                    <button name="action_populate_from_ra" string="Populate from Rate Analysis"
+                            type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Budget Info">
+                            <field name="name"/>
+                            <field name="contract_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Analytic">
+                            <field name="analytic_account_id"/>
+                            <field name="total_planned"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Budget Lines" name="lines">
+                            <field name="line_ids">
+                                <list editable="bottom" decoration-danger="amount_actual > amount_planned">
+                                    <field name="cost_type"/>
+                                    <field name="analytic_account_id"/>
+                                    <field name="amount_planned" sum="Total Planned"/>
+                                    <field name="amount_committed" readonly="1" sum="Total Committed"/>
+                                    <field name="amount_actual" readonly="1" sum="Total Actual"/>
+                                    <field name="variance" readonly="1" sum="Total Variance"/>
+                                    <field name="progress_pct" readonly="1" widget="progressbar"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_budget_search" model="ir.ui.view">
+        <field name="name">construction.budget.search</field>
+        <field name="model">construction.budget</field>
+        <field name="arch" type="xml">
+            <search string="Search Budget">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_contract" string="Contract" context="{'group_by':'contract_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_budget" model="ir.actions.act_window">
+        <field name="name">Job Budget</field>
+        <field name="res_model">construction.budget</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_budget_search"/>
+    </record>
+
+</odoo>

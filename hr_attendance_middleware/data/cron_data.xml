@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cron: Auto-Sync Pull Devices (setiap jam) -->
+    <record id="cron_hr_attendance_auto_sync" model="ir.cron">
+        <field name="name">HR-Attendance: Auto-Sync Mesin (Pull Mode)</field>
+        <field name="model_id" ref="model_hr_attendance_device"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_auto_sync_all()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">True</field>
+        <field name="priority">10</field>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+    <!-- Cron: Hapus Log Raw Lama (setiap hari) -->
+    <record id="cron_hr_attendance_cleanup_logs" model="ir.cron">
+        <field name="name">HR-Attendance: Hapus Log Raw Lama</field>
+        <field name="model_id" ref="model_hr_attendance_raw_log"/>
+        <field name="state">code</field>
+        <field name="code">
+retention = int(env['ir.config_parameter'].sudo().get_param('hr_attendance_middleware.log_retention_days', '90'))
+cutoff = fields.Datetime.now() - relativedelta(days=retention)
+old_logs = env['hr.attendance.raw.log'].search([('timestamp_utc', '&lt;=', cutoff)])
+old_logs.unlink()
+        </field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+        <field name="priority">20</field>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+</odoo>

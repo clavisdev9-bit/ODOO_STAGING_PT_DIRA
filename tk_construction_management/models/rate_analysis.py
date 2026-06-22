@@ -14,7 +14,7 @@ class RateAnalysis(models.Model):
 
     name = fields.Char(string="Title")
     site_id = fields.Many2one(
-        'tk.construction.site', string="Project", domain="[('status','=','in_progress')]")
+        'tk.construction.site', string="Project")
     project_id = fields.Many2one('tk.construction.project', string="Sub Project",
                                  domain="[('construction_site_id','=',site_id)]")
     company_id = fields.Many2one(

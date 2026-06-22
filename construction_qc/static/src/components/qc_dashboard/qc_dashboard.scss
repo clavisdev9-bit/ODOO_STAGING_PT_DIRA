@@ -1,0 +1,25 @@
+.o_qc_dashboard {
+    .qc-kpi-card {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        border-radius: 8px;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+        }
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(26, 107, 90, 0.05);
+    }
+
+    .display-5 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+}

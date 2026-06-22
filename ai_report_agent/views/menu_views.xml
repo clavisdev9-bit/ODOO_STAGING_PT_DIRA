@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_ai_report_root"
+              name="AI Reports"
+              sequence="90"
+              web_icon="ai_report_agent,static/src/img/icon.png"
+              groups="base.group_user"/>
+
+    <!-- Chat AI client action -->
+    <record id="action_ai_chat" model="ir.actions.client">
+        <field name="name">Chat AI</field>
+        <field name="tag">ai_report_agent.ai_chat_action</field>
+    </record>
+
+    <!-- Chat AI submenu (main entry point) -->
+    <menuitem id="menu_ai_chat"
+              name="Chat AI"
+              parent="menu_ai_report_root"
+              action="action_ai_chat"
+              sequence="5"
+              groups="base.group_user"/>
+
+    <!-- Generate Report submenu (wizard action) -->
+    <menuitem id="menu_ai_report_generate"
+              name="Generate Report"
+              parent="menu_ai_report_root"
+              action="action_report_preview_wizard"
+              sequence="10"
+              groups="base.group_user"/>
+
+    <!-- History submenu -->
+    <menuitem id="menu_ai_report_history"
+              name="Report History"
+              parent="menu_ai_report_root"
+              action="action_ai_report_history"
+              sequence="20"
+              groups="base.group_user"/>
+
+    <!-- Queue submenu -->
+    <menuitem id="menu_ai_report_queue"
+              name="Async Queue"
+              parent="menu_ai_report_root"
+              action="action_ai_report_queue"
+              sequence="30"
+              groups="base.group_system"/>
+
+    <!-- Configuration submenu -->
+    <menuitem id="menu_ai_report_config"
+              name="Configuration"
+              parent="menu_ai_report_root"
+              action="action_ai_report_config"
+              sequence="40"
+              groups="base.group_system"/>
+</odoo>

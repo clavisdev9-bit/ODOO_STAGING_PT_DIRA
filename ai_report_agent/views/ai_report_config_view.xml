@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_ai_report_config_form" model="ir.ui.view">
+        <field name="name">ai.report.config.form</field>
+        <field name="model">ai.report.config</field>
+        <field name="arch" type="xml">
+            <form string="AI Report Configuration">
+                <header>
+                    <button name="action_test_connection"
+                            string="Test Connection"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-plug"/>
+                    <button name="action_fetch_ollama_models"
+                            string="Refresh Models"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-refresh"
+                            invisible="llm_provider not in ('ollama', 'openai')"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="llm_provider" widget="selection"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="LLM Provider Settings">
+                            <field name="llm_provider"/>
+                            <field name="api_endpoint"
+                                   required="llm_provider in ('ollama', 'custom')"
+                                   invisible="llm_provider not in ('ollama', 'custom')"
+                                   placeholder="http://localhost:11434"/>
+                            <field name="ollama_tags_url"
+                                   readonly="1"
+                                   invisible="llm_provider != 'ollama'"
+                                   widget="url"
+                                   string="Tags URL"/>
+                            <field name="anthropic_model_preset"
+                                   invisible="llm_provider != 'anthropic'"
+                                   options="{'no_create': True}"/>
+                            <field name="openai_model_preset"
+                                   invisible="llm_provider != 'openai'"
+                                   options="{'no_create': True}"/>
+                            <field name="llm_model"
+                                   placeholder="e.g. claude-opus-4-7 / gpt-4o / qwen3:4b"
+                                   help="Gunakan dropdown di atas untuk memilih model yang tersedia, atau ketik nama model secara manual."/>
+                            <field name="api_key"
+                                   password="True"
+                                   invisible="llm_provider == 'ollama'"
+                                   placeholder="Masukkan API Key (Anthropic / OpenAI)"/>
+                        </group>
+                        <group string="Model Parameters">
+                            <field name="temperature" widget="float"/>
+                            <field name="max_tokens"/>
+                        </group>
+                    </group>
+                    <group invisible="llm_provider not in ('ollama', 'openai')">
+                        <group string="Model Tersedia">
+                            <field name="available_models"
+                                   widget="text"
+                                   nolabel="1"
+                                   readonly="1"
+                                   placeholder="Klik 'Refresh Models' untuk melihat model yang tersedia"
+                                   style="font-family: monospace; font-size: 13px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 8px; min-height: 80px;"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Report Settings">
+                            <field name="max_rows"/>
+                            <field name="async_threshold"/>
+                        </group>
+                        <group string="Behavior">
+                            <field name="enable_ai_insight"/>
+                            <field name="fallback_to_rules"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="System Prompt" name="system_prompt">
+                            <field name="system_prompt"
+                                   widget="text"
+                                   placeholder="Enter the system prompt sent to the LLM..."
+                                   style="min-height: 300px; font-family: monospace;"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_ai_report_config_list" model="ir.ui.view">
+        <field name="name">ai.report.config.list</field>
+        <field name="model">ai.report.config</field>
+        <field name="arch" type="xml">
+            <list string="AI Report Configurations">
+                <field name="llm_provider"/>
+                <field name="llm_model"/>
+                <field name="temperature"/>
+                <field name="max_rows"/>
+                <field name="async_threshold"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_ai_report_config" model="ir.actions.act_window">
+        <field name="name">AI Report Configuration</field>
+        <field name="res_model">ai.report.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure your AI Report Agent
+            </p>
+            <p>
+                Set up your LLM provider (Anthropic Claude, OpenAI, Ollama, or Custom HTTP)
+                to start generating reports from natural language.
+            </p>
+        </field>
+    </record>
+</odoo>

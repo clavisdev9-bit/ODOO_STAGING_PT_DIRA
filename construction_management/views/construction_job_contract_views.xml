@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_job_contract_tree" model="ir.ui.view">
+        <field name="name">construction.job.contract.tree</field>
+        <field name="model">construction.job.contract</field>
+        <field name="arch" type="xml">
+            <list string="Job Contracts" decoration-success="state == 'running'"
+                  decoration-info="state == 'confirmed'" decoration-muted="state in ('closed','cancelled')">
+                <field name="name"/>
+                <field name="project_name"/>
+                <field name="partner_id"/>
+                <field name="contract_type"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="contract_value" sum="Total"/>
+                <field name="boq_total" sum="BOQ Total"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'running'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-warning="state == 'closed'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_job_contract_form" model="ir.ui.view">
+        <field name="name">construction.job.contract.form</field>
+        <field name="model">construction.job.contract</field>
+        <field name="arch" type="xml">
+            <form string="Job Contract">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_set_running" string="Set Running" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_close" string="Close" type="object"
+                            invisible="state not in ('confirmed','running')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state != 'draft'"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,running,closed"/>
+                </header>
+                <sheet>
+                    <!-- Smart buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-shopping-cart"
+                                invisible="not sale_order_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Sale Order</span>
+                            </div>
+                        </button>
+                        <button name="action_view_project" type="object"
+                                class="oe_stat_button" icon="fa-tasks"
+                                invisible="not project_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Project</span>
+                            </div>
+                        </button>
+                        <button name="action_view_work_orders" type="object"
+                                class="oe_stat_button" icon="fa-wrench">
+                            <field name="work_order_count" widget="statinfo" string="Work Orders"/>
+                        </button>
+                        <button name="action_view_billings" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="billing_count" widget="statinfo" string="RA Billings"/>
+                        </button>
+                        <button name="action_view_budget" type="object"
+                                class="oe_stat_button" icon="fa-money"
+                                invisible="not budget_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Job Budget</span>
+                            </div>
+                        </button>
+                        <button name="action_view_job_costing" type="object"
+                                class="oe_stat_button" icon="fa-bar-chart"
+                                invisible="not analytic_account_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Job Costing</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="state != 'draft'"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Contract Info">
+                            <field name="project_name" readonly="state not in ('draft','confirmed')"/>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="contract_type" readonly="state != 'draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Dates &amp; Value">
+                            <field name="date_spk"/>
+                            <field name="date_start" readonly="state != 'draft'"/>
+                            <field name="duration_months"/>
+                            <field name="date_end"/>
+                            <field name="contract_value" readonly="state != 'draft'"/>
+                            <field name="retention_rate"/>
+                        </group>
+                    </group>
+
+                    <group string="Odoo Integration" invisible="not analytic_account_id">
+                        <group>
+                            <field name="analytic_account_id" readonly="1"/>
+                            <field name="sale_order_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="project_id" readonly="1"/>
+                            <field name="budget_id" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="BOQ Lines" name="boq">
+                            <field name="boq_line_ids" readonly="state not in ('draft','confirmed')">
+                                <list editable="bottom" decoration-warning="progress_physical > 0 and progress_physical &lt; 100"
+                                      decoration-success="progress_physical >= 100">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="uom_id"/>
+                                    <field name="volume_contract"/>
+                                    <field name="unit_price_contract"/>
+                                    <field name="subtotal_contract" sum="Total"/>
+                                    <field name="weight_percent"/>
+                                    <field name="progress_physical"/>
+                                    <field name="rate_analysis_id"/>
+                                    <field name="product_id" optional="hide"/>
+                                    <field name="sale_order_line_id" optional="hide" readonly="1"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="boq_total" class="oe_subtotal_footer_separator"/>
+                                <field name="billing_total"/>
+                            </group>
+                        </page>
+
+                        <page string="Work Orders" name="work_orders">
+                            <field name="work_order_ids" readonly="1">
+                                <list decoration-danger="state == 'late'"
+                                      decoration-success="state == 'done'"
+                                      decoration-info="state == 'in_progress'">
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="boq_line_id"/>
+                                    <field name="date_deadline"/>
+                                    <field name="progress"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="RA Billings" name="billings">
+                            <field name="billing_ids" readonly="1">
+                                <list decoration-success="state == 'paid'"
+                                      decoration-info="state == 'invoiced'">
+                                    <field name="name"/>
+                                    <field name="period_date"/>
+                                    <field name="amount_untaxed" sum="Total"/>
+                                    <field name="retention_amount" sum="Retention"/>
+                                    <field name="amount_net" sum="Net"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Sub-Contracting" name="subcontracts">
+                            <field name="subcontract_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="contract_value" sum="Total"/>
+                                    <field name="progress"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Contract terms and conditions..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_job_contract_search" model="ir.ui.view">
+        <field name="name">construction.job.contract.search</field>
+        <field name="model">construction.job.contract</field>
+        <field name="arch" type="xml">
+            <search string="Search Contracts">
+                <field name="name"/>
+                <field name="project_name"/>
+                <field name="partner_id"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state','=','confirmed')]"/>
+                <filter string="Running" name="running" domain="[('state','=','running')]"/>
+                <filter string="Closed" name="closed" domain="[('state','=','closed')]"/>
+                <separator/>
+                <filter string="Lump Sum" name="lump_sum" domain="[('contract_type','=','lump_sum')]"/>
+                <filter string="Unit Price" name="unit_price" domain="[('contract_type','=','unit_price')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_state" string="Status" context="{'group_by':'state'}"/>
+                    <filter name="grp_partner" string="Client" context="{'group_by':'partner_id'}"/>
+                    <filter name="grp_type" string="Contract Type" context="{'group_by':'contract_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_job_contract" model="ir.actions.act_window">
+        <field name="name">Job Contracts</field>
+        <field name="res_model">construction.job.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_job_contract_search"/>
+        <field name="context">{'search_default_running': 1}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- FORM VIEW -->
+    <record id="hr_attendance_device_view_form" model="ir.ui.view">
+        <field name="name">hr.attendance.device.form</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <form string="Mesin Absensi">
+                <header>
+                    <button name="action_activate" string="Aktifkan" type="object"
+                            class="btn-primary"
+                            invisible="state == 'active'"/>
+                    <button name="action_deactivate" string="Nonaktifkan" type="object"
+                            invisible="state == 'inactive'"/>
+                    <button name="action_test_connection" string="Test Koneksi" type="object"
+                            class="btn-secondary"
+                            invisible="protocol != 'pull'"/>
+                    <button name="action_manual_sync" string="Sync Sekarang" type="object"
+                            class="btn-success"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,error,inactive"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_raw_logs" icon="fa-list">
+                            <field name="raw_log_count" widget="statinfo" string="Log Raw"/>
+                        </button>
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_sync_history" icon="fa-history">
+                            <field name="sync_history_count" widget="statinfo" string="Riwayat Sync"/>
+                        </button>
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_sync_history" icon="fa-check-circle">
+                            <field name="total_records_synced" widget="statinfo" string="Total Sync"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nama Mesin Absensi"/>
+                        </h1>
+                        <h3>
+                            <field name="code" placeholder="Kode Unik (contoh: DEVICE-001)"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group string="Informasi Mesin">
+                            <field name="device_type"/>
+                            <field name="protocol"/>
+                            <field name="location_id"/>
+                            <field name="timezone"/>
+                        </group>
+                        <group string="Status Sinkronisasi">
+                            <field name="last_sync"/>
+                            <field name="last_sync_status" widget="badge"
+                                   decoration-success="last_sync_status == 'success'"
+                                   decoration-warning="last_sync_status == 'partial'"
+                                   decoration-danger="last_sync_status == 'error'"/>
+                            <field name="last_sync_message"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab Koneksi Pull -->
+                        <page string="Koneksi (Pull Mode)" invisible="protocol != 'pull'">
+                            <group>
+                                <group string="Jaringan">
+                                    <field name="ip_address" placeholder="192.168.1.100"/>
+                                    <field name="port"/>
+                                    <field name="timeout"/>
+                                    <field name="password" password="True"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab API Key (Push Mode) -->
+                        <page string="API Key (Push Mode)" invisible="protocol != 'push'">
+                            <group>
+                                <field name="api_key" readonly="1"/>
+                                <div colspan="2">
+                                    <button name="action_regenerate_api_key"
+                                            string="Generate Ulang API Key" type="object"
+                                            class="btn-warning btn-sm"
+                                            confirm="API Key lama akan tidak berlaku. Yakin?"/>
+                                </div>
+                                <div colspan="2" class="alert alert-info">
+                                    <strong>Cara Penggunaan:</strong><br/>
+                                    Kirim data POST ke <code>/api/attendance/push</code><br/>
+                                    Header: <code>X-Device-Code: <field name="code" readonly="1" class="oe_inline"/></code><br/>
+                                    Header: <code>X-Api-Key: [api_key di atas]</code>
+                                </div>
+                            </group>
+                        </page>
+
+                        <!-- Tab Opsi Lanjutan -->
+                        <page string="Opsi Lanjutan">
+                            <group>
+                                <group string="Perilaku Sync">
+                                    <field name="auto_create_employee"/>
+                                    <field name="ignore_duplicate"/>
+                                    <field name="min_time_diff"/>
+                                </group>
+                                <group string="Notifikasi Error">
+                                    <field name="notify_on_error"/>
+                                    <field name="notify_user_ids" widget="many2many_tags"
+                                           invisible="not notify_on_error"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- LIST VIEW -->
+    <record id="hr_attendance_device_view_list" model="ir.ui.view">
+        <field name="name">hr.attendance.device.list</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <list string="Mesin Absensi" decoration-danger="state == 'error'"
+                  decoration-muted="state == 'inactive'">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="device_type"/>
+                <field name="protocol"/>
+                <field name="ip_address" optional="show"/>
+                <field name="location_id" optional="show"/>
+                <field name="timezone" optional="show"/>
+                <field name="last_sync"/>
+                <field name="last_sync_status" widget="badge"
+                       decoration-success="last_sync_status == 'success'"
+                       decoration-warning="last_sync_status == 'partial'"
+                       decoration-danger="last_sync_status == 'error'"/>
+                <field name="total_records_synced"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-danger="state == 'error'"
+                       decoration-muted="state in ('draft', 'inactive')"/>
+                <button name="action_manual_sync" string="Sync" type="object"
+                        icon="fa-refresh" class="btn-sm"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="hr_attendance_device_view_search" model="ir.ui.view">
+        <field name="name">hr.attendance.device.search</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <search string="Cari Mesin Absensi">
+                <field name="name" string="Nama/Kode" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="location_id"/>
+                <separator/>
+                <filter name="active" string="Aktif" domain="[('state', '=', 'active')]"/>
+                <filter name="error" string="Error" domain="[('state', '=', 'error')]"/>
+                <filter name="pull" string="Mode Pull" domain="[('protocol', '=', 'pull')]"/>
+                <filter name="push" string="Mode Push" domain="[('protocol', '=', 'push')]"/>
+                <group expand="0" string="Kelompokkan">
+                    <filter name="group_type" string="Tipe Mesin" context="{'group_by': 'device_type'}"/>
+                    <filter name="group_location" string="Lokasi" context="{'group_by': 'location_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="hr_attendance_device_action" model="ir.actions.act_window">
+        <field name="name">Mesin Absensi</field>
+        <field name="res_model">hr.attendance.device</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_attendance_device_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tambahkan mesin absensi pertama Anda!
+            </p>
+            <p>
+                Daftarkan mesin absensi (ZKTeco, RFID, fingerprint, atau face recognition)
+                untuk mulai menyinkronkan data kehadiran karyawan.
+            </p>
+        </field>
+    </record>
+
+</odoo>

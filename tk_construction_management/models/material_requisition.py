@@ -77,7 +77,7 @@ class MaterialRequisition(models.Model):
         'depart_user',
         domain=lambda self: [
             ('groups_id', '=', self.env.ref(
-                'tk_construction_management.advance_construction_department').id)])
+                'tk_construction_management.advance_construction_manager').id)])
 
     # Create, Write, Unlink, Constrain
     @api.model_create_multi
@@ -487,6 +487,13 @@ class MaterialRequisition(models.Model):
 
     def validate_material_line_all(self):
         """Validate Material Lines"""
+        parent_warehouse = self.warehouse_id or self.project_id.warehouse_id
+        for rec in self.material_line_ids:
+            if not rec.is_created:
+                if not rec.warehouse_id and parent_warehouse:
+                    rec.warehouse_id = parent_warehouse
+                if not rec.operation_type:
+                    rec.operation_type = 'purchase_order'
         validate = True
         for rec in self.material_line_ids:
             if not rec.is_created and (not rec.warehouse_id or not rec.operation_type):
@@ -612,6 +619,13 @@ class MaterialRequisitionLine(models.Model):
     def validate_material_line(self):
         """Validate material Line"""
         if not self.is_created:
+            if not self.warehouse_id:
+                parent_warehouse = (self.material_req_id.warehouse_id
+                                    or self.material_req_id.project_id.warehouse_id)
+                if parent_warehouse:
+                    self.warehouse_id = parent_warehouse
+            if not self.operation_type:
+                self.operation_type = 'purchase_order'
             if not self.warehouse_id or not self.operation_type:
                 message = {
                     'type': 'ir.actions.client',
@@ -628,6 +642,7 @@ class MaterialRequisitionLine(models.Model):
                 price = self.material_id.standard_price
                 if self.material_id.last_po_price:
                     price = self.material_id.last_po_price
+                seller = self.material_id.seller_ids[:1]
                 purchase_data = {
                     'product_id': self.material_id.id,
                     'name': self.name,
@@ -636,7 +651,8 @@ class MaterialRequisitionLine(models.Model):
                     'material_req_id': self.material_req_id.id,
                     'sub_category_id': self.sub_category_id.id,
                     'job_sheet_id': self.job_sheet_id.id,
-                    'price': price
+                    'price': price,
+                    'vendor_id': seller.partner_id.id if seller else False,
                 }
                 self.env['material.purchase.line'].create(purchase_data)
             if self.operation_type == 'internal_transfer':

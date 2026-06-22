@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===== Add S-Curve smart button to project.project form view ===== -->
+    <record id="view_project_form_scurve_button" model="ir.ui.view">
+        <field name="name">project.project.form.scurve.button</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button class="oe_stat_button"
+                        type="action"
+                        name="%(project_scurve.action_scurve_dashboard)d"
+                        icon="fa-line-chart"
+                        context="{'default_project_id': active_id}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">S-Curve</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

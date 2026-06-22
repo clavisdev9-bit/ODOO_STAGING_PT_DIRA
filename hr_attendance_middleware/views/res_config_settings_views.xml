@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit_attendance_middleware" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.attendance.middleware</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='kiosk_mode_setting_container']/setting[last()]" position="after">
+
+                <block title="HR-Attendance Middleware" id="attendance_middleware_settings">
+
+                    <setting string="Aktifkan REST API"
+                             help="Aktifkan endpoint /api/attendance/push untuk menerima data push dari mesin absensi.">
+                        <field name="attendance_enable_api"/>
+                    </setting>
+
+                    <setting string="Global API Key"
+                             help="API Key global sebagai fallback. Sebaiknya gunakan API Key per device untuk keamanan lebih baik.">
+                        <div class="content-group">
+                            <field name="attendance_global_api_key"
+                                   placeholder="Kosongkan jika menggunakan API Key per device"/>
+                        </div>
+                    </setting>
+
+                    <setting string="Timezone Default Mesin"
+                             help="Timezone yang akan digunakan jika device tidak memiliki konfigurasi timezone sendiri.">
+                        <div class="content-group">
+                            <field name="attendance_default_timezone"/>
+                        </div>
+                    </setting>
+
+                    <setting string="Interval Auto-Sync (menit)"
+                             help="Interval sinkronisasi otomatis untuk device dengan protokol Pull. Default: 60 menit.">
+                        <div class="content-group">
+                            <field name="attendance_auto_sync_interval" class="oe_inline"/>
+                            <span class="o_form_label ms-1">menit</span>
+                        </div>
+                    </setting>
+
+                    <setting string="Retensi Log Raw (hari)"
+                             help="Log mentah dari mesin absensi akan otomatis dihapus setelah melewati jumlah hari ini.">
+                        <div class="content-group">
+                            <field name="attendance_log_retention_days" class="oe_inline"/>
+                            <span class="o_form_label ms-1">hari</span>
+                        </div>
+                    </setting>
+
+                </block>
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

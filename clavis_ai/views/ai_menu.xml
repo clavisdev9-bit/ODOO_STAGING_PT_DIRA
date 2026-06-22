@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Client Action (OWL Component) ─────────────────────────────────── -->
+    <record id="clavis_ai_chat_client_action" model="ir.actions.client">
+        <field name="name">Clavis AI Chat</field>
+        <field name="tag">clavis_ai.chat_client_action</field>
+    </record>
+
+    <!-- ── Main Application Menu ─────────────────────────────────────────── -->
+    <menuitem
+        id="clavis_ai_main_menu"
+        name="Clavis AI"
+        sequence="90"
+    />
+
+    <!-- ── Sub-menus ─────────────────────────────────────────────────────── -->
+    <menuitem
+        id="clavis_ai_chat_menu"
+        name="AI Chat"
+        parent="clavis_ai_main_menu"
+        action="clavis_ai_chat_client_action"
+        sequence="1"
+    />
+    <menuitem
+        id="clavis_ai_logs_menu"
+        name="Audit Logs"
+        parent="clavis_ai_main_menu"
+        action="clavis_ai_log_action"
+        sequence="2"
+    />
+
+    <!-- ── Configuration Sub-menu ────────────────────────────────────────── -->
+    <menuitem
+        id="clavis_ai_config_menu"
+        name="Configuration"
+        parent="clavis_ai_main_menu"
+        sequence="99"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="clavis_ai_settings_menu"
+        name="Settings"
+        parent="clavis_ai_config_menu"
+        action="clavis_ai_settings_action"
+        sequence="1"
+        groups="base.group_system"
+    />
+
+</odoo>

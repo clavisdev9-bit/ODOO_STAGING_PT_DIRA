@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ================================================================
+         SERVER ACTIONS
+         ================================================================ -->
+
+    <!-- Auto #1: Confirm SOS Sales Order -->
+    <record id="action_server_sos_confirm_so" model="ir.actions.server">
+        <field name="name">SOS – Auto Confirm SO</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">records.action_sos_auto_confirm()</field>
+    </record>
+
+    <!-- Auto #2: Validate Delivery Order -->
+    <record id="action_server_sos_validate_do" model="ir.actions.server">
+        <field name="name">SOS – Auto Validate DO</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">records.action_sos_auto_validate()</field>
+    </record>
+
+    <!-- Auto #3: Create & Post Invoice -->
+    <record id="action_server_sos_create_invoice" model="ir.actions.server">
+        <field name="name">SOS – Auto Create Invoice</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">records.action_sos_auto_invoice()</field>
+    </record>
+
+    <!-- ================================================================
+         AUTOMATED ACTIONS (base.automation)
+         ================================================================ -->
+
+    <!--
+        Auto #1 — Trigger: sale.order created or written where origin starts
+        with "SOS-" and state is draft.  The server action calls
+        action_sos_auto_confirm() which is idempotent.
+    -->
+    <record id="automation_sos_confirm_so" model="base.automation">
+        <field name="name">SOS Auto #1 – Confirm Sales Order</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="trigger">on_create_or_write</field>
+        <!-- Only fire when state field changes or record is created -->
+        <field name="filter_pre_domain">[('state', '=', 'draft')]</field>
+        <field name="filter_domain">
+            [('sos_order', '=', True), ('state', '=', 'draft')]
+        </field>
+        <field name="action_server_ids" eval="[(4, ref('action_server_sos_confirm_so'))]"/>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        Auto #2 — Trigger: stock.picking written, state transitions to
+        "assigned" (ready to pick).  Only outgoing pickings from SOS orders
+        are processed; the method handles the guard internally.
+    -->
+    <record id="automation_sos_validate_do" model="base.automation">
+        <field name="name">SOS Auto #2 – Validate Delivery Order</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="trigger">on_write</field>
+        <field name="filter_pre_domain">[('state', '!=', 'assigned')]</field>
+        <field name="filter_domain">
+            [('state', '=', 'assigned'), ('picking_type_code', '=', 'outgoing')]
+        </field>
+        <field name="action_server_ids" eval="[(4, ref('action_server_sos_validate_do'))]"/>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        Auto #3 — Trigger: sale.order written, invoice_status transitions to
+        "to invoice" while order is confirmed.
+    -->
+    <record id="automation_sos_create_invoice" model="base.automation">
+        <field name="name">SOS Auto #3 – Create and Post Invoice</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="trigger">on_write</field>
+        <field name="filter_pre_domain">[('invoice_status', '!=', 'to invoice')]</field>
+        <field name="filter_domain">
+            [('sos_order', '=', True), ('state', '=', 'sale'), ('invoice_status', '=', 'to invoice')]
+        </field>
+        <field name="action_server_ids" eval="[(4, ref('action_server_sos_create_invoice'))]"/>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

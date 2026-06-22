@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="seq_construction_job_contract" model="ir.sequence">
+        <field name="name">Construction Job Contract</field>
+        <field name="code">construction.job.contract</field>
+        <field name="prefix">CONT/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_construction_ra_billing" model="ir.sequence">
+        <field name="name">Construction RA Billing</field>
+        <field name="code">construction.ra.billing</field>
+        <field name="prefix">INV-PROG/%(year)s/</field>
+        <field name="padding">3</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_construction_work_order" model="ir.sequence">
+        <field name="name">Construction Work Order</field>
+        <field name="code">construction.work.order</field>
+        <field name="prefix">WO/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_construction_material_req" model="ir.sequence">
+        <field name="name">Construction Material Requisition</field>
+        <field name="code">construction.material.req</field>
+        <field name="prefix">MPR/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_construction_subcontract" model="ir.sequence">
+        <field name="name">Construction Sub-Contract</field>
+        <field name="code">construction.subcontract</field>
+        <field name="prefix">SUBCON/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_construction_scrap" model="ir.sequence">
+        <field name="name">Construction Scrap</field>
+        <field name="code">construction.scrap</field>
+        <field name="prefix">SCRAP/%(year)s/</field>
+        <field name="padding">3</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

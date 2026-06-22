@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_subcontract_tree" model="ir.ui.view">
+        <field name="name">construction.subcontract.tree</field>
+        <field name="model">construction.subcontract</field>
+        <field name="arch" type="xml">
+            <list string="Sub-Contracts" decoration-success="state == 'completed'"
+                  decoration-info="state == 'ongoing'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="partner_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="contract_value" sum="Total"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'completed'"
+                       decoration-info="state == 'ongoing'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_subcontract_form" model="ir.ui.view">
+        <field name="name">construction.subcontract.form</field>
+        <field name="model">construction.subcontract</field>
+        <field name="arch" type="xml">
+            <form string="Sub-Contract">
+                <header>
+                    <button name="action_confirm" string="Confirm &amp; Create PO" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_set_ongoing" string="Set Ongoing" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_complete" string="Complete" type="object"
+                            invisible="state != 'ongoing'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('completed','cancelled')"/>
+                    <button name="action_reset_draft" string="Reset" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <button name="action_view_po" string="View PO" type="object"
+                            invisible="not purchase_order_id"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,ongoing,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group string="Sub-Contract Info">
+                            <field name="contract_id" readonly="state != 'draft'"/>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="contract_value" readonly="state != 'draft'"/>
+                            <field name="retention_rate"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Schedule &amp; Progress">
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="purchase_order_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Scope of Work">
+                        <field name="scope_work" nolabel="1"
+                               placeholder="Describe the scope of work for this sub-contractor..."/>
+                    </group>
+                    <group string="Related BOQ Items">
+                        <field name="boq_line_ids" nolabel="1"
+                               domain="[('contract_id','=',contract_id)]"
+                               widget="many2many_tags"/>
+                    </group>
+                    <notebook>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_subcontract_search" model="ir.ui.view">
+        <field name="name">construction.subcontract.search</field>
+        <field name="model">construction.subcontract</field>
+        <field name="arch" type="xml">
+            <search string="Search Sub-Contracts">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="partner_id"/>
+                <filter string="Ongoing" name="ongoing" domain="[('state','=','ongoing')]"/>
+                <filter string="Completed" name="completed" domain="[('state','=','completed')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_contract" string="Contract" context="{'group_by':'contract_id'}"/>
+                    <filter name="grp_partner" string="Sub-Contractor" context="{'group_by':'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_subcontract" model="ir.actions.act_window">
+        <field name="name">Sub-Contracting</field>
+        <field name="res_model">construction.subcontract</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_subcontract_search"/>
+    </record>
+
+</odoo>

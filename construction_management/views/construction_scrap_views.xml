@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_scrap_tree" model="ir.ui.view">
+        <field name="name">construction.scrap.tree</field>
+        <field name="model">construction.scrap</field>
+        <field name="arch" type="xml">
+            <list string="Scrap &amp; Waste" decoration-success="state == 'done'"
+                  decoration-warning="state == 'validated'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="product_id"/>
+                <field name="qty_scrap"/>
+                <field name="uom_id"/>
+                <field name="scrap_type"/>
+                <field name="scrap_value" sum="Total Value"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'validated'"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_scrap_form" model="ir.ui.view">
+        <field name="name">construction.scrap.form</field>
+        <field name="model">construction.scrap</field>
+        <field name="arch" type="xml">
+            <form string="Scrap &amp; Waste">
+                <header>
+                    <button name="action_validate" string="Validate" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_done" string="Process Scrap" type="object"
+                            class="btn-primary" invisible="state != 'validated'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('done','cancelled')"/>
+                    <button name="action_reset_draft" string="Reset" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <button name="action_view_scrap" string="View Stock Scrap" type="object"
+                            invisible="not scrap_id"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,validated,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="state != 'draft'"/></h1>
+                    </div>
+                    <group>
+                        <group string="Scrap Info">
+                            <field name="contract_id" readonly="state != 'draft'"/>
+                            <field name="product_id" readonly="state != 'draft'"/>
+                            <field name="uom_id" readonly="state != 'draft'"/>
+                            <field name="qty_scrap" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Classification &amp; Value">
+                            <field name="scrap_type" readonly="state != 'draft'"/>
+                            <field name="scrap_value"/>
+                            <field name="from_location_id"/>
+                            <field name="scrap_location_id"/>
+                            <field name="scrap_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="desc">
+                            <field name="description" placeholder="Describe the scrap material, condition, and disposal method..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_scrap_search" model="ir.ui.view">
+        <field name="name">construction.scrap.search</field>
+        <field name="model">construction.scrap</field>
+        <field name="arch" type="xml">
+            <search string="Search Scrap">
+                <field name="name"/>
+                <field name="contract_id"/>
+                <field name="product_id"/>
+                <filter string="Saleable" name="sell" domain="[('scrap_type','=','sell')]"/>
+                <filter string="Hazardous (B3)" name="b3" domain="[('scrap_type','=','b3')]"/>
+                <filter string="Done" name="done" domain="[('state','=','done')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="grp_contract" string="Contract" context="{'group_by':'contract_id'}"/>
+                    <filter name="grp_type" string="Scrap Type" context="{'group_by':'scrap_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_scrap" model="ir.actions.act_window">
+        <field name="name">Scrap &amp; Waste</field>
+        <field name="res_model">construction.scrap</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_scrap_search"/>
+    </record>
+
+</odoo>

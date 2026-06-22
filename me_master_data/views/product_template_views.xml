@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_template_me_form" model="ir.ui.view">
+        <field name="name">product.template.me.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[1]" position="before">
+                <page string="Klasifikasi Material" name="klasifikasi_material">
+
+                    <!-- Panduan pengisian -->
+                    <div class="alert alert-info" role="status">
+                        <strong>Panduan Pengisian:</strong>
+                        Pilih berurutan &#8594;
+                        <strong>1. Kategori</strong> &#8594;
+                        <strong>2. Item Category</strong> &#8594;
+                        <strong>3. Sub Category</strong> &#8594;
+                        <strong>4. Brand</strong>.
+                        Kode item terbentuk otomatis setelah Sub Category dan Brand terisi.
+                    </div>
+
+                    <!-- Hierarki Klasifikasi -->
+                    <group string="Langkah 1 — Pilih Hierarki Klasifikasi">
+                        <group string="Klasifikasi">
+                            <field name="categ_id"
+                                   help="Pilih Kategori utama terlebih dahulu"/>
+                            <field name="x_mst_item_category"
+                                   options="{'no_create': True, 'no_open': False}"
+                                   help="Tersaring otomatis berdasarkan Kategori yang dipilih"/>
+                            <field name="x_mst_sub_category"
+                                   options="{'no_create': True, 'no_open': False}"
+                                   help="Tersaring otomatis berdasarkan Item Category yang dipilih"/>
+                            <field name="x_mst_brand"
+                                   options="{'no_create': True, 'no_open': False}"
+                                   help="Tersaring otomatis berdasarkan Sub Category yang dipilih"/>
+                        </group>
+                        <group string="Keterangan Tambahan">
+                            <field name="x_nama_tambahan"
+                                   placeholder="Opsional — contoh: 1 inch, 2.5 meter, 10 kVA"
+                                   help="Deskripsi tambahan yang membedakan item sejenis (ukuran, kapasitas, dll)"/>
+                        </group>
+                    </group>
+
+                    <!-- Kode yang dihasilkan -->
+                    <group string="Langkah 2 — Kode Item (Otomatis)" invisible="not x_kode_item">
+                        <group string="Kode Huruf">
+                            <field name="x_kode_item"
+                                   readonly="1"
+                                   help="Kode item huruf — PREFIX Category-ItemCat-SubCat-Brand-RunningNo"/>
+                        </group>
+                        <group string="Kode Numerik">
+                            <field name="default_code"
+                                   string="Internal Reference"
+                                   readonly="1"
+                                   help="Kode item numerik — NoUrut Category-ItemCat-SubCat-Brand-RunningNo"/>
+                        </group>
+                    </group>
+
+                    <!-- Placeholder saat kode belum tersedia -->
+                    <div class="alert alert-warning" role="status"
+                         invisible="x_kode_item != False">
+                        <p class="mb-0">
+                            Kode item belum terbentuk. Lengkapi <strong>Sub Category</strong> dan <strong>Brand</strong>
+                            untuk membuat kode otomatis.
+                        </p>
+                    </div>
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- List view tambahan kolom kode item -->
+    <record id="view_product_template_me_list" model="ir.ui.view">
+        <field name="name">product.template.me.list</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='default_code']" position="after">
+                <field name="x_kode_item" optional="show"/>
+                <field name="x_mst_item_category" optional="show"/>
+                <field name="x_mst_sub_category" optional="show"/>
+                <field name="x_mst_brand" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        noupdate="1"  →  records are kept registered in ir.model.data so Odoo
+        won't try to delete them, but are NOT updated when the module upgrades.
+        Real production data is imported via separate XML-RPC scripts.
+    -->
+    <data noupdate="1">
+
+        <!-- product.category — keep registered to prevent deletion -->
+        <record id="categ_material_mechanical" model="product.category">
+            <field name="name">Material Mechanical</field>
+        </record>
+
+        <record id="categ_material_electrical" model="product.category">
+            <field name="name">Material Electrical</field>
+        </record>
+
+    </data>
+</odoo>

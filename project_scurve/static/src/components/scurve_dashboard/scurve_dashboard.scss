@@ -1,0 +1,306 @@
+// S-Curve Dashboard — SCSS
+// Colors: Plan #185FA5 | Actual #0F6E56 | Forecast #BA7517
+
+.scurve-dashboard {
+    padding: 1.5rem;
+    background: var(--o-view-background-color, #f9f9f9);
+    min-height: 100vh;
+    font-family: var(--o-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.scurve-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--o-border-color, #e0e0e0);
+}
+
+.scurve-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--o-main-color-dark, #1a1a2e);
+    margin: 0;
+}
+
+// ── Loading / Empty states ───────────────────────────────────────────────────
+.scurve-loading,
+.scurve-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--o-text-muted, #888);
+
+    h4 {
+        color: var(--o-text-color, #333);
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        max-width: 480px;
+        line-height: 1.6;
+    }
+}
+
+// ── KPI Cards Row ────────────────────────────────────────────────────────────
+.scurve-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.scurve-kpi-card {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid var(--o-border-color, #e5e7eb);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+    &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+        transform: translateY(-2px);
+    }
+}
+
+.scurve-kpi-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--o-text-muted, #888);
+    margin-bottom: 0.35rem;
+}
+
+.scurve-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--o-text-color, #1a1a2e);
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+}
+
+.scurve-kpi-sub {
+    font-size: 11px;
+    color: var(--o-text-muted, #aaa);
+}
+
+// Value color helpers
+.scurve-value--success { color: #0F6E56 !important; }
+.scurve-value--warning { color: #BA7517 !important; }
+.scurve-value--danger  { color: #CC3333 !important; }
+
+// ── Phase Tabs ───────────────────────────────────────────────────────────────
+.scurve-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.scurve-tab {
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--o-border-color, #d1d5db);
+    background: transparent;
+    color: var(--o-text-muted, #666);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+        background: var(--o-hover-bg, #f0f4ff);
+        border-color: #185FA5;
+        color: #185FA5;
+    }
+
+    &.active {
+        background: rgba(24, 95, 165, 0.1);
+        border-color: #185FA5;
+        color: #185FA5;
+        font-weight: 600;
+    }
+}
+
+// ── Chart ────────────────────────────────────────────────────────────────────
+.scurve-chart-container {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid var(--o-border-color, #e5e7eb);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.scurve-legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.scurve-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--o-text-muted, #666);
+}
+
+.scurve-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+    flex-shrink: 0;
+
+    &.scurve-legend-dot--dashed {
+        border: 2px dashed #BA7517;
+        background: transparent !important;
+    }
+}
+
+.scurve-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 340px;
+
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+// ── Milestone Table ──────────────────────────────────────────────────────────
+.scurve-milestone-section {
+    margin-bottom: 1.25rem;
+}
+
+.scurve-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--o-text-color, #333);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.scurve-milestone-table {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    background: var(--o-view-background-color, #fff);
+
+    thead tr {
+        background: rgba(24, 95, 165, 0.06);
+
+        th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #185FA5;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid var(--o-border-color, #e5e7eb);
+        }
+    }
+
+    tbody tr {
+        transition: background 0.12s;
+
+        &:hover {
+            background: var(--o-hover-bg, #f8faff);
+        }
+
+        td {
+            padding: 0.55rem 0.75rem;
+            font-size: 13px;
+            border-bottom: 1px solid var(--o-border-color, #f0f0f0);
+            vertical-align: middle;
+        }
+    }
+}
+
+// ── Status Badges ────────────────────────────────────────────────────────────
+.scurve-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &.scurve-badge--ahead,
+    &.scurve-badge--on_track {
+        background: rgba(15, 110, 86, 0.12);
+        color: #0F6E56;
+    }
+
+    &.scurve-badge--late {
+        background: rgba(186, 117, 23, 0.12);
+        color: #BA7517;
+    }
+
+    &.scurve-badge--critical {
+        background: rgba(204, 51, 51, 0.12);
+        color: #CC3333;
+    }
+}
+
+// ── Info Box ─────────────────────────────────────────────────────────────────
+.scurve-info-box {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid var(--o-border-color, #e5e7eb);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.scurve-info-header {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    background: rgba(24, 95, 165, 0.04);
+    color: var(--o-text-color, #333);
+    user-select: none;
+    transition: background 0.15s;
+
+    &:hover {
+        background: rgba(24, 95, 165, 0.09);
+    }
+}
+
+.scurve-info-body {
+    padding: 1rem;
+    font-size: 12px;
+    color: var(--o-text-muted, #555);
+    line-height: 1.7;
+    border-top: 1px solid var(--o-border-color, #f0f0f0);
+
+    p { margin-bottom: 0.5rem; }
+
+    ul {
+        margin: 0.5rem 0 0 1rem;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 1rem;
+        list-style: none;
+
+        li { display: flex; align-items: center; gap: 6px; }
+    }
+}

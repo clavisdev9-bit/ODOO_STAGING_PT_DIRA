@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── List View ── -->
+    <record id="view_qc_inspection_list" model="ir.ui.view">
+        <field name="name">qc.inspection.list</field>
+        <field name="model">qc.inspection</field>
+        <field name="arch" type="xml">
+            <list string="QC Inspections" decoration-success="state == 'approved'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-warning="state == 'submitted'"
+                  decoration-muted="state == 'closed'">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="area"/>
+                <field name="work_package"/>
+                <field name="spv_id" widget="many2one_avatar_user"/>
+                <field name="pm_id" widget="many2one_avatar_user"/>
+                <field name="inspection_date"/>
+                <field name="checklist_total" string="Items"/>
+                <field name="checklist_fail" string="Fail" decoration-danger="checklist_fail > 0"/>
+                <field name="ncr_count" string="NCR"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-muted="state in ('draft', 'closed')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ── Form View ── -->
+    <record id="view_qc_inspection_form" model="ir.ui.view">
+        <field name="name">qc.inspection.form</field>
+        <field name="model">qc.inspection</field>
+        <field name="arch" type="xml">
+            <form string="QC Inspection">
+                <header>
+                    <button name="action_submit" string="Submit to PM" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object"
+                            class="btn-success"
+                            invisible="state != 'submitted'"
+                            groups="construction_qc.group_qc_pm"/>
+                    <button name="action_reject" string="Reject" type="object"
+                            class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="construction_qc.group_qc_pm"/>
+                    <button name="action_close" string="Close" type="object"
+                            invisible="state != 'approved'"/>
+                    <button name="action_revise" string="Revise &amp; Resubmit" type="object"
+                            invisible="state != 'rejected'"/>
+                    <button name="%(action_report_qc_inspection)d" string="Print Report"
+                            type="action" class="btn-secondary"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,closed"/>
+                </header>
+
+                <sheet>
+                    <!-- Smart buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_ncr" type="object" class="oe_stat_button"
+                                icon="fa-exclamation-triangle"
+                                invisible="ncr_count == 0">
+                            <field name="ncr_count" widget="statinfo" string="NCR"/>
+                        </button>
+                        <button name="action_view_ca" type="object" class="oe_stat_button"
+                                icon="fa-wrench"
+                                invisible="ca_count == 0">
+                            <field name="ca_count" widget="statinfo" string="CA"/>
+                        </button>
+                        <div class="oe_stat_button" invisible="checklist_total == 0">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="checklist_pass" class="text-success"/>
+                                    / <field name="checklist_fail" class="text-danger"/>
+                                </span>
+                                <span class="o_stat_text">Pass / Fail</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alert banners -->
+                    <div class="alert alert-danger mb-3" role="alert"
+                         invisible="state != 'rejected'">
+                        <strong>Rejected.</strong> PM Notes: <field name="pm_note" readonly="1" nolabel="1"/>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Project Info">
+                            <field name="project_id"/>
+                            <field name="task_id"/>
+                            <field name="inspection_date"/>
+                            <field name="drawing_ref"/>
+                        </group>
+                        <group string="Location">
+                            <field name="area"/>
+                            <field name="location"/>
+                            <field name="work_package"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Personnel">
+                            <field name="spv_id" widget="many2one_avatar_user"/>
+                            <field name="pm_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group string="Progress Billing" invisible="state not in ('approved', 'closed')">
+                            <field name="progress_qty"/>
+                            <field name="progress_uom"/>
+                        </group>
+                    </group>
+
+                    <!-- PM review notes (editable only by PM in submitted state) -->
+                    <group string="PM Review Notes"
+                           invisible="state not in ('submitted', 'rejected', 'approved', 'closed')"
+                           groups="construction_qc.group_qc_pm">
+                        <field name="pm_note" nolabel="1" colspan="2"
+                               readonly="state not in ('submitted',)"/>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Checklist -->
+                        <page string="Checklist QC" name="checklist">
+                            <field name="checklist_ids"
+                                   readonly="state in ('approved', 'closed')"
+                                   widget="one2many">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="item"/>
+                                    <field name="specification"/>
+                                    <field name="actual"/>
+                                    <field name="result" widget="badge"
+                                           decoration-success="result == 'pass'"
+                                           decoration-danger="result == 'fail'"
+                                           decoration-secondary="result == 'na'"/>
+                                    <field name="remark"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Photo Evidence -->
+                        <page string="Evidence / Foto" name="evidence">
+                            <field name="attachment_ids"
+                                   readonly="state in ('approved', 'closed')"
+                                   widget="one2many">
+                                <list editable="bottom">
+                                    <field name="attachment_type"/>
+                                    <field name="filename"/>
+                                    <field name="file" widget="binary" filename="filename"/>
+                                    <field name="description"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 3: NCR & CA -->
+                        <page string="NCR &amp; Corrective Action" name="ncr_ca">
+                            <field name="ncr_ids" context="{'default_inspection_id': id}">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="raised_date"/>
+                                    <field name="status" widget="badge"
+                                           decoration-danger="status == 'open'"
+                                           decoration-warning="status == 'in_progress'"
+                                           decoration-success="status == 'closed'"/>
+                                    <field name="ca_count" string="CAs"/>
+                                </list>
+                            </field>
+                            <separator string="Corrective Actions"/>
+                            <field name="corrective_action_ids"
+                                   context="{'default_inspection_id': id}">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="pic_id" widget="many2one_avatar_user"/>
+                                    <field name="target_date"/>
+                                    <field name="completion_date"/>
+                                    <field name="status" widget="badge"
+                                           decoration-danger="status == 'open'"
+                                           decoration-warning="status == 'in_progress'"
+                                           decoration-success="status in ('completed', 'verified')"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 4: Signature -->
+                        <page string="Signature" name="signature"
+                              invisible="state == 'draft'">
+                            <group>
+                                <group string="Supervisor Signature">
+                                    <field name="sign_spv" widget="image" nolabel="1"/>
+                                </group>
+                                <group string="PM Signature"
+                                       invisible="state not in ('approved', 'closed')">
+                                    <field name="sign_pm" widget="image" nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Search View ── -->
+    <record id="view_qc_inspection_search" model="ir.ui.view">
+        <field name="name">qc.inspection.search</field>
+        <field name="model">qc.inspection</field>
+        <field name="arch" type="xml">
+            <search string="Search QC Inspections">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="area"/>
+                <field name="work_package"/>
+                <field name="spv_id"/>
+                <field name="pm_id"/>
+                <separator/>
+                <filter string="My Inspections" name="my_inspections"
+                        domain="[('spv_id', '=', uid)]"/>
+                <filter string="Pending PM Approval" name="pending_approval"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter string="Rejected" name="rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+                <filter string="Approved" name="approved"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter string="This Month" name="this_month"
+                        domain="[('inspection_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Has Failed Items" name="has_fail"
+                        domain="[('has_fail', '=', True)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_project"
+                            context="{'group_by': 'project_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Supervisor" name="group_spv"
+                            context="{'group_by': 'spv_id'}"/>
+                    <filter string="Work Package" name="group_wp"
+                            context="{'group_by': 'work_package'}"/>
+                    <filter string="Month" name="group_month"
+                            context="{'group_by': 'inspection_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Actions ── -->
+    <record id="action_qc_inspection_all" model="ir.actions.act_window">
+        <field name="name">All Inspections</field>
+        <field name="res_model">qc.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_qc_inspection_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_qc_inspection_mine" model="ir.actions.act_window">
+        <field name="name">My Inspections</field>
+        <field name="res_model">qc.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_qc_inspection_search"/>
+        <field name="domain">[('spv_id', '=', uid)]</field>
+        <field name="context">{'search_default_my_inspections': 1}</field>
+    </record>
+
+    <record id="action_qc_inspection_pending" model="ir.actions.act_window">
+        <field name="name">Pending PM Approval</field>
+        <field name="res_model">qc.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_qc_inspection_search"/>
+        <field name="domain">[('state', '=', 'submitted')]</field>
+        <field name="context">{'search_default_pending_approval': 1}</field>
+    </record>
+
+</odoo>

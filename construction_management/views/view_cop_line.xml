@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_job_contract_cop_inherit" model="ir.ui.view">
+        <field name="name">construction.job.contract.cop.inherit</field>
+        <field name="model">construction.job.contract</field>
+        <field name="inherit_id" ref="construction_management.view_construction_job_contract_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='boq']" position="after">
+                <page string="COP Lines" name="cop_lines">
+                    <div class="mb-3">
+                        <button name="action_copy_boq_to_cop" type="object"
+                                string="Copy from BOQ" class="btn btn-secondary"
+                                invisible="not boq_line_ids"
+                                confirm="This will overwrite existing COP lines. Continue?"/>
+                    </div>
+                    <field name="cop_line_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="code"/>
+                            <field name="cop_name"/>
+                            <field name="uom_id"/>
+                            <field name="volume_contract" readonly="1" optional="show"/>
+                            <field name="unit_price_contract" readonly="1" optional="show"/>
+                            <field name="volume_actual"/>
+                            <field name="unit_price_actual"/>
+                            <field name="subtotal_cop" sum="Total"/>
+                            <field name="weight_percent" readonly="1"/>
+                            <field name="progress_physical"/>
+                            <field name="rate_analysis_id"/>
+                            <field name="boq_line_id" optional="hide"/>
+                            <field name="product_id" optional="hide"/>
+                            <field name="currency_id" column_invisible="True"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer">
+                        <field name="cop_total" class="oe_subtotal_footer_separator"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

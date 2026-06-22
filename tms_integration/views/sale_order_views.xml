@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sale_order_tms" model="ir.ui.view">
+        <field name="name">sale.order.form.tms</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Resend button — visible on confirmed orders not yet synced or after failure -->
+            <xpath expr="//button[@name='action_cancel']" position="before">
+                <button name="action_resend_to_tms" type="object"
+                    string="Send to TMS"
+                    class="btn-secondary"
+                    invisible="state not in ('sale', 'done') or tms_synced"/>
+            </xpath>
+
+            <!-- TMS status indicator in header -->
+            <xpath expr="//field[@name='state'][@widget='statusbar']" position="after">
+                <field name="tms_synced" invisible="1"/>
+                <field name="tms_sync_date" invisible="1"/>
+            </xpath>
+
+            <!-- TMS info group inside order tab -->
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="TMS" name="tms_info"
+                    invisible="state not in ('sale', 'done')">
+                    <group>
+                        <group string="Sync Status">
+                            <field name="tms_synced" readonly="1"/>
+                            <field name="tms_sync_date" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

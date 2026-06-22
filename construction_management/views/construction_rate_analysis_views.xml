@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_construction_rate_analysis_tree" model="ir.ui.view">
+        <field name="name">construction.rate.analysis.tree</field>
+        <field name="model">construction.rate.analysis</field>
+        <field name="arch" type="xml">
+            <list string="Rate Analysis">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="boq_line_id"/>
+                <field name="uom_id"/>
+                <field name="total_material" sum="Material"/>
+                <field name="total_labor" sum="Labor"/>
+                <field name="total_equipment" sum="Equipment"/>
+                <field name="total_unit_price" sum="Total"/>
+                <field name="total_with_overhead"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_rate_analysis_form" model="ir.ui.view">
+        <field name="name">construction.rate.analysis.form</field>
+        <field name="model">construction.rate.analysis</field>
+        <field name="arch" type="xml">
+            <form string="Rate Analysis">
+                <header>
+                    <button name="action_apply_to_boq" string="Apply to BOQ Line" type="object"
+                            class="btn-primary" invisible="not boq_line_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="General">
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="boq_line_id"/>
+                            <field name="uom_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Overhead &amp; Profit">
+                            <field name="overhead_percent"/>
+                            <field name="profit_percent"/>
+                            <field name="total_unit_price"/>
+                            <field name="total_with_overhead"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Material (M)" name="material">
+                            <field name="material_line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="uom_id"/>
+                                    <field name="coefficient" digits="[16,4]"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal" sum="Total Material"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_material" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Labor (U)" name="labor">
+                            <field name="labor_line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="uom_id"/>
+                                    <field name="coefficient" digits="[16,4]"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal" sum="Total Labor"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_labor" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Equipment (A)" name="equipment">
+                            <field name="equipment_line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="uom_id"/>
+                                    <field name="coefficient" digits="[16,4]"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal" sum="Total Equipment"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_equipment" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes / remarks..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_construction_rate_analysis_search" model="ir.ui.view">
+        <field name="name">construction.rate.analysis.search</field>
+        <field name="model">construction.rate.analysis</field>
+        <field name="arch" type="xml">
+            <search string="Search Rate Analysis">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="boq_line_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_construction_rate_analysis" model="ir.actions.act_window">
+        <field name="name">Rate Analysis</field>
+        <field name="res_model">construction.rate.analysis</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_construction_rate_analysis_search"/>
+    </record>
+
+</odoo>

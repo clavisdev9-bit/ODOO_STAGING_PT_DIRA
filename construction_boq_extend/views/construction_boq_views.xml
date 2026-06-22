@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard: Generate Sale Order -->
+    <record id="view_wizard_generate_so_form" model="ir.ui.view">
+        <field name="name">wizard.construction.generate.so.form</field>
+        <field name="model">wizard.construction.generate.so</field>
+        <field name="arch" type="xml">
+            <form string="Generate Sale Order dari BOQ">
+                <group>
+                    <group string="Informasi Proyek">
+                        <field name="site_id" readonly="1"/>
+                        <field name="partner_id" required="1"/>
+                        <field name="validity_date"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="BOQ Lines">
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="include" widget="boolean_toggle"/>
+                                <field name="name"/>
+                                <field name="product_id"/>
+                                <field name="uom_id"/>
+                                <field name="product_uom_qty"/>
+                                <field name="price_unit"/>
+                                <field name="subtotal" readonly="1"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Syarat &amp; Ketentuan">
+                        <field name="note" placeholder="Terms and conditions..."/>
+                    </page>
+                </notebook>
+                <footer>
+                    <button string="Generate Sale Order" name="action_generate" type="object" class="btn-primary"/>
+                    <button string="Batal" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard: Generate Purchase Order -->
+    <record id="view_wizard_generate_po_form" model="ir.ui.view">
+        <field name="name">wizard.construction.generate.po.form</field>
+        <field name="model">wizard.construction.generate.po</field>
+        <field name="arch" type="xml">
+            <form string="Generate Purchase Order dari BOQ">
+                <group>
+                    <group string="Informasi Proyek">
+                        <field name="site_id" readonly="1"/>
+                        <field name="partner_id" required="1"/>
+                    </group>
+                    <group string="Filter">
+                        <field name="category"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Generate Purchase Order" name="action_generate" type="object" class="btn-primary"/>
+                    <button string="Batal" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- BOQ Line Form View -->
+    <record id="view_construction_boq_line_form" model="ir.ui.view">
+        <field name="name">tk.construction.boq.line.form</field>
+        <field name="model">tk.construction.boq.line</field>
+        <field name="arch" type="xml">
+            <form string="BOQ Line">
+                <sheet>
+                    <group>
+                        <group string="Informasi Pekerjaan">
+                            <field name="site_id" readonly="1"/>
+                            <field name="category"/>
+                            <field name="name"/>
+                            <field name="product_id"/>
+                            <field name="uom_id"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Biaya Satuan">
+                            <field name="price_material"/>
+                            <field name="price_labor"/>
+                            <field name="price_equipment"/>
+                            <field name="overhead_pct"/>
+                            <field name="unit_price" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Rencana (RAB)">
+                            <field name="qty_plan"/>
+                            <field name="subtotal_plan" widget="monetary" readonly="1"/>
+                        </group>
+                        <group string="Realisasi">
+                            <field name="qty_actual"/>
+                            <field name="subtotal_actual" widget="monetary" readonly="1"/>
+                            <field name="progress" widget="percentage" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Catatan..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- BOQ Line List View -->
+    <record id="view_construction_boq_line_list" model="ir.ui.view">
+        <field name="name">tk.construction.boq.line.list</field>
+        <field name="model">tk.construction.boq.line</field>
+        <field name="arch" type="xml">
+            <list string="BOQ Lines" decoration-muted="progress &gt;= 100">
+                <field name="sequence" widget="handle"/>
+                <field name="site_id"/>
+                <field name="category"/>
+                <field name="name"/>
+                <field name="uom_id"/>
+                <field name="qty_plan"/>
+                <field name="unit_price"/>
+                <field name="subtotal_plan" widget="monetary" sum="Total RAB"/>
+                <field name="qty_actual"/>
+                <field name="subtotal_actual" widget="monetary" sum="Total Realisasi"/>
+                <field name="progress" widget="percentage"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Construction Site Form: BOQ Extend -->
+    <record id="view_construction_site_form_inherit_boq" model="ir.ui.view">
+        <field name="name">tk.construction.site.form.inherit.boq</field>
+        <field name="model">tk.construction.site</field>
+        <field name="inherit_id" ref="tk_construction_management.constriction_site_view_form"/>
+        <field name="arch" type="xml">
+            <data><!-- 1. SMARTBUTTONS: Sale Order, BOQ PO, SO Invoice -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_sale_order" type="object" class="oe_stat_button" icon="fa-file-text-o" invisible="not sale_order_id">
+                    <field name="sale_order_count" widget="statinfo" string="Sale Order"/>
+                </button>
+                <button name="action_view_boq_purchase_orders" type="object" class="oe_stat_button" icon="fa-shopping-cart" invisible="boq_purchase_order_count == 0">
+                    <field name="boq_purchase_order_count" widget="statinfo" string="BOQ PO"/>
+                </button>
+                <button name="action_view_so_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="so_invoice_count == 0">
+                    <field name="so_invoice_count" widget="statinfo" string="SO Invoice"/>
+                </button>
+            </xpath>
+
+            <!-- 2. GENERATE SALE ORDER button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_generate_sale_order" string="Generate Sale Order" type="object" class="btn-primary" invisible="sale_order_id != False"/>
+            </xpath>
+
+            <!-- 3. SUMMARY BAR: Total RAB / Realisasi / Progress -->
+            <xpath expr="//h1" position="after">
+                <div class="row mt8 mb8" invisible="not boq_line_ids">
+                    <div class="col-lg-3 col-md-6 mb4">
+                        <div class="p-2 bg-100 rounded text-center">
+                            <div class="fw-bold text-muted small">Total RAB</div>
+                            <div class="fs-5">
+                                <field name="total_rab" widget="monetary" readonly="1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb4">
+                        <div class="p-2 bg-100 rounded text-center">
+                            <div class="fw-bold text-muted small">Realisasi</div>
+                            <div class="fs-5 text-success">
+                                <field name="total_realisasi" widget="monetary" readonly="1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb4">
+                        <div class="p-2 bg-100 rounded text-center">
+                            <div class="fw-bold text-muted small">Progress</div>
+                            <div class="fs-5 text-warning">
+                                <field name="boq_progress" readonly="1"/>
+                                <span> %</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb4">
+                        <div class="p-2 bg-100 rounded text-center">
+                            <div class="fw-bold text-muted small">Contract Value</div>
+                            <div class="fs-5 text-primary">
+                                <field name="contract_value" widget="monetary" readonly="1"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <field name="currency_id" invisible="1"/>
+            </xpath>
+
+            <!-- 4+5. MODULE PROJECT: replace warehouse/company group with all 6 fields -->
+            <xpath expr="//group[group/field[@name='warehouse_id']]" position="replace">
+                <group string="Module Project">
+                    <group>
+                        <field name="warehouse_id" required="1" options="{'no_create':True}" readonly="status == 'complete'" force_save="1"/>
+                        <field name="analytic_account_id" options="{'no_quick_create': False}"/>
+                        <field name="project_manager_id"/>
+                    </group>
+                    <group>
+                        <field name="company_id" options="{'no_create':True}"/>
+                        <field name="partner_id"/>
+                        <field name="category"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- 6. BOQ LINES tab: after "Sub Projects" tab -->
+            <xpath expr="//page[@name='con_project']" position="after">
+                <page string="BOQ Lines" name="boq_lines">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button name="action_generate_sale_order" string="Generate Sale Order" type="object" class="btn btn-sm btn-outline-primary me-1" invisible="sale_order_id != False"/>
+                        <button name="action_open_generate_po_wizard" string="Generate Purchase Order" type="object" class="btn btn-sm btn-outline-secondary" invisible="not boq_line_ids"/>
+                    </div>
+                    <field name="boq_line_ids" context="{'default_site_id': id}">
+                        <list editable="bottom" decoration-muted="progress &gt;= 100">
+                            <field name="sequence" widget="handle"/>
+                            <field name="category"/>
+                            <field name="name"/>
+                            <field name="product_id" optional="hide"/>
+                            <field name="uom_id" optional="show"/>
+                            <field name="qty_plan" sum="Total Volume"/>
+                            <field name="price_material" optional="hide"/>
+                            <field name="price_labor" optional="hide"/>
+                            <field name="price_equipment" optional="hide"/>
+                            <field name="overhead_pct" optional="hide"/>
+                            <field name="unit_price"/>
+                            <field name="subtotal_plan" sum="Total RAB" widget="monetary"/>
+                            <field name="qty_actual" sum="Total Vol. Realisasi"/>
+                            <field name="subtotal_actual" sum="Total Realisasi" widget="monetary"/>
+                            <field name="progress" widget="percentage"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer">
+                        <field name="total_rab" widget="monetary" class="oe_subtotal_footer_separator" readonly="1"/>
+                        <field name="total_realisasi" widget="monetary" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- 7. COST CONTROL tab: after "Permits &amp; Approvals" tab -->
+            <xpath expr="//page[@name='document_permit']" position="after">
+                <page string="Cost Control" name="cost_control">
+                    <field name="boq_line_ids" readonly="1">
+                        <list decoration-danger="progress &gt; 100" decoration-success="progress &gt;= 100" decoration-muted="progress == 0">
+                            <field name="category"/>
+                            <field name="name"/>
+                            <field name="uom_id"/>
+                            <field name="qty_plan"/>
+                            <field name="unit_price"/>
+                            <field name="subtotal_plan" sum="Total RAB" widget="monetary"/>
+                            <field name="qty_actual"/>
+                            <field name="subtotal_actual" sum="Total Realisasi" widget="monetary"/>
+                            <field name="progress" widget="percentage"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer">
+                        <field name="total_rab" widget="monetary" class="oe_subtotal_footer_separator" readonly="1"/>
+                        <field name="total_realisasi" widget="monetary" readonly="1"/>
+                        <field name="boq_progress" string="Progress (%)" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+
+            </data>
+        </field>
+    </record>
+</odoo>

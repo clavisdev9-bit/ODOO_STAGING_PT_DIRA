@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_qc_reject_wizard_form" model="ir.ui.view">
+        <field name="name">qc.reject.wizard.form</field>
+        <field name="model">qc.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject QC Inspection">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Perhatian:</strong> Inspeksi akan dikembalikan ke SPV dengan status <b>Rejected</b>.
+                        Notifikasi email akan dikirim otomatis.
+                    </div>
+                    <group>
+                        <field name="inspection_id" readonly="1"/>
+                    </group>
+                    <group string="Alasan Penolakan">
+                        <field name="rejection_reason" nolabel="1" colspan="2"
+                               placeholder="Jelaskan temuan / ketidaksesuaian yang harus diperbaiki..."/>
+                    </group>
+                    <group string="Corrective Action">
+                        <field name="create_ca"/>
+                        <field name="ca_description" invisible="not create_ca"
+                               placeholder="Apa yang harus diperbaiki oleh SPV?"/>
+                        <field name="ca_target_date" invisible="not create_ca"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Reject"
+                            type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

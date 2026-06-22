@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_boq_document" model="ir.ui.view">
+        <field name="name">report_boq_document</field>
+        <field name="type">qweb</field>
+        <field name="arch" type="xml">
+            <t t-name="construction_boq_extend.report_boq_document">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2>Bill of Quantities (RAB)</h2>
+                            <h3 t-field="doc.name"/>
+                            <p>
+                                Owner: <strong t-field="doc.partner_id.name"/>
+                                <t t-if="doc.start_date">
+                                    | Mulai: <span t-field="doc.start_date"/>
+                                </t>
+                                <t t-if="doc.end_date">
+                                    | Selesai: <span t-field="doc.end_date"/>
+                                </t>
+                            </p>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Divisi</th>
+                                        <th>Uraian Pekerjaan</th>
+                                        <th>Sat</th>
+                                        <th class="text-end">Volume</th>
+                                        <th class="text-end">Harga Satuan</th>
+                                        <th class="text-end">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.boq_line_ids" t-as="line">
+                                        <tr>
+                                            <td><t t-esc="line_index + 1"/></td>
+                                            <td><t t-esc="line.category"/></td>
+                                            <td><t t-field="line.name"/></td>
+                                            <td><t t-field="line.uom_id"/></td>
+                                            <td class="text-end"><t t-field="line.qty_plan"/></td>
+                                            <td class="text-end"><t t-field="line.unit_price" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                            <td class="text-end"><t t-field="line.subtotal_plan" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6" class="text-end fw-bold">Total RAB</td>
+                                        <td class="text-end fw-bold">
+                                            <t t-field="doc.total_rab" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

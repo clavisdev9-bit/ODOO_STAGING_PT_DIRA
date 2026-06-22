@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root menu under Inventory > Configuration -->
+    <menuitem
+        id="menu_me_master_data_root"
+        name="ME Master Data"
+        parent="stock.menu_stock_config_settings"
+        sequence="100"/>
+
+    <menuitem
+        id="menu_mst_brand"
+        name="Master Brand"
+        parent="menu_me_master_data_root"
+        action="action_mst_brand"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_mst_item_category"
+        name="Item Category"
+        parent="menu_me_master_data_root"
+        action="action_mst_item_category"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_mst_sub_category"
+        name="Sub Category"
+        parent="menu_me_master_data_root"
+        action="action_mst_sub_category"
+        sequence="30"/>
+</odoo>

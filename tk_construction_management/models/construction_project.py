@@ -5,7 +5,7 @@ import base64
 from io import BytesIO
 import xlwt
 from odoo import fields, api, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 def is_float(str_vals):
@@ -68,6 +68,9 @@ class ConstructionProject(models.Model):
 
     # Budget
     budget_id = fields.Many2one('sub.project.budget')
+    # Standard Odoo analytic budget (account_budget module), used for PO budget control
+    budget_analytic_id = fields.Many2one(
+        'budget.analytic', string='Analytic Budget', copy=False, tracking=True)
 
     # One2Many
     document_ids = fields.One2many(
@@ -216,6 +219,55 @@ class ConstructionProject(models.Model):
             }
         raise ValidationError(
             _("! Enter Proper Longitude and Latitude Values"))
+
+    def action_create_budget(self):
+        self.ensure_one()
+
+        # Step 1 — Prerequisites
+        if not self.construction_site_id:
+            raise UserError(_("Please set the Construction Site before creating a budget."))
+        if not self.start_date or not self.end_date:
+            raise UserError(_("Please set Start Date and End Date before creating a budget."))
+
+        # Budget name derived from the construction project title
+        budget_name = self.name or self.construction_site_id.name
+
+        # Duplicate guard: prevent two budget.analytic records with the same name
+        existing = self.env['budget.analytic'].search([('name', '=', budget_name)], limit=1)
+        if existing:
+            raise UserError(_("A budget named '%s' already exists.") % budget_name)
+
+        # Step 2 — Create budget.analytic header
+        # Required fields: name, date_from, date_to (state='draft', budget_type='expense' by default)
+        budget = self.env['budget.analytic'].create({
+            'name': budget_name,
+            'date_from': self.start_date,
+            'date_to': self.end_date,
+            'company_id': self.env.company.id,
+            'user_id': self.env.user.id,
+        })
+
+        # Step 3 — Create an initial budget.line tied to the header
+        # budget_analytic_id is the only required field; budget_amount defaults to 0
+        # Note: analytic account (plan field) is intentionally left unset here because
+        # tk.construction.site is not an account.analytic.account record.
+        # Set it manually on the budget form after creation if needed.
+        self.env['budget.line'].create({
+            'budget_analytic_id': budget.id,
+            'budget_amount': 0.0,
+        })
+
+        # Step 4 — Link budget back so the button auto-hides
+        self.budget_analytic_id = budget.id
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Analytic Budget'),
+            'res_model': 'budget.analytic',
+            'res_id': budget.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def action_view_job_sheet(self):
         """View job sheet"""
@@ -620,6 +672,10 @@ class ConstructionProject(models.Model):
             "border: bottom hair,"
             "bottom_color sea_green;")
         horiz_double_line = xlwt.easyxf("border: top double, top_color gray50")
+        import re as _re
+        # xlwt checks duplicates case-insensitively; mirror that here and
+        # seed the set with any sheets the caller already added to the workbook.
+        _used_sheet_names = set(workbook._Workbook__worksheet_idx_from_name.keys())
         for data in self.budget_id.budget_line_ids:
             budget_phase_ids = self.env['job.costing'].search(
                 [('project_id', '=', self.id), ('activity_id', '=', data.job_type_id.id)]).mapped(
@@ -634,7 +690,14 @@ class ConstructionProject(models.Model):
             overhead_spent_rec = self.env['order.overhead.line'].search(domain)
             sheet_name = data.job_type_id.name + \
                          "(" + data.sub_category_id.name + ")"
-            sheet = workbook.add_sheet(sheet_name, cell_overwrite_ok=True)
+            _sanitized = _re.sub(r'[\[\]:*?/\\]', '', sheet_name)[:31]
+            _counter = 1
+            while _sanitized.lower() in _used_sheet_names:
+                _suffix = " (%d)" % _counter
+                _sanitized = (_re.sub(r'[\[\]:*?/\\]', '', sheet_name)[:31 - len(_suffix)] + _suffix)
+                _counter += 1
+            _used_sheet_names.add(_sanitized.lower())
+            sheet = workbook.add_sheet(_sanitized, cell_overwrite_ok=True)
             sheet.show_grid = False
             row = 0
             sheet.row(4).height = 400

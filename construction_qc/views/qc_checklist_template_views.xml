@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_qc_checklist_template_list" model="ir.ui.view">
+        <field name="name">qc.checklist.template.list</field>
+        <field name="model">qc.checklist.template</field>
+        <field name="arch" type="xml">
+            <list string="Checklist Templates">
+                <field name="name"/>
+                <field name="work_package_type"/>
+                <field name="line_count" string="Items"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_qc_checklist_template_form" model="ir.ui.view">
+        <field name="name">qc.checklist.template.form</field>
+        <field name="model">qc.checklist.template</field>
+        <field name="arch" type="xml">
+            <form string="Checklist Template">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Template Name"/>
+                        <h1><field name="name" placeholder="e.g. Cable Tray Standard Check"/></h1>
+                    </div>
+                    <group>
+                        <field name="work_package_type"
+                               placeholder="e.g. Cable Tray Installation (keyword match)"/>
+                        <field name="active"/>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="item"/>
+                            <field name="specification"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_qc_checklist_template" model="ir.actions.act_window">
+        <field name="name">Checklist Templates</field>
+        <field name="res_model">qc.checklist.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

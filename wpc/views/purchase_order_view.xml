@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="after">
-                <div role="alert" class="alert alert-danger" style="height:40px, width:30px, margin-bottom:1px;" invisible="warning == '' or state != 'draft'">
+                <div class="alert alert-warning" style="height:40px, width:30px, margin-bottom:1px;" invisible="warning == '' or state != 'draft'">
                     <field name="warning"/>
                 </div>
             </xpath>
