@@ -1,9 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_attendance_device_admin,hr.attendance.device.admin,model_hr_attendance_device,group_attendance_middleware_admin,1,1,1,1
-access_attendance_device_user,hr.attendance.device.user,model_hr_attendance_device,group_attendance_middleware_user,1,0,0,0
-access_attendance_raw_log_admin,hr.attendance.raw.log.admin,model_hr_attendance_raw_log,group_attendance_middleware_admin,1,1,1,1
-access_attendance_raw_log_user,hr.attendance.raw.log.user,model_hr_attendance_raw_log,group_attendance_middleware_user,1,0,0,0
-access_attendance_sync_history_admin,hr.attendance.sync.history.admin,model_hr_attendance_sync_history,group_attendance_middleware_admin,1,1,1,1
-access_attendance_sync_history_user,hr.attendance.sync.history.user,model_hr_attendance_sync_history,group_attendance_middleware_user,1,0,0,0
-access_attendance_sync_wizard_admin,hr.attendance.sync.wizard.admin,model_hr_attendance_sync_wizard,group_attendance_middleware_admin,1,1,1,1
-access_attendance_sync_wizard_user,hr.attendance.sync.wizard.user,model_hr_attendance_sync_wizard,group_attendance_middleware_user,1,1,1,1

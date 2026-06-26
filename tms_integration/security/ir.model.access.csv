@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_tms_sync_log_user,tms.sync.log user,model_tms_sync_log,base.group_user,1,0,0,0
-access_tms_sync_log_manager,tms.sync.log manager,model_tms_sync_log,stock.group_stock_manager,1,1,1,1
-access_tms_send_wizard_user,tms.send.to.tms.wizard user,model_tms_send_to_tms_wizard,base.group_user,1,1,1,1
