@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_event_order_list" model="ir.ui.view">
+        <field name="name">event.order.list - view</field>
+        <field name="model">event.order</field>
+        <field name="arch" type="xml">
+            <list string="Event Order">
+                <field name="name" string="Transaction Code"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="cashier_id"/>
+                <field name="date_paid"/>
+                <field name="total_amount"/>
+                <field name="state" string="Status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_event_order_form" model="ir.ui.view">
+        <field name="name">event.order.form - view</field>
+        <field name="model">event.order</field>
+        <field name="arch" type="xml">
+            <form string="Event Order">
+                <header>
+                    <button name="action_checkout" type="object" string="Checkout" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_set_to_draft" type="object" string="Draft" class="btn-danger" invisible="state not in ['confirmed', 'paid']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <div class="oe_title">
+                                <label for="name" class="oe_edit_only"/>
+                                <h1>
+                                    <field name="name" nolabel="1"/>
+                                </h1>
+                            </div>
+                            <field name="partner_id" string="Customer"/>
+                            <field name="payment_method"/>
+                        </group>
+                        <group>
+                            <field name="cashier_id"/>
+                            <field name="date_paid"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Orders">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id" string="Products"/>
+                                    <field name="tenant_id" string="Tenant"/>
+                                    <field name="qty" string="Qty"/>
+                                    <field name="price_unit" string="Unit Price"/>
+                                    <field name="subtotal" string="Subtotal"/>
+                                </list>
+                            </field>
+                            <group>
+                                <group class="oe_subtotal_footer oe_right"
+                                       style="text-align: right">
+                                    <field name="total_amount" string="Total"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_event_order" model="ir.actions.act_window">
+        <field name="name">Event Order</field>
+        <field name="res_model">event.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                Please create a record
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_event_order_root"
+              name="Event Order"/>
+    <menuitem id="menu_event_order"
+              name="Event Ordes"
+              action="action_event_order"
+              parent="menu_event_order_root"
+              sequence="10"/>
+    <menuitem id="menu_event_order_product"
+              name="Products"
+              action="stock.stock_product_normal_action"
+              parent="menu_event_order_root"
+              sequence="30"/>
+</odoo>
